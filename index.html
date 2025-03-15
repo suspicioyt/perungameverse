@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perun Studios</title>
+    <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" id="themeStylesheet" href="style/theme/dark.css">
+    <link rel="stylesheet" href="style/color.css">
+    <link rel="stylesheet" href="style/responsibility.css">
+    <link rel="stylesheet" href="style/animations.css">
+    <link rel="stylesheet" href="style/todo.css">
+    <link rel="stylesheet" href="style/chat.css">
+    <link rel="stylesheet" href="effects/like.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="img/perun2.png">
+</head>
+<body>
+    <header class="sticky">
+        <div class="progress-container">
+            <div class="progress-bar" id="myBar"></div>
+        </div>  
+        <div id="sidenavOpenButton">
+            <i class="fas fa-bars" style="font-size: 30px;"></i>
+        </div>
+        <div id="headertytul">
+            <h1>PERUN STUDIOS GAMEVERSE</h1>
+            <h3>Najlepsze gry na wyciągnięcie ręki</h3>
+        </div>
+        <div id="user-info-container" class="user-info">
+            <div id="playerName">?</div>
+            <div id="playerPLN">?</div>
+            <i class="fas fa-user" style="font-size: 30px;"></i>
+            <div id="user-dropdown" class="dropdown">
+              <ul>
+                <li><button id="achievementModalBtn" onclick="modalOpen('achievementModal')">Osiągnięcia</button></li>
+                <li><button id="settingsModalBtn" onclick="modalOpen('settingsModal')">Ustawienia</button></li>
+                <li><button id="customizationModalBtn" onclick="modalOpen('customizationModal')">Dostosowanie</button></li>
+              </ul>
+            </div>
+        </div>
+    </header>
+    <div class="parallax"></div>
+    <div id="parallaxEnd"></div>
+    <main>
+        <div id="sidenav">
+            <a onclick="modalOpen('updateModal')" class="sidenavButton" title="Dziennik Zmian"><i class="fas fa-clipboard-list"></i></a>
+            <a onclick="modalOpen('chatModal')" class="sidenavButton" title="Chat"><i class="fas fa-comments"></i></a>
+            <a id="perunAIbuttonOpen" class="sidenavButton" title="Perun AI"><i class="fas fa-robot"></i></a>
+            <a href="https://forms.gle/ZzyGN1X4Uo3g1GSd6" target="_blank" class="sidenavButton" title="Feedback"><i class="fas fa-comment-dots"></i></a>
+            <a onclick="topFunction()" title="Idź do góry"><i class="fa fa-arrow-up"></i></a>
+          </div>
+        <div id="mainwindow">
+            <h1>Witaj, <span id="usernameDisplay"></span>! Wybierz grę:</h1>
+            <div class="search-filters-container borderColorChange">
+                <input type="text" id="searchInput" placeholder="Szukaj">
+                <div class="filterdropdown">
+                    <button class="filterdropbtn">FILTRY</button>
+                    <div id="dropdownFiltres" class="dropdownFiltres-content">
+                        <button onclick="filterSelection('all'); changeClass(this)">Wszystkie</button>
+                        <button onclick="filterSelection('hot'); changeClass(this)">HOT</button>
+                        <button onclick="filterSelection('event'); changeClass(this)">EVENT</button>
+                        <button onclick="filterSelection('nowosc'); changeClass(this)">Nowości</button>
+                        <button onclick="filterSelection('ukonczona'); changeClass(this)">Ukończone</button>
+                        <button onclick="filterSelection('konserwacje'); changeClass(this)">Konserwacje</button>
+                        <button onclick="filterSelection('beta'); changeClass(this)">Beta</button>
+                        <button onclick="filterSelection('testy'); changeClass(this)">Testy</button>
+                    </div>
+                </div>
+            </div>
+            <div id="lastPlayedGames"></div>
+            <div class="game-container borderColorChange" max="12">
+                <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
+            </div>
+            <div class="slideshow-container borderColorChange">
+                <div class="slides">
+                    <h1>Plebiscyt!</h1>
+                    <div class="slide" id="plebiscytSlideshow">
+                        Zakończono głosowanie, oto wyniki:
+                        <img src="img/plebiscyt.png" alt="jak nie wyświetla to niżej masz wyniki">
+                        1. BitCoin Miner - 50%<br>
+                        2. Snake - 25%<br>
+                        Rizz Party Tycoon - 25%<br><br>
+                        Gra BitCoin Miner zostanie nową HOT grą na następny kwartał (może krócej).
+                        Zagraj w nią już teraz: <a href="game/bitcoinminer.html" class="game-short-link" target="_blank">🎮</a>
+                    </div>  
+                </div>
+                <div class="slides">
+                    <h1>Najnowszy update!</h1>
+                    <div class="slide" id="updateSlideshow"></div>
+                </div>
+                <div class="slides">
+                    <h1>Gry HOT!</h1>
+                    <div class="slide" id="hotSlideshow"></div>
+                </div>
+                <div class="slides">
+                    <h1>Gry EVENTOWE!</h1>
+                    <div class="slide" id="eventSlideshow"></div>
+                </div>
+                <div class="slides">
+                    <h1>BLOG Developerów!</h1>
+                    <div class="slide" id="blogSlideshow">
+                        <h3 class="blog">Zobacz jak wygląda HUB bez żadnych podpiętych skryptów - <a href="pusty/skrypt.html" class="game-short-link" target="_blank">👀</a></h3>
+                        <h3 class="blog">Zobacz jak wygląda HUB bez CSS odpowiedzialnego za kolory - <a href="pusty/kolory.html" class="game-short-link" target="_blank">👀</a></h3>
+                        <h3 class="blog">Zobacz jak wygląda HUB bez CSS odpowiedzialnego za budowę - <a href="pusty/budowa.html" class="game-short-link" target="_blank">👀</a></h3>
+                    </div>
+                </div>
+                <button class="prev">&#10094;</button>
+                <button class="next">&#10095;</button>
+                <div class="dots-container">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+            <div class="game-container borderColorChange" max="13">
+                <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
+            </div>
+            <div id="perunAI">
+                <input type="checkbox" id="toggle" class="toggle" />
+                <label for="toggle" class="dynamic-bar">
+                  <div id="aiBaner">Perun AI (beta)</div>
+                  <div class="aiContainer">
+                    <div class="chat-box" id="chatBox"></div>
+                    <input type="text" id="userAiInput" placeholder="Zadaj pytanie..." />
+                    <button onclick="getAIResponse()">Wyślij</button>
+                    <div id="loading" class="spinner"></div>
+                </div>
+                </label>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p id="footerText">© 2025 Perun Studios & ChatGPT & Grok. Wszelkie prawa zastrzeżone. Wersja 1.0.0</p>
+    </footer>
+
+
+
+
+
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <div id="tabsContainer" class="tab scrollable">
+                <button class="tablinks" style="width: 100%;padding: 12px;" onclick="openTab(event, 'updt')">📆 Aktualizacje</button>
+            </div>
+            <div id="tabContentsContainer">
+                <div style="text-align: center;" id="updt" class="tabcontent scrollable" style="display: block;">
+                    <table>
+                        <thead>
+                            <tr>
+                            <th class="tg-0pky">Poniedziałek</th>
+                            <th class="tg-0pky">Wtorek</th>
+                            <th class="tg-0pky">Środa</th>
+                            <th class="tg-0pky">Czwartek</th>
+                            <th class="tg-0pky">Piątek</th>
+                            <th class="tg-0pky">Sobota</th>
+                            <th class="tg-0pky">Niedziela</th>
+                            </tr></thead>
+                        <tbody>
+                        <tr>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">18:00</td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">18:00</td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">18:00</td>
+                        </tr>
+                        <tr>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax rainbowText">RGB Update</td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">Community Update</td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">??? Update</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                    <b style="color: black;" id="demo"></b>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="welcomeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="firework"></div>
+            <div class="firework"></div>
+            <div class="firework"></div>
+            <h2>Witaj na PERUN STUDIOS HUB!</h2>
+            <p>Cieszymy się, że do nas dołączyłeś! Teraz możesz wybrać dowolną grę, jaką tylko chcesz. <br><b>Miłej zabawy!</b> <br>Ale najpierw wpisz swoją nazwę użytkownika.</p>
+            <form id="usernameForm">
+                <input type="text" style="display: block;" id="usernameInput" placeholder="Twoja nazwa" required>
+                <button id="saveUsernameBtn">Zapisz nazwę</button>
+                <p id="errorMessage">Proszę wpisać nazwę użytkownika.</p>
+              </form>
+        </div>
+    </div>
+    <div id="achievementModal" class="modal">
+        <div class="modal-content" id="achievementModalContent">
+            <button class="refreshButton"><i class="fas fa-redo" onclick="reloadAchievements()"></i></button>
+        </div>
+    </div>
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <input type="text" name="nameInput" id="nameSettingsInput">
+        </div>
+    </div>
+    <div id="chatModal" class="modal">
+        <div class="modal-content">
+            <div id="chat-container">
+                <div id="chat-window">
+                    <ul id="chatMessages">
+                        <div id="ChatLoading" class="spinner" style="display: block;"></div>
+                    </ul>
+                </div>
+                <div id="input-container">
+                    <button class="emoji-btn" onclick="toggleEmojiPicker()">😊</button>
+                    <input id="chatMessage" type="text" placeholder="Napisz wiadomość..." />
+                    <button onclick="sendChatMessage()">Wyślij</button>
+                </div>
+                <div id="emojiPicker" class="emoji-picker">
+                    <span onclick="addEmoji('😊')">😊</span>
+                    <span onclick="addEmoji('😂')">😂</span>
+                    <span onclick="addEmoji('❤️')">❤️</span>
+                    <span onclick="addEmoji('👍')">👍</span>
+                    <span onclick="addEmoji('😢')">😢</span>
+                    <span onclick="addEmoji('🔥')">🔥</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="customizationModal" class="modal">
+        <div class="modal-content">
+            <p>Wybierz motyw</p>
+            <select name="theme" id="themeSelect">
+                <option value="dark">Ciemny</option>
+                <option value="gray">Szary</option>
+                <option value="light">Jasny</option>
+            </select>
+        </div>
+    </div>
+    <div class="loader-container">
+        <h1 class="loader-child">Perun Studios</h1>
+        <div class="loader loader-child"></div>
+    </div>
+    <script src="script/script.js"></script>
+    <script src="script/achievement.js"></script>
+    <script src="script/games.js"></script>
+    <script src="script/changes.js"></script>
+    <script src="script/script2.js"></script>
+    <script src="script/chat.js"></script>
+</body>
+</html>

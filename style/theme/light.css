@@ -1,0 +1,18 @@
+:root {
+    --button-color: #001eff;
+    --button-active-color: rgb(9, 0, 66);
+    --button-hover-color: #3e50a8;
+    --highlight-bg-color: rgba(30, 33, 180, 0.2);
+    --shadow-color: rgba(13, 0, 255, 0.177);
+    --sticky-header-background-color:rgba(204, 204, 204, 0.95);
+    --text-color:#000000;
+    --secondary-text-color:#ffffff;
+    --tertiary-text-color: #747474;
+    --border-color:#001d67;
+    --primary-background-color:#dcdcdc;
+    --secondary-background-color:#a5a5a5;
+    --tertiary-background-color:rgba(212, 212, 212, 0.7);
+    --quaternary-background-color:rgb(184, 184, 184);
+    --background-image: url('https://www.openprint.pl/blog/image/cmyk_rgb_blog_gl.jpg');
+    --parallax-image: url('../../img/perun4.png');
+}

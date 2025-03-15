@@ -1,0 +1,27 @@
+/* style.css */
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(90deg, #1e3c72, #2a5298);
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 28px;
+    margin-top: 20px;
+}
+
+p {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+canvas {
+    background: black;
+    display: block;
+    margin: auto;
+    border: 2px solid white;
+    border-radius: 10px;
+}

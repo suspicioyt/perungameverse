@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rizz Party Tycoon - Perun Studios</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="../img/perun2.png">
+</head>
+<body>
+    <header>
+        <h1>Rizz Party Tycoon</h1>
+    </header>
+    <main>
+        <section id="stats">
+            <div>💎 Rizz: <span id="rizz">0</span></div>
+            <div>🎉 Goście: <span id="guests">0</span></div>
+            <div>💰 Pieniądze: <span id="money">100</span></div>
+        </section>
+        <section id="actions">
+            <button onclick="throwParty()">🎊 Zorganizuj Imprezę (koszt: 20 monet)</button>
+            <button onclick="buyUpgrade()">⚡ Kup Ulepszenie (koszt: 50 monet)</button>
+            <button onclick="advertise()">📢 Reklama (koszt: 30 monet)</button>
+            <button onclick="upgradeParty()">🔧 Ulepsz Imprezę (koszt: <span id="upgradeCost">100</span> monet)</button>
+            <button onclick="upgradeEntryFee()">💰 Zwiększ opłatę za wstęp (koszt: 50 monet)</button>
+            <button onclick="signSponsor()">✍️ Podpisz sponsora</button>
+        </section>
+        <section id="log">
+            <h2>Log Wydarzeń</h2>
+            <div id="logEntries"></div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ulepszona Gra w Piłkę</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; background-color: #f4f4f4; }
+    canvas { background-color: #eee; border: 1px solid black; display: block; margin: 0 auto; }
+    h1, p { margin: 20px 0; }
+    .info { display: inline-block; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Gra w Piłkę</h1>
+  <canvas id="gameCanvas" width="500" height="300"></canvas>
+  <div class="info">Punkty: <span id="score">0</span></div>
+  <div class="info">Poziom trudności: <span id="difficulty">1</span></div>
+  <div class="info">Życia: <span id="lives">3</span></div>
+  <div class="info">Czas: <span id="time">60</span> sek</div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let ballRadius = 10;
+    let x = canvas.width / 2;
+    let y = canvas.height - 30;
+    let dx = 2;
+    let dy = -2;
+    let speed = 1; // Prędkość piłki
+
+    let paddleHeight = 10;
+    let paddleWidth = 75;
+    let paddleX = (canvas.width - paddleWidth) / 2;
+
+    let rightPressed = false;
+    let leftPressed = false;
+
+    let score = 0;
+    let level = 1;
+    let lives = 3;
+    let obstacles = [];
+    let movingObstacles = [];
+    let bonusItems = [];
+
+    let gameTime = 60;
+    let gameInterval;
+
+    // Funkcja do tworzenia przeszkód
+    function createObstacles() {
+      obstacles = [];
+      for (let i = 0; i < 5 + level; i++) {
+        let xPos = Math.random() * (canvas.width - 50);
+        let yPos = Math.random() * (canvas.height / 2);
+        let width = Math.random() * 50 + 30;
+        let height = Math.random() * 10 + 10;
+        obstacles.push({ x: xPos, y: yPos, width: width, height: height });
+      }
+    }
+
+    // Funkcja do tworzenia ruchomych przeszkód
+    function createMovingObstacles() {
+      movingObstacles = [];
+      for (let i = 0; i < level; i++) {
+        let xPos = Math.random() * (canvas.width - 50);
+        let yPos = Math.random() * (canvas.height / 2);
+        let width = Math.random() * 50 + 30;
+        let height = Math.random() * 10 + 10;
+        let dxMove = Math.random() > 0.5 ? 2 : -2;
+        movingObstacles.push({ x: xPos, y: yPos, width: width, height: height, dx: dxMove });
+      }
+    }
+
+    // Funkcja do tworzenia bonusów
+    function createBonus() {
+      bonusItems = [];
+      if (Math.random() < 0.1) { // 10% szansy na bonus
+        let bonusType = Math.random() < 0.5 ? 'speed' : 'extraLife';
+        let xPos = Math.random() * (canvas.width - 30);
+        let yPos = Math.random() * (canvas.height / 2);
+        bonusItems.push({ x: xPos, y: yPos, type: bonusType });
+      }
+    }
+
+    // Funkcja do obsługi bonusów
+    function handleBonusCollision() {
+      for (let i = 0; i < bonusItems.length; i++) {
+        let bonus = bonusItems[i];
+        if (x + ballRadius > bonus.x && x - ballRadius < bonus.x + 30 &&
+            y + ballRadius > bonus.y && y - ballRadius < bonus.y + 30) {
+          if (bonus.type === 'speed') {
+            speed *= 1.5; // Zwiększenie prędkości piłki
+          } else if (bonus.type === 'extraLife') {
+            lives++;
+            document.getElementById("lives").textContent = lives;
+          }
+          bonusItems.splice(i, 1); // Usuwamy bonus po zebraniu
+        }
+      }
+    }
+
+    // Funkcja rysująca piłkę
+    function drawBall() {
+      ctx.beginPath();
+      ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    // Funkcja rysująca paletkę
+    function drawPaddle() {
+      ctx.beginPath();
+      ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    // Funkcja rysująca przeszkody
+    function drawObstacles() {
+      for (let i = 0; i < obstacles.length; i++) {
+        let obs = obstacles[i];
+        ctx.beginPath();
+        ctx.rect(obs.x, obs.y, obs.width, obs.height);
+        ctx.fillStyle = "#DD0000";
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    // Funkcja rysująca ruchome przeszkody
+    function drawMovingObstacles() {
+      for (let i = 0; i < movingObstacles.length; i++) {
+        let obs = movingObstacles[i];
+        ctx.beginPath();
+        ctx.rect(obs.x, obs.y, obs.width, obs.height);
+        ctx.fillStyle = "#FFD700";
+        ctx.fill();
+        ctx.closePath();
+        obs.x += obs.dx;
+        if (obs.x <= 0 || obs.x + obs.width >= canvas.width) {
+          obs.dx = -obs.dx; // Zmiana kierunku
+        }
+      }
+    }
+
+    // Funkcja rysująca bonusy
+    function drawBonus() {
+      for (let i = 0; i < bonusItems.length; i++) {
+        let bonus = bonusItems[i];
+        ctx.beginPath();
+        ctx.arc(bonus.x, bonus.y, 15, 0, Math.PI * 2);
+        ctx.fillStyle = bonus.type === 'speed' ? 'green' : 'yellow';
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    // Funkcja do wykrywania kolizji
+    function checkCollisions() {
+      // Kolizje z przeszkodami
+      for (let i = 0; i < obstacles.length; i++) {
+        let obs = obstacles[i];
+        if (x + ballRadius > obs.x && x - ballRadius < obs.x + obs.width &&
+            y + ballRadius > obs.y && y - ballRadius < obs.y + obs.height) {
+          dy = -dy;
+          score += 10; // Punkty za odbicie
+          updateScore();
+          obstacles.splice(i, 1); // Usuwamy przeszkodę
+          // Sprawdzamy, czy wszystkie przeszkody zostały zniszczone
+          if (obstacles.length === 0) {
+            // Jeśli tak, generujemy nowe przeszkody
+            createObstacles();
+            createMovingObstacles();
+          }
+        }
+      }
+
+      // Kolizje z ruchomymi przeszkodami
+      for (let i = 0; i < movingObstacles.length; i++) {
+        let obs = movingObstacles[i];
+        if (x + ballRadius > obs.x && x - ballRadius < obs.x + obs.width &&
+            y + ballRadius > obs.y && y - ballRadius < obs.y + obs.height) {
+          dy = -dy;
+          score += 15; // Większe punkty za ruchome przeszkody
+          updateScore();
+          movingObstacles.splice(i, 1); // Usuwamy ruchomą przeszkodę
+          // Sprawdzamy, czy wszystkie przeszkody ruchome zostały zniszczone
+          if (movingObstacles.length === 0) {
+            createMovingObstacles();
+          }
+        }
+      }
+
+      // Kolizje z bonusami
+      handleBonusCollision();
+    }
+
+    // Funkcja aktualizująca punkty
+    function updateScore() {
+      document.getElementById("score").textContent = score;
+      if (score % 50 === 0 && score > 0) {
+        levelUp();
+      }
+    }
+
+    // Funkcja zwiększająca poziom trudności
+    function levelUp() {
+      level++;
+      document.getElementById("difficulty").textContent = level;
+      dx = dx > 0 ? dx + 1 : dx - 1;
+      dy = dy > 0 ? dy + 1 : dy - 1;
+      createObstacles();
+      createMovingObstacles();
+    }
+
+    // Funkcja zmieniająca czas gry
+    function updateTime() {
+      if (gameTime > 0) {
+        gameTime--;
+        document.getElementById("time").textContent = gameTime;
+      } else {
+        clearInterval(gameInterval);
+        alert("Czas minął! Gra skończona!");
+      }
+    }
+
+    // Funkcja do rysowania gry
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBall();
+      drawPaddle();
+      drawObstacles();
+      drawMovingObstacles();
+      drawBonus();
+      checkCollisions();
+
+      if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+      }
+      if (y + dy < ballRadius) {
+        dy = -dy;
+      } else if (y + dy > canvas.height - ballRadius) {
+        if (x > paddleX && x < paddleX + paddleWidth) {
+          dy = -dy;
+        } else {
+          loseLife();
+        }
+      }
+
+      if (rightPressed && paddleX < canvas.width - paddleWidth) {
+        paddleX += 7; // Ruch w prawo
+      } else if (leftPressed && paddleX > 0) {
+        paddleX -= 7; // Ruch w lewo
+      }
+
+      x += dx * speed;
+      y += dy * speed;
+      requestAnimationFrame(draw); // Ciągłe rysowanie
+    }
+
+    // Funkcja do utraty życia
+    function loseLife() {
+      lives--;
+      document.getElementById("lives").textContent = lives;
+      if (lives <= 0) {
+        alert("GAME OVER");
+        document.location.reload();
+      } else {
+        resetBall();
+      }
+    }
+
+    // Funkcja resetująca piłkę
+    function resetBall() {
+      x = canvas.width / 2;
+      y = canvas.height - 30;
+      dx = 2;
+      dy = -2;
+    }
+
+    // Obsługa zdarzeń klawiatury
+    function keyDownHandler(e) {
+      if (e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = true;
+      } else if (e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = true;
+      }
+    }
+
+    function keyUpHandler(e) {
+      if (e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = false;
+      } else if (e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = false;
+      }
+    }
+
+    // Uruchomienie licznika czasu
+    gameInterval = setInterval(updateTime, 1000);
+
+    // Dodanie nasłuchiwania na zdarzenia klawiatury
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+
+    createObstacles();
+    createMovingObstacles();
+    draw();
+  </script>
+</body>
+</html>

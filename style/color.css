@@ -1,0 +1,372 @@
+body {
+    background-color: var(--button-color);
+    color: var(--dar-text-color);
+}
+
+header {
+    background-color: var(--primary-background-color);
+    color: var(--text-color);
+}
+
+header.scrolled {
+    background-color: var(--sticky-header-background-color);
+}
+
+/* Parallax */
+.parallax {
+    background-image: var(--parallax-image);
+}
+.game-container:hover,.slideshow-container:hover {
+    box-shadow: 0 20px 35px var(--border-color);
+}
+/* Główna zawartość - Main*/
+main {
+    color: var(--text-color);
+    border-top: 10px solid var(--primary-background-color);
+    background-image: var(--background-image);
+}
+/* Kontener gier - game-container (game-box) */
+.game-container {
+    border: 2px solid var(--border-color); /* Ramka */
+    box-shadow: 0 4px 8px var(--shadow-color); 
+    background: var(--tertiary-background-color);
+}
+.game-box {
+    background-color: var(--secondary-background-color);
+    box-shadow: 0 6px 16px var(--shadow-color);
+}
+.game-box:hover {
+    background-color: var(--highlight-bg-color);
+    box-shadow: 0 8px 16px var(--shadow-color);
+}
+button, .game-link, .game-short-link {
+    background-color: var(--button-color);
+    color: var(--secondary-text-color);
+    box-shadow: 0 4px 12px var(--shadow-color); /* Enhanced shadow effect */
+}
+
+button:hover,.game-short-link:hover, .game-link:hover {
+    background-color: var(--button-hover-color);
+    box-shadow: 0 8px 16px var(--button-hover-color);
+    border: 3px solid var(--primary-background-color);
+}
+.game-label {
+    background-color: #FF5722;
+    color: var(--text-color);
+}
+.game-status {
+    background-color: #0cb800;
+    color: var(--text-color);
+}
+
+/* Styl dla stopki - Footer*/
+footer {
+    color: var(--text-color);
+    background-color: var(--primary-background-color);
+}
+#searchInput {
+    color: var(--secondary-text-color);
+    border: 2px solid var(--border-color);
+    background-color: var(--secondary-background-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+#searchInput:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    background-color: var(--quaternary-background-color);
+}
+
+/* Dropdown Button */
+.search-filters-container {
+    background-color: var(--secondary-background-color); /* ciemne tło dla lepszej widoczności */
+    box-shadow: 0 4px 10px var(--shadow-color);
+}
+.filterdropbtn {
+    background-color: var(--button-color);
+    color: var(--secondary-text-color);
+}
+.filterdropbtn:hover, .filterdropbtn:focus {
+    background-color: var(--button-hover-color);
+    box-shadow: none;
+    border: none;
+}
+.dropdownFiltres-content {
+    background-color: var(--secondary-background-color);
+}
+.dropdownFiltres-content button {
+    color: var(--text-color);
+    margin-top: 2px;
+}
+.dropdownFiltres-content button:hover {
+    box-shadow: 0px 8px 16px rgba(95, 95, 95, 0.2);
+    background: #777777;
+}
+#dropdownFiltres .active {
+    background: #6d6d6d;
+}
+
+.ukonczona {
+    border: 2px solid green;
+}
+.hot {
+    border: 2px solid rgba(255, 69, 0, 0.8);
+    color: white;
+}
+.game-status-money {
+    background-color: #0cb800;
+    border: 2px solid #0a9900;
+}
+.game-status-internet {
+    background-color: #0068b8;
+    border: 2px solid #003d99;
+}
+.event {
+    border: 2px solid rgba(44, 118, 255, 0.8);
+    color: var(--text-color);
+}
+
+/* Modal */
+.modal {
+    background-color: var(--tertiary-background-color); /* Tło ciemne */
+}
+.modal-content {
+    background-color: var(--secondary-background-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+.modal-content h2 {
+    color: var(--text-color);
+}
+
+.tab {
+    background-color: var(--secondary-background-color);
+}
+.tab .tablinks {
+    background-color: var(--quaternary-background-color);
+    color: var(--secondary-text-color);
+}
+.tab .tablinks:hover {
+    background-color: var(--border-color);
+}
+
+.tab .tablinks.active {
+    background-color: var(--border-color);
+}
+
+.tabcontent {
+    background-color: var(--quaternary-background-color);
+}
+.tabcontent > * {
+    background-color: var(--quaternary-background-color);
+    border: var(--quaternary-background-color) 6px solid;
+}
+.tabcontent h1 {
+    color: var(--secondary-text-color);
+    -webkit-text-stroke: 1px var(--secondary-text-color);
+}
+.tabcontent h2 {
+    color: var(--secondary-text-color);
+    -webkit-text-stroke: 1px var(--secondary-text-color);
+}
+.tabcontent cite {
+    color: var(--secondary-text-color);
+}
+.tabcontent abbr {
+    -webkit-text-stroke: 1px var(--secondary-text-color);
+}
+#tabContentsContainer {
+    background-color: var(--quaternary-background-color);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.modal-content p {
+    color: var(--tertiary-text-color);
+}
+#welcomeModal h2 {
+    color: var(--text-color);
+}
+#usernameForm input {
+    border: 1px solid var(--border-color);
+}
+#usernameForm button {
+    background-color: var(--button-color);
+    color: var(--text-color);
+}
+
+#usernameForm button:hover {
+    background-color: var(--button-hover-color);
+}
+#welcomeModal #errorMessage {
+    color: red;
+}
+#welcomeModal {
+    background-color: var(--tertiary-background-color);
+}
+/*Tooltip*/
+.tooltiptext {
+    background-color: var(--sticky-header-background-color);
+    color: var(--text-color);
+}
+/*progress bar*/
+.progress-container {
+    background: var(--quaternary-background-color);
+}
+.progress-bar {
+    background: var(--button-color);
+}
+/*Top button btn*/
+#topBtn {
+    background-color: var(--button-color);
+    color: var(--text-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+  
+#topBtn:hover {
+    background-color: var(--button-hover-color);
+}
+
+.user-info {
+    color: var(--text-color);
+}
+  
+#user-dropdown {
+  background-color: var(--secondary-background-color);
+  box-shadow: 0px 8px 16px var(--shadow-color);
+}
+
+#updt table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#updt thead tr {
+    background-color: var(--button-color);
+    color: var(--text-color);
+}
+
+#updt th,
+#updt td {
+    border: 1px solid var(--border-color);
+}
+
+#updt tbody tr:nth-child(odd) {
+    background-color: var(--text-color);
+}
+
+#updt tbody tr:nth-child(even) {
+    background-color: var(--text-color);
+}
+
+#updt tbody td {
+    color: var(--secondary-text-color);
+    background-color: var(--text-color);
+}
+
+.slideshow-container {
+    border: 2px solid var(--border-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
+    background: var(--tertiary-background-color);
+}
+
+.slides .slide {
+    background-color: var(--secondary-background-color);
+}
+.prev, .next {
+    color: var(--text-color);
+    background-color: var(--button-color);
+}
+.dot {
+    background-color: var(--button-color);
+}
+.dot:hover {
+    background-color: var(--button-hover-color)
+}
+.dot.active {
+    background-color: var(--button-active-color);
+}
+#favoriteSlideshow {
+    display: flex;
+}
+#favoriteSlideshow .slide {
+    margin: 18px;
+}
+#mainwindow h1 {
+    text-shadow: 
+    -1px -1px 0 var(--shadow-color), /* Góra-lewo */
+    1px -1px 0 var(--shadow-color),  /* Góra-prawo */
+    -1px 1px 0 var(--shadow-color),  /* Dół-lewo */
+    2px 2px 0 var(--shadow-color);   /* Dół-prawo */
+}
+#mainwindow h1 #usernameDisplay {
+    text-shadow: 
+    -1px -1px 0 var(--shadow-color), /* Góra-lewo */
+    1px -1px 0 var(--shadow-color),  /* Góra-prawo */
+    -2px 2px 0 var(--shadow-color),  /* Dół-lewo */
+    2px 2px 0 var(--shadow-color);   /* Dół-prawo */
+}
+/* Loader - animacja */
+.loader-container {
+    background-color: var(--primary-background-color); /* Tło loadera czarne */
+}
+
+.loader {
+    border: 8px solid var(--text-color);
+    border-top: 8px solid var(--button-color);
+}
+
+.loader-container h1 {
+    color: var(--text-color);
+}
+
+
+#customizationModal select,#customizationModal input[type="color"] {
+    border: 1px solid var(--border-color);
+}
+#customizationModal button {
+    padding: 10px;
+    background-color: var(--button-color);
+    color: var(--text-color);
+}
+
+#customizationModal button:hover {
+    background-color: var(--button-hover-color);
+}
+#sidenav {
+    background-color: var(--primary-background-color);
+    border-right: var(--secondary-text-color) solid 3px;
+  }
+  #sidenav a {
+    color: var(--tertiary-text-color);
+  }
+  #sidenav a:hover {
+    color: var(--text-color);
+  }
+  #sidenav a.active {
+    color: var(--button-active-color);
+  }
+  .refreshButton {
+    background-color: var(--button-color);
+    color: white;
+}
+.refreshButton:hover {
+    background-color: var(--button-hover-color);
+}
+.dynamic-bar {
+    background-color: var(--button-color); 
+  }
+  .aiContainer {
+    background-color: var(--secondary-background-color);
+    box-shadow: 0 0 10px var(--shadow-color);
+}
+.user-message {
+    background-color: var(--button-active-color);
+}
+.ai-message {
+    background-color: var(--button-hover-color);
+}
+.spinner {
+    border: 4px solid var(--secondary-background-color);
+    border-left: 4px solid var(--button-color);
+}
+#userAiInput {
+    display: block;
+}

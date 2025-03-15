@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perun Studios</title>
+    <link rel="stylesheet" href="../style/main.css">
+    <link rel="stylesheet" href="../effects/like.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="../img/perun2.png">
+</head>
+<body>
+    <header class="sticky">
+        <div class="progress-container">
+            <div class="progress-bar" id="myBar"></div>
+        </div>  
+        <div id="headertytul">
+            <h1>PERUN STUDIOS HUB</h1>
+            <h3>Najlepsze gry na wyciągnięcie ręki</h3>
+        </div>
+        <div id="user-info-container" class="user-info">
+            <div id="playerName">?</div>
+            <div id="playerPLN">?</div>
+            <i class="fas fa-user" style="font-size: 30px;"></i>
+            <div id="user-dropdown" class="dropdown">
+              <ul>
+                <li><button id="achievementModalBtn" onclick="modalOpen('achievementModal')">Osiągnięcia</button></li>
+                <li><button id="settingsModalBtn" onclick="modalOpen('settingsModal')">Ustawienia</button></li>
+                <li><button id="customizationModalBtn" onclick="modalOpen('customizationModal')">Dostosowanie</button></li>
+              </ul>
+            </div>
+        </div>
+    </header>
+    <div class="parallax"></div>
+    <div id="parallaxEnd"></div>
+    <main>
+        <div id="mainwindow">
+            <h1>Witaj, <span id="usernameDisplay"></span>! Wybierz grę:</h1>
+            <div class="search-filters-container">
+                <input type="text" id="searchInput" onkeyup="search()" placeholder="Szukaj">
+                <div class="filterdropdown">
+                    <button class="filterdropbtn">FILTRY</button>
+                    <div id="dropdownFiltres" class="dropdownFiltres-content">
+                        <button onclick="filterSelection('all'); changeClass(this)">Wszystkie</button>
+                        <button onclick="filterSelection('hot'); changeClass(this)">HOT</button>
+                        <button onclick="filterSelection('event'); changeClass(this)">EVENT</button>
+                        <button onclick="filterSelection('testy'); changeClass(this)">Testy</button>
+                        <button onclick="filterSelection('beta'); changeClass(this)">Beta</button>
+                        <button onclick="filterSelection('konserwacje'); changeClass(this)">Konserwacje</button>
+                        <button onclick="filterSelection('nowosc'); changeClass(this)">Nowości</button>
+                        <button onclick="filterSelection('ukonczone'); changeClass(this)">Ukończone</button>
+                    </div>
+                </div>
+            </div>
+            <div class="game-container" max="12"></div>
+            <div class="slideshow-container">
+                <div class="slides">
+                    <h1>Plebiscyt</h1>
+                    <div class="slide" id="plebiscytSlideshow">
+                        Wspólnie ustalmy która gra jest najlepsza, która ma zostać uznana za grę HOT na następny kwartał! <br><br>
+
+                        <button onclick="modalOpen('plebiscytModal')">Głosuj!</button><br><br>
+                        <p>Plebiscyt kończy się 23 marca 2025 r. o godz. 00:00</p>
+                        <p id="plebiscytCountdown"></p>
+                    </div> 
+                </div>
+                <div class="slides">
+                    <h1>Najnowszy update!</h1>
+                    <div class="slide" id="updateSlideshow"></div>
+                </div>
+                <div class="slides">
+                    <h1>Gry HOT!</h1>
+                    <div class="slide" id="hotSlideshow"></div>
+                </div>
+                <div class="slides">
+                    <h1>Gry EVENTOWE!</h1>
+                    <div class="slide" id="eventSlideshow"></div>
+                </div>
+                <div class="slides">
+                    <h1>BLOG Developerów!</h1>
+                    <div class="slide" id="blogSlideshow">
+                        <h3 class="blog">Zobacz jak wygląda HUB bez żadnych podpiętych skryptów - <a href="pusty/skrypt.html" class="game-short-link" target="_blank">👀</a></h3>
+                        <h3 class="blog">Zobacz jak wygląda HUB bez CSS odpowiedzialnego za kolory - <a href="pusty/kolory.html" class="game-short-link" target="_blank">👀</a></h3>
+                        <h3 class="blog">Zobacz jak wygląda HUB bez CSS odpowiedzialnego za budowę - <a href="pusty/budowa.html" class="game-short-link" target="_blank">👀</a></h3>
+                    </div>
+                </div>
+                <button class="prev">&#10094;</button>
+                <button class="next">&#10095;</button>
+                <div class="dots-container">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+            <div class="game-container" max="13"></div>
+            <button onclick="topFunction()" id="topBtn" title="Go to top">⬆️</button>
+        </div>
+    </main>
+    <div class="button-section">
+        <a id="updateModalBtn" class="game-link feedback-button" onclick="modalOpen('updateModal')">Dziennik zmian</a>
+        <a href="https://forms.gle/ZzyGN1X4Uo3g1GSd6" class="game-link feedback-button" target="_blank">Podziel się swoją opinią</a>
+    </div>
+    <footer>
+        <p id="footerText">© 2025 Perun Studios & ChatGPT. Wszelkie prawa zastrzeżone. Wersja 1.0.0</p>
+    </footer>
+
+
+
+
+
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <div id="tabsContainer" class="tab scrollable">
+                <button class="tablinks" style="width: 100%;padding: 12px;" onclick="openTab(event, 'updt')">📆 Aktualizacje</button>
+            </div>
+            <div id="tabContentsContainer">
+                <div style="text-align: center;" id="updt" class="tabcontent scrollable" style="display: block;">
+                    <table>
+                        <thead>
+                            <tr>
+                            <th class="tg-0pky">Poniedziałek</th>
+                            <th class="tg-0pky">Wtorek</th>
+                            <th class="tg-0pky">Środa</th>
+                            <th class="tg-0pky">Czwartek</th>
+                            <th class="tg-0pky">Piątek</th>
+                            <th class="tg-0pky">Sobota</th>
+                            <th class="tg-0pky">Niedziela</th>
+                            </tr></thead>
+                        <tbody>
+                            <tr>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax"></td>
+                          <td class="tg-0lax"></td>
+                          <td class="tg-0lax"></td>
+                          <td class="tg-0lax"></td>
+                          <td class="tg-0lax">18:00</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                    <b style="color: black;" id="demo"></b>
+                    <br>
+                    <h1>Leaki odnośnie następnego updatu</h1>
+                    <img src="img/Zrzut ekranu 2025-02-26 175948.png" alt="Perun AI" style="width: 80%;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="welcomeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="firework"></div>
+            <div class="firework"></div>
+            <div class="firework"></div>
+            <h2>Witaj na PERUN STUDIOS HUB!</h2>
+            <p>Cieszymy się, że do nas dołączyłeś! Teraz możesz wybrać dowolną grę, jaką tylko chcesz. <br><b>Miłej zabawy!</b> <br>Ale najpierw wpisz swoją nazwę użytkownika.</p>
+            <form id="usernameForm">
+                <input type="text" style="display: block;" id="usernameInput" placeholder="Twoja nazwa" required>
+                <button id="saveUsernameBtn">Zapisz nazwę</button>
+                <p id="errorMessage">Proszę wpisać nazwę użytkownika.</p>
+              </form>
+        </div>
+    </div>
+    <div id="achievementModal" class="modal">
+        <div class="modal-content game-container" id="achievementModalContent">
+        </div>
+    </div>
+    <div id="settingsModal" class="modal" style="display: none;">
+
+    </div>
+    <div id="customizationModal" class="modal">
+        <div class="modal-content">
+            <p>Wybierz motyw</p>
+            <select name="theme" id="theme">
+                <option value="dark">Ciemny</option>
+                <option value="gray">Szary</option>
+                <option value="light">Jasny</option>
+            </select>
+            <label for="colorPicker">Wybierz kolor</label>
+            <input type="color" name="customColor" id="colorPicker">
+        </div>
+    </div>
+    <div id="plebiscytModal" class="modal">
+        <div class="modal-content">
+            <iframe src="https://forms.gle/fM3NzKckwS6JUEUq5" height="100%" width="100%" title="Plebiscyt"></iframe>
+        </div>
+    </div>
+    <div class="loader-container">
+        <h1 class="loader-child">Perun Studios</h1>
+        <div class="loader loader-child"></div>
+    </div>
+    
+    <script src="../script.js"></script>
+    <script src="../achievement.js"></script>
+    <script src="../gry.js"></script>
+    <script src="../changes.js"></script>
+    <script src="../script2.js"></script>
+</body>
+</html>

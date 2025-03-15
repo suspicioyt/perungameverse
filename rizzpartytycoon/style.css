@@ -1,0 +1,168 @@
+/* Globalne ustawienia */
+body {
+    background-color: #121212; /* Ciemne tło */
+    color: #E0E0E0; /* Jasny tekst */
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Nagłówek */
+header {
+    background-color: #181818; /* Ciemniejsze tło nagłówka */
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid #333;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #FFD700; /* Złoty kolor */
+    margin: 0;
+}
+
+/* Kontener kolekcji przedmiotów */
+.collectible-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 30px;
+    background-color: #1D1D1D; /* Ciemniejsze tło dla kontenera */
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease;
+}
+
+/* Przyciemnienie kontenera podczas przewijania */
+.collectible-container:hover {
+    transform: translateY(-5px);
+}
+
+/* Ustawienia dla pojedynczego przedmiotu kolekcjonerskiego */
+.collectible-item {
+    background: linear-gradient(135deg, #2C2C2C, #333); /* Gradient dla tła */
+    padding: 20px;
+    border-radius: 12px;
+    width: 240px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efekt najechania na przedmiot */
+.collectible-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #333, #444); /* Zmiana koloru tła przy hover */
+}
+
+/* Obrazki przedmiotów */
+.collectible-item img {
+    width: 100%;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+/* Efekt najechania na obrazek */
+.collectible-item:hover img {
+    transform: scale(1.05); /* Powiększenie obrazka */
+}
+
+/* Nazwa przedmiotu */
+.collectible-item h3 {
+    font-size: 1.5rem;
+    margin: 10px 0;
+    color: #FFD700; /* Złoty tekst */
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Cena przedmiotu */
+.price {
+    color: #FFD700; /* Złoty kolor na cenę */
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Przycisk zakupu */
+button {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Efekt najechania na przycisk */
+button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Stylowanie pola wyszukiwania */
+#myInput {
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    background-color: #333;
+    color: #E0E0E0;
+    border: 2px solid #555;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+}
+
+#myInput:focus {
+    background-color: #444;
+    outline: none;
+    border-color: #FFD700;
+}
+
+/* Stylowanie etykiet przedmiotów (Nowość, Beta) */
+.game-label {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    text-transform: uppercase;
+}
+
+/* Podświetlanie elementów z klasą highlight */
+.highlight {
+    border: 2px solid #FFD700; /* Złote podświetlenie */
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+/* Zmiana obramowania przy najechaniu na element */
+.highlight:hover {
+    transform: translateY(-4px);
+    border-color: #FF8C00; /* Zmiana koloru obramowania */
+}
+
+/* Dostosowanie dla większych ekranów */
+@media (min-width: 768px) {
+    .collectible-container {
+        justify-content: space-evenly;
+    }
+}
+
+@media (min-width: 1200px) {
+    .collectible-item {
+        width: 270px; /* Większa szerokość przedmiotów na dużych ekranach */
+    }
+}
