@@ -350,9 +350,7 @@ footer {
 .refreshButton:hover {
     background-color: var(--button-hover-color);
 }
-.dynamic-bar {
-    background-color: var(--button-color); 
-  }
+
   .aiContainer {
     background-color: var(--secondary-background-color);
     box-shadow: 0 0 10px var(--shadow-color);

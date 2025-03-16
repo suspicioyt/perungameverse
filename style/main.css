@@ -705,14 +705,15 @@ a {
     gap: 20px;
 }
 #sidenav {
-    height: 100%;
+    margin-top: 100px;
+    height: calc(100% - 100px);
     width: 110px;
     position: fixed;
     z-index: 1;
     top: 0;
     left: 0;
     overflow-x: hidden;
-    padding-top: 150px;
+    padding-top: 10px;
     display: none;
     justify-content: center;
     flex-wrap: wrap;
@@ -765,20 +766,26 @@ a {
     height: 50px;
     cursor: pointer;
     transition: height 0.3s ease; 
+    background-color: none;
   }
   .toggle:checked + .dynamic-bar {
-    height: 600px; 
+    height: 550px; 
     width: 300px;
   }
   #aiBaner {
     width: 100%;
     height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: blue;
   }
   .aiContainer {
     width: 100%;
     margin: auto;
     padding: 20px;
-    border-radius: 8px;
     height: 80vh;
     overflow-y: auto;
     z-index: 1000;
@@ -822,6 +829,8 @@ a {
 }
 #perunAI {
     display: none;
+    text-align: center;
+    border-radius: 20px 0px;
   }
   #perunAI.show {
     display: block;
@@ -829,9 +838,8 @@ a {
   #aiContainer input,#aiContainer button {
     border: none;
 }
-#updateModalBtn {
-    margin: 10px;
-}
+
+
 * {
     transition: 0.2s;
 }

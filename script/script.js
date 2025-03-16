@@ -7,7 +7,13 @@ function getElementPosition() {
     const rect = element.getBoundingClientRect();
     return rect.top + window.scrollY - 150; // Pozycja elementu względem całej strony
 }
-
+function checkadfree() {
+  console.log(window.location.href);
+  if(window.location.href != 'https://suspicioyt.github.io/perungameverse') {
+    document.getElementById('noadversionContainer').innerHTML='<div id="noadversion">Wersja bez reklam: <a href="https://suspicioyt.github.io/perungameverse">suspicioyt.github.io/perungameverse</a></div>'
+  }
+  
+}
 // Funkcja płynnego przewijania
 function smoothScrollTo(target) {
     isScrolling = true;
@@ -51,6 +57,8 @@ window.addEventListener('scroll', function () {
     }
 });
 document.addEventListener('DOMContentLoaded', function () {
+  checkadfree();
+
   const currentScrollY = window.scrollY;
   const elementHeight = element.offsetHeight;
   if (elementHeight <= currentScrollY) {
@@ -188,11 +196,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Funkcja zapisu nazwy użytkownika do localStorage
   document.getElementById("saveUsernameBtn").addEventListener("click", function () {
+    localStorage.setItem("DEVsettings","false");
     const username = document.getElementById("usernameInput").value.trim();
     if (username === 'SUSpicio' || username === 'DEV') {
       document.getElementById("errorMessage").style.display = 'block';
       return;
-      
     }    
     if (username) {
       // Zapisanie nazwy użytkownika w localStorage
@@ -221,6 +229,10 @@ document.addEventListener('DOMContentLoaded', function () {
 function topFunction() {
   document.body.scrollTop = 0;
   document.documentElement.scrollTop = 0;
+}
+function downFunction() {
+  document.body.scrollTop = 1000000000;
+  document.documentElement.scrollTop = 1000000000;
 }
 
 var countDownDate = new Date("Mar 13, 2025 18:00:00").getTime();
@@ -386,9 +398,7 @@ window.addEventListener("storage", (event) => {
         updatePlayerName();
     } else if (event.key === playerPLNKey) {
         updatePlayerPLN();
-    } else if (event.key === playerPointsKey) {
-      updatePlayerPLN();
-  }
+    }
 });
 
 // Wywołanie początkowe
@@ -523,3 +533,107 @@ async function getAIResponse() {
 //    index = (index + 1) % colors.length;
 //}
 //setInterval(changeColor, 1000); // Zmiana koloru co 500ms
+
+function isUsernameDemoTimeExpired() {
+  const lastChange = localStorage.getItem("lastChangeTime");
+  const now = Date.now();
+  const lockTime = 24 * 60 * 60 * 1000; // 24 godziny w milisekundach
+
+  if (!lastChange) return true; // Jeśli nie ma zapisu, uznajemy, że czas wygasł
+
+  return now > parseInt(lastChange) + lockTime;
+}
+function toggleDevMode() {
+  const currentMode = localStorage.getItem("DEVsettings") === "true";
+  localStorage.setItem("DEVsettings", currentMode ? "false" : "true");
+  loadChatMessages(); // Odśwież wiadomości, aby pokazać/zakryć ID
+  document.getElementById("devToggle").checked = currentMode ? false : true;
+}
+document.addEventListener("DOMContentLoaded", function () {
+  if(localStorage.getItem("DEVsettings") === "true") {
+    document.getElementById("devToggle").checked=true;
+  }
+  if(!isUsernameDemoTimeExpired()) {
+    const sendButton = document.getElementById('sendButton')
+    sendButton.disabled = true;
+    sendButton.textContent = "Zablokowane";
+    const sendInput = document.getElementById('chatMessage')
+    sendInput.disabled = true;
+  }
+})
+
+
+const input = document.getElementById("usernameSettingsInput");
+const storageKey = "perunUsername";
+const lastChangeKey = "lastChangeTime";
+const lockTime = 24 * 60 * 60 * 1000;
+input.value = localStorage.getItem(storageKey) || "";
+const changeButton = document.getElementById("usernameChangeButton");
+const countdownDisplay = document.getElementById("usernameDemoContainer");
+
+function handleUsernameChange() {
+    const lastChange = localStorage.getItem(lastChangeKey);
+    const now = Date.now();
+    if (input.value!="SUSpicio") {
+      if (lastChange && now - parseInt(lastChange) <= lockTime) {
+          alert("Nie możesz zmienić nazwy użytkownika przez 24 godziny.");
+          return;
+      }
+
+      if (!confirm("Czy na pewno chcesz zmienić nazwę użytkownika?")) {
+          return;
+      }
+
+      const randomCode = Math.floor(1000 + Math.random() * 9000).toString();
+      const userCode = prompt(`Aby potwierdzić, wpisz kod: ${randomCode}`);
+
+      if (userCode === randomCode) {
+          localStorage.setItem(storageKey, input.value);
+          localStorage.setItem(lastChangeKey, now.toString());
+          alert("Nazwa użytkownika została zmieniona.");
+          changeButton.disabled = true;
+          changeButton.textContent = "Zmiana nazwy zablokowana na 24h";
+          startCountdown(lockTime);
+      } else {
+          alert("Niepoprawny kod. Zmiana anulowana.");
+      }
+  }
+}
+
+function startCountdown(remainingTime) {
+  countdownDisplay.style.display="block";
+    function updateCountdown() {
+        const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+        const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+        countdownDisplay.textContent = `Czas do odblokowania: ${hours}h ${minutes}m ${seconds}s`;
+        
+        if (remainingTime <= 0) {
+            clearInterval(countdownInterval);
+            changeButton.disabled = false;
+            changeButton.textContent = "Zmień nazwę";
+            countdownDisplay.textContent="";
+            countdownDisplay.style.display="none";
+        }
+        remainingTime -= 1000;
+    }
+    
+    updateCountdown();
+    const countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+// Inicjalizacja po załadowaniu strony
+(function initialize() {
+    input.value = localStorage.getItem(storageKey) || "";
+    const lastChange = localStorage.getItem(lastChangeKey);
+    const now = Date.now();
+    
+    if (lastChange) {
+        const elapsedTime = now - parseInt(lastChange);
+        if (elapsedTime < lockTime) {
+            changeButton.disabled = true;
+            changeButton.textContent = "Zmiana nazwy zablokowana na 24h";
+            startCountdown(lockTime - elapsedTime);
+        }
+    }
+})();

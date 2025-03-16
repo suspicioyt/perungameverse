@@ -1,10 +1,8 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwcRa8GwyPXsfzKPGcCdigMMJzlhHbIn6uMF96WziElMr8JnUOehKTCQHNNDoPH9G0T/exec"; // Wklej URL z Google Apps Script po wdrożeniu
+const API_URL = "https://script.google.com/macros/s/AKfycbzKkpd2zXxeS37TIybV1uiZ8CP3Z2E6M9_ZpFAI1ZzYlWwsVTzmQRS_heTr4GFo1zIz7w/exec";
 let lastDate = "";
-let lastScrollHeight = 0;
 let replyingToMessageId = null;
-let lastFetchedMessageId = null;
+let cachedMessages = []; // Pamięć podręczna dla wiadomości
 
-// Funkcje pomocnicze
 function sanitizeInput(input) {
     const div = document.createElement("div");
     div.textContent = input;
@@ -27,18 +25,22 @@ function scrollToBottom() {
     const chatList = document.getElementById("chatMessages");
     setTimeout(() => {
         chatList.scrollTop = chatList.scrollHeight;
-    }, 100); // Opóźnienie 100ms, aby DOM się zaktualizował
+    }, 100);
 }
 
-// Wysłanie wiadomości
 async function sendChatMessage() {
     const username = localStorage.getItem("perunUsername") || "Anonim";
     const chatMessage = document.getElementById("chatMessage").value.trim();
-    
+    const sendButton = document.getElementById("sendButton");
+
     if (!chatMessage) {
         showError("Nie możesz wysłać pustej wiadomości!");
         return;
     }
+
+    // Wyłącz przycisk podczas wysyłania
+    sendButton.disabled = true;
+    sendButton.textContent = "Wysyłanie..."; // Opcjonalnie: zmiana tekstu
 
     const timestamp = new Date().toISOString();
     const data = {
@@ -56,26 +58,23 @@ async function sendChatMessage() {
             body: JSON.stringify(data),
             mode: "no-cors"
         });
-
         document.getElementById("chatMessage").value = "";
         replyingToMessageId = null;
         updateReplyingTo(null);
         await loadChatMessages();
-        scrollToBottom();
     } catch (error) {
-        console.error("Błąd wysyłania wiadomości:", error);
+        console.error("Błąd wysyłania:", error);
         showError("Nie udało się wysłać wiadomości.");
+    } finally {
+        // Włącz przycisk z powrotem, niezależnie od wyniku
+        sendButton.disabled = false;
+        sendButton.textContent = "Wyślij"; // Przywróć oryginalny tekst
     }
 }
 
-// Usuwanie wiadomości
 async function deleteMessage(messageId) {
     const username = localStorage.getItem("perunUsername") || "Anonim";
-    const data = {
-        action: "delete",
-        messageId,
-        username
-    };
+    const data = { action: "delete", messageId, username };
 
     try {
         await fetch(API_URL, {
@@ -85,14 +84,12 @@ async function deleteMessage(messageId) {
             mode: "no-cors"
         });
         await loadChatMessages();
-        scrollToBottom();
     } catch (error) {
-        console.error("Błąd usuwania wiadomości:", error);
+        console.error("Błąd usuwania:", error);
         showError("Nie udało się usunąć wiadomości.");
     }
 }
 
-// Edycja wiadomości
 async function editMessage(messageId) {
     const messageElement = document.querySelector(`[data-id="${messageId}"] .message-content`);
     const currentText = messageElement.textContent;
@@ -116,22 +113,20 @@ async function editMessage(messageId) {
             mode: "no-cors"
         });
         await loadChatMessages();
-        scrollToBottom();
     } catch (error) {
-        console.error("Błąd edycji wiadomości:", error);
+        console.error("Błąd edycji:", error);
         showError("Nie udało się edytować wiadomości.");
     }
 }
 
-// Dodawanie reakcji
 async function addReaction(messageId, reaction) {
     const username = localStorage.getItem("perunUsername") || "Anonim";
-    const data = {
-        action: "react",
-        messageId,
-        username,
-        reaction
-    };
+    const data = { action: "react", messageId, username, reaction };
+
+    const message = cachedMessages.find(msg => msg.id === messageId);
+    if (message && message.reactions && message.reactions[reaction] && message.reactions[reaction].includes(username)) {
+        data.action = "unreact";
+    }
 
     try {
         await fetch(API_URL, {
@@ -141,27 +136,23 @@ async function addReaction(messageId, reaction) {
             mode: "no-cors"
         });
         await loadChatMessages();
-        scrollToBottom();
     } catch (error) {
-        console.error("Błąd dodawania reakcji:", error);
-        showError("Nie udało się dodać reakcji.");
+        console.error("Błąd reakcji:", error);
+        showError("Nie udało się zaktualizować reakcji.");
     }
 }
 
-// Ładowanie wiadomości
 async function loadChatMessages() {
     try {
         const response = await fetch(API_URL);
         const chatMessages = await response.json();
         const chatList = document.getElementById("chatMessages");
 
-        if (chatMessages.error) {
-            throw new Error(chatMessages.error);
-        }
+        if (chatMessages.error) throw new Error(chatMessages.error);
+        if (!Array.isArray(chatMessages)) throw new Error("Nieprawidłowe dane wiadomości");
 
-        if (!Array.isArray(chatMessages)) {
-            throw new Error("Oczekiwano tablicy wiadomości, otrzymano: " + JSON.stringify(chatMessages));
-        }
+        // Aktualizuj pamięć podręczną
+        cachedMessages = chatMessages;
 
         chatList.innerHTML = "";
         lastDate = "";
@@ -172,31 +163,22 @@ async function loadChatMessages() {
         });
 
         scrollToBottom();
-        lastScrollHeight = chatList.scrollHeight;
-        lastFetchedMessageId = chatMessages.length > 0 ? chatMessages[chatMessages.length - 1].id : null;
     } catch (error) {
-        console.error("Błąd ładowania wiadomości:", error);
+        console.error("Błąd ładowania:", error);
         showError("Nie udało się załadować wiadomości.");
     }
 }
 
-// Wyświetlanie wiadomości
 function displayChatMessage(msg, isSelf) {
     const chatList = document.getElementById("chatMessages");
     let parsedDate;
     try {
         parsedDate = new Date(msg.timestamp);
     } catch (error) {
-        console.warn(`Nieprawidłowy format daty dla timestampu: ${msg.timestamp}`);
         parsedDate = new Date();
     }
 
-    const chatMessageDate = isNaN(parsedDate) ? "Nieznana data" : parsedDate.toLocaleDateString('pl-PL', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
-
+    const chatMessageDate = parsedDate.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
     if (chatMessageDate !== lastDate) {
         lastDate = chatMessageDate;
         const separator = document.createElement("li");
@@ -216,7 +198,12 @@ function displayChatMessage(msg, isSelf) {
     if (msg.replyTo) {
         const replyDiv = document.createElement("div");
         replyDiv.classList.add("replying-to");
-        replyDiv.innerHTML = `Odpowiada na: [Wiadomość #${msg.replyTo}] <span class="cancel-reply" onclick="cancelReply()">Anuluj</span>`;
+        const repliedMsg = cachedMessages.find(m => m.id === msg.replyTo);
+        if (repliedMsg) {
+            replyDiv.textContent = `${repliedMsg.username}: ${repliedMsg.message}`;
+        } else {
+            replyDiv.textContent = `Odpowiedź na: [Wiadomość #${msg.replyTo} nie znaleziona]`;
+        }
         li.appendChild(replyDiv);
     }
 
@@ -224,36 +211,44 @@ function displayChatMessage(msg, isSelf) {
     content.classList.add("message-content");
     content.textContent = String(msg.message || "[Brak treści]");
 
-    if (msg.username === "SUSpicio") {
-        usernameLabel.classList.add("rainbowText");
+    // Dodanie DEVcontent dla trybu deweloperskiego z # przed ID
+    const DEVcontent = document.createElement("div");
+    if (localStorage.getItem('DEVsettings') === "true") {
+        DEVcontent.classList.add("DEVmessage-content");
+        DEVcontent.textContent = String(`#${msg.id}` || "[Brak ID]"); // Dodano # przed msg.id
+        li.appendChild(DEVcontent);
     }
-    if (msg.username === "DEV") {
-        usernameLabel.style.color = "#ffd700";
-    }
+
+    if (msg.username === "SUSpicio") usernameLabel.classList.add("rainbowText");
+    if (msg.username === "DEV") usernameLabel.style.color = "#ffd700";
 
     const time = document.createElement("div");
     time.classList.add("timestamp");
-    time.textContent = isNaN(parsedDate) ? "Nieznany czas" : parsedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    time.textContent = parsedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const reactionsDiv = document.createElement("div");
+    reactionsDiv.classList.add("reactions");
     if (msg.reactions && typeof msg.reactions === "object") {
         for (const [reaction, users] of Object.entries(msg.reactions)) {
             if (Array.isArray(users)) {
                 const reactionSpan = document.createElement("span");
                 reactionSpan.classList.add("reaction");
-                reactionSpan.textContent = `${reaction} ${users.length}`;
+                reactionSpan.textContent = reaction;
                 reactionSpan.onclick = () => addReaction(msg.id, reaction);
+                const countSpan = document.createElement("span");
+                countSpan.classList.add("reaction-count");
+                countSpan.textContent = users.length;
+                reactionSpan.appendChild(countSpan);
                 reactionsDiv.appendChild(reactionSpan);
             }
         }
     }
 
-    const hasReactions = msg.reactions && Object.keys(msg.reactions).length > 0;
     const addReactionSpan = document.createElement("span");
     addReactionSpan.classList.add("reaction");
-    addReactionSpan.textContent = hasReactions ? "👍" : "👍"; // Jeśli są reakcje, tylko ikona
+    addReactionSpan.textContent = "👍";
     addReactionSpan.onclick = () => addReaction(msg.id, "👍");
-    if (!hasReactions) reactionsDiv.appendChild(addReactionSpan);
+    if (!msg.reactions || Object.keys(msg.reactions).length === 0) reactionsDiv.appendChild(addReactionSpan);
 
     if (isSelf) {
         const editBtn = document.createElement("span");
@@ -277,7 +272,7 @@ function displayChatMessage(msg, isSelf) {
     }
 
     li.onclick = (e) => {
-        if (e.target.classList.contains("reaction") || e.target.classList.contains("edit-btn") || e.target.classList.contains("delete-btn") || e.target.classList.contains("cancel-reply")) return;
+        if (e.target.classList.contains("reaction") || e.target.classList.contains("edit-btn") || e.target.classList.contains("delete-btn")) return;
         replyingToMessageId = msg.id;
         updateReplyingTo(msg);
     };
@@ -298,7 +293,17 @@ function updateReplyingTo(msg) {
     if (msg) {
         const replyDiv = document.createElement("div");
         replyDiv.classList.add("replying-to");
-        replyDiv.innerHTML = `Odpowiadasz na wiadomość #${msg.id} <span class="cancel-reply" onclick="cancelReply()">Anuluj</span>`;
+
+        // Znajdź oryginalną wiadomość w pamięci podręcznej
+        const repliedMsg = cachedMessages.find(m => m.id === msg.id);
+        if (!repliedMsg) {
+            replyDiv.innerHTML = `Odpowiadasz na: [Wiadomość nie znaleziona] <span class="cancel-reply" onclick="cancelReply()">Anuluj</span>`;
+        } else if (localStorage.getItem('DEVsettings') === "true") {
+            replyDiv.innerHTML = `Odpowiadasz na #${msg.id} ${repliedMsg.username}: ${repliedMsg.message} <span class="cancel-reply" onclick="cancelReply()">Anuluj</span>`;
+        } else {
+            replyDiv.innerHTML = `Odpowiadasz na ${repliedMsg.username}: ${repliedMsg.message} <span class="cancel-reply" onclick="cancelReply()">Anuluj</span>`;
+        }
+
         container.insertBefore(replyDiv, input);
         input.placeholder = "";
     } else {
@@ -322,17 +327,6 @@ function showError(message) {
 }
 
 // Inicjalizacja
-// Inicjalizacja
 loadChatMessages();
 setInterval(loadChatMessages, 1000);
-
-// Funkcja przewijania
-function scrollToBottom() {
-    const chatList = document.getElementById("chatMessages");
-    setTimeout(() => {
-        chatList.scrollTop = chatList.scrollHeight;
-    }, 1100); // Opóźnienie 100ms, aby DOM się zaktualizował
-}
-
-// Przewiń do najnowszej wiadomości po załadowaniu strony
 scrollToBottom();

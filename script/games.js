@@ -111,9 +111,9 @@ const games = [
         id: "13",
         name: "Bitcoin Miner",
         link: "game/bitcoinminer.html",
-        status: "",
+        status: "HOT",
         tooltip: "Klikaj i zdobywaj BitCoiny",
-        classes: ["ukonczona","money"],
+        classes: ["ukonczona","money","hot"],
         ulubione: false
     },
     {
@@ -283,6 +283,14 @@ function loadGames() {
                 statusEnd.classList.add("game-status-internet");
                 gameBox.appendChild(statusEnd);
             }
+
+            const DEVcontent = document.createElement("div");
+            if (localStorage.getItem('DEVsettings') === "true") {
+                DEVcontent.classList.add("DEVgame-content");
+                DEVcontent.textContent = String(`#${game.id}` || "[Brak ID]"); // Dodano # przed msg.id
+                gameBox.appendChild(DEVcontent);
+            }
+
             // Dodawanie nazwy gry
             const title = document.createElement("h2");
             title.textContent = game.name;

@@ -100,7 +100,12 @@ function loadAchievements() {
         const description = document.createElement("p");
         description.textContent = achievement.opis;
         gameBox.appendChild(description);
-    
+        const DEVcontent = document.createElement("div");
+        if (localStorage.getItem('DEVsettings') === "true") {
+            DEVcontent.classList.add("DEVachievement-content");
+            DEVcontent.textContent = String(`#${achievement.id}` || "[Brak ID]"); // Dodano # przed msg.id
+            gameBox.appendChild(DEVcontent);
+        }
         // Create progress bar
         const progressBar = document.createElement("div");
         progressBar.classList.add("progress-bar");

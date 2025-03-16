@@ -16,6 +16,9 @@
     <link rel="icon" type="image/x-icon" href="img/perun2.png">
 </head>
 <body>
+    <div id="noadversionContainer">
+
+    </div>
     <header class="sticky">
         <div class="progress-container">
             <div class="progress-bar" id="myBar"></div>
@@ -44,6 +47,7 @@
     <div id="parallaxEnd"></div>
     <main>
         <div id="sidenav">
+            <a onclick="downFunction()" title="Idź do dołu"><i class="fa fa-arrow-down"></i></a>
             <a onclick="modalOpen('updateModal')" class="sidenavButton" title="Dziennik Zmian"><i class="fas fa-clipboard-list"></i></a>
             <a onclick="modalOpen('chatModal')" class="sidenavButton" title="Chat"><i class="fas fa-comments"></i></a>
             <a id="perunAIbuttonOpen" class="sidenavButton" title="Perun AI"><i class="fas fa-robot"></i></a>
@@ -51,6 +55,9 @@
             <a onclick="topFunction()" title="Idź do góry"><i class="fa fa-arrow-up"></i></a>
           </div>
         <div id="mainwindow">
+            <div id="usernameDemoContainer" style="display: none;">
+                Twoja wersja Demo Zmiany Użytkownika potrwa jeszcze: ??:??:??
+            </div>
             <h1>Witaj, <span id="usernameDisplay"></span>! Wybierz grę:</h1>
             <div class="search-filters-container borderColorChange">
                 <input type="text" id="searchInput" placeholder="Szukaj">
@@ -143,7 +150,7 @@
     <div id="updateModal" class="modal">
         <div class="modal-content">
             <div id="tabsContainer" class="tab scrollable">
-                <button class="tablinks" style="width: 100%;padding: 12px;" onclick="openTab(event, 'updt')">📆 Aktualizacje</button>
+                <button class="tablinks" style="width: 100%;padding: 12px;margin-top:90px" onclick="openTab(event, 'updt')">📆 Aktualizacje</button>
             </div>
             <div id="tabContentsContainer">
                 <div style="text-align: center;" id="updt" class="tabcontent scrollable" style="display: block;">
@@ -170,9 +177,9 @@
                         </tr>
                         <tr>
                             <td class="tg-0lax"></td>
-                            <td class="tg-0lax rainbowText">RGB Update</td>
+                            <td class="tg-0lax">Neon Update</td>
                             <td class="tg-0lax"></td>
-                            <td class="tg-0lax">Community Update</td>
+                            <td class="tg-0lax">Spring Update</td>
                             <td class="tg-0lax"></td>
                             <td class="tg-0lax"></td>
                             <td class="tg-0lax">??? Update</td>
@@ -205,7 +212,15 @@
     </div>
     <div id="settingsModal" class="modal">
         <div class="modal-content">
-            <input type="text" name="nameInput" id="nameSettingsInput">
+            <label for="nameInput">Nazwa użytkownika:</label>
+            <input type="text" name="nameInput" id="usernameSettingsInput">
+            <button onclick="handleUsernameChange()" id="usernameChangeButton">Zmień</button>
+            <br>
+            <label for="devswitch">Tryb developera:</label>
+            <label class="switch" >
+                <input type="checkbox" id="devToggle" onclick="toggleDevMode()">
+                <span class="slider round"></span>
+            </label>
         </div>
     </div>
     <div id="chatModal" class="modal">
@@ -219,7 +234,7 @@
                 <div id="input-container">
                     <button class="emoji-btn" onclick="toggleEmojiPicker()">😊</button>
                     <input id="chatMessage" type="text" placeholder="Napisz wiadomość..." />
-                    <button onclick="sendChatMessage()">Wyślij</button>
+                    <button id="sendButton" onclick="sendChatMessage()">Wyślij</button>
                 </div>
                 <div id="emojiPicker" class="emoji-picker">
                     <span onclick="addEmoji('😊')">😊</span>

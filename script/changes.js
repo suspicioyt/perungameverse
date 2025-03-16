@@ -1,6 +1,35 @@
 const tabsData = [
     {
-        
+        name: "👤 Community Update",
+        version: "1.1.5.0",
+        date: "16.03.2025r.",
+        quote: "Talking every day",
+        backgroundImage: "https://img.freepik.com/free-vector/vector-social-contact-seamless-pattern-white-blue_1284-41919.jpg",
+        paragraphs: [
+            {
+                title: "Nowości",
+                content: [
+                    "🖥️ Dodano funkcję Zmiany nazwy użytkownika",
+                    "🧑‍💻 Dodano Tryb Developera",
+                    "🗨️ Dodano Chat",
+                    "⬇️ Przycisk w dół"
+                ]
+            },
+            {
+                title: "Gry",
+                content: [
+                    "🔥 BitCoin Clicker nową HOT grą"
+                ]
+            },
+            {
+                title: "Zmiany wizualne",
+                content: [
+                    "🔧 Zmieniono wygląd Perun AI"
+                ]
+            }
+        ]
+    },
+    {
         name: "🎨 RGB Update",
         version: "1.1.4.2",
         date: "11.03.2025r.",
@@ -10,16 +39,16 @@ const tabsData = [
             {
                 title: "Gry",
                 content: [
-                    "Dodano funkcję Grano ostatnio",
-                    'Dodano gry: Solitaire <a href="game/solitaire.html" class="game-short-link" target="_blank">🎮</a> , Bloki 2 <a href="bloki2/index.html" class="game-short-link" target="_blank">🎮</a>'
+                    "🕹️ Dodano funkcję Grano ostatnio",
+                    '♣️ Dodano gry: Solitaire <a href="game/solitaire.html" class="game-short-link" target="_blank">🎮</a> , Bloki 2 <a href="bloki2/index.html" class="game-short-link" target="_blank">🎮</a>'
                 ]
             },
             {
                 title: "Zmiany wizualne",
                 content: [
-                    "Naprawiono przesuwanie ekranu",
-                    "Naprawiono Sidenav",
-                    "Zmieniono nazwę strony głównej i parallax"
+                    "🖥️ Naprawiono przesuwanie ekranu",
+                    "🧭 Naprawiono Sidenav",
+                    "🔤 Zmieniono nazwę strony głównej i parallax"
                 ]
             }
         ]
@@ -323,9 +352,6 @@ const tabsData = [
         version: "leaks",
         quote: "Jeśli możesz sobie coś wymarzyć, możesz to zrobić.",
         paragraphs: [
-            '<a href="test/1.html" class="game-short-link" target="_blank">Perun AI</a>',
-            '<a href="test/2.html" class="game-short-link" target="_blank">Chat</a>',
-            '<a href="test/3.html" class="game-short-link" target="_blank">Ranking</a>'
         ]
     },
     {
