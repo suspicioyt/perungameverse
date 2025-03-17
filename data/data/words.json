@@ -1,0 +1,8 @@
+{
+    "categories": {
+      "zwierzeta": ["KOT", "PIES", "WILK", "SARNA", "ŻABA", "WĄŻ"],
+      "rosliny": ["DRZEWO", "KWIAT", "RÓŻA", "TULIPAN", "BRZOZA", "SOSNA"],
+      "przedmioty": ["DOM", "BIURKO", "KRZESŁO", "STÓŁ", "LAMPA", "OKNO"],
+      "jedzenie": ["CHLEB", "MASŁO", "SER", "MLEKO", "MIÓD", "JAJKO"]
+    }
+  }
