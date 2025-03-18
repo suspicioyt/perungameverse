@@ -13,9 +13,8 @@ function checkadfree() {
   if(window.location.href != 'https://suspicioyt.github.io/perungameverse' || window.location.href != 'https://suspicioyt.github.io/perungameverse/') {
     document.getElementById('noadversionContainer').innerHTML='<div id="noadversion">Wersja bez reklam: <a href="https://suspicioyt.github.io/perungameverse">suspicioyt.github.io/perungameverse</a></div>'
   }
-  
 }
-
+checkadfree();
 function smoothScrollTo(target) {
     isScrolling = true;
     window.scrollTo({

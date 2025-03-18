@@ -9,21 +9,22 @@ const tabsData = [
             {
                 title: "Nowości",
                 content: [
-                    "🖥️ Komendy na Chacie",
-                    "Licznik aktywnych osób"
+                    "🔤 Komendy na Chacie",
+                    "🧮 Licznik aktywnych osób"
                 ]
             },
             {
                 title: "Gry",
                 content: [
-                    "🔥 Zaktualizowano Dino",
-                    "Dodano grę Wisielec"
+                    "🏃‍♂️ Zaktualizowano Dino",
+                    "❓ Dodano grę Wisielec"
                 ]
             },
             {
                 title: "Zmiany wizualne",
                 content: [
-                    "🪛 Zmieniono skrypt, aby szybciej można dodać nowe gry"
+                    "🪛 Zmieniono skrypt, aby szybciej można dodać nowe gry",
+                    "🔍 Poprawa wyszukiwania i filtrowania gier"
                 ]
             }
         ]
