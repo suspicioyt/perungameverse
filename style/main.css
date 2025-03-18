@@ -285,7 +285,7 @@ footer {
 .modal-content {
     padding: 20px;
     width: 80%;
-    max-width: 900px;
+    max-width: 1000px;
     height: 80%; /* Ograniczenie wysokości modala */
     border-radius: 8px;
     overflow: hidden; /* Zapobiega przewijaniu całej zawartości */
@@ -338,8 +338,14 @@ footer {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    overflow-y: hidden;
     border-radius: 8px;
 }
+
+.contentWrapper {
+    overflow-y: auto; /* Przewijanie zawartości zakładki */
+}
+
 .tabcontent h1 {
     font-size: 30px;
 }

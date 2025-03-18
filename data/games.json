@@ -169,5 +169,14 @@
         "tooltip": "Odbijaj piłkę i niszcz bloki",
         "classes": ["beta"],
         "ulubione": false
+    },
+    {
+        "id": "20",
+        "name": "Wisielec",
+        "link": "wisielec/index.html",
+        "status": "Nowość",
+        "tooltip": "Zgadywaj słowa",
+        "classes": ["konserwacje", "nowosc"],
+        "ulubione": false
     }
 ]

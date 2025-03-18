@@ -1,5 +1,34 @@
 const tabsData = [
     {
+        name: "💡 Neon Update",
+        version: "1.1.5.1",
+        date: "18.03.2025r.",
+        quote: "Ja jestem światłością świata",
+        backgroundImage: "https://thumbs.dreamstime.com/b/digital-artwork-features-vibrant-hello-world-neon-text-surrounded-soft-bubble-like-clouds-captures-dreamy-glowing-344915658.jpg",
+        paragraphs: [
+            {
+                title: "Nowości",
+                content: [
+                    "🖥️ Komendy na Chacie",
+                    "Licznik aktywnych osób"
+                ]
+            },
+            {
+                title: "Gry",
+                content: [
+                    "🔥 Zaktualizowano Dino",
+                    "Dodano grę Wisielec"
+                ]
+            },
+            {
+                title: "Zmiany wizualne",
+                content: [
+                    "🪛 Zmieniono skrypt, aby szybciej można dodać nowe gry"
+                ]
+            }
+        ]
+    },
+    {
         name: "👤 Community Update",
         version: "1.1.5.0",
         date: "16.03.2025r.",
@@ -355,10 +384,18 @@ const tabsData = [
         ]
     },
     {
-        name: "❓FAQ",
-        version: "faq",
-        quote: "Często zadawane pytania",
+        name: "❓Pomoc",
+        version: "help",
+        quote: "Pomoc i Często zadawane pytania",
         paragraphs: [
+            {
+                title: "❓ Jakie są komendy na Chacie? ❓",
+                content: [
+                    "/scrollToBottom",
+                    "/scrollToTop",
+                    "/img(<u>url</u>)"
+                ]
+            },
             {
                 title: "❓ Jaka jest hierarchia statusu gier? ❓",
                 content: [
@@ -405,29 +442,29 @@ function loadTabs() {
         const tabContent = document.createElement("div");
         tabContent.id = `tab${index}`;
         tabContent.classList.add("tabcontent", "scrollable");
-        
+
         if (tab.backgroundImage) {
             tabContent.style.backgroundImage = `url(${tab.backgroundImage})`;
         }
 
         tabContent.innerHTML = `
+        <h1>${tab.name} (${tab.version})</h1>
+        <p><strong>Data publikacji:</strong> ${tab.date || "Brak"}</p>
+        <cite>${tab.quote}</cite>
+    `;
+        if (tab.date) {
+            tabContent.innerHTML = `
             <h1>${tab.name} (${tab.version})</h1>
             <p><strong>Data publikacji:</strong> ${tab.date || "Brak"}</p>
             <cite>${tab.quote}</cite>
         `;
-        if (tab.date) {
-            tabContent.innerHTML = `
-                <h1>${tab.name} (${tab.version})</h1>
-                <p><strong>Data publikacji:</strong> ${tab.date || "Brak"}</p>
-                <cite>${tab.quote}</cite>
-            `;
         } else {
             tabContent.innerHTML = `
-                <h1>${tab.name} (${tab.version})</h1>
-                <cite>${tab.quote}</cite>
-            `;
+            <h1>${tab.name} (${tab.version})</h1>
+            <cite>${tab.quote}</cite>
+        `;
         }
-        
+
         tab.paragraphs.forEach(paragraph => {
             if (typeof paragraph === "object" && paragraph.title && paragraph.content) {
                 const section = document.createElement("div");
@@ -451,6 +488,7 @@ function loadTabs() {
     if (tabsContainer.querySelector(".tablinks")) {
         tabsContainer.querySelector(".tablinks").click();
     }
+
 }
 
 function openTab(evt, tabId) {
@@ -469,23 +507,23 @@ function loadUpdateSlideshow() {
 
     const tab = tabsData[0];
     slide.innerHTML = `
-        <h2>${tab.name} (${tab.version})</h2>
-        <p>${tab.date || "Brak daty"}</p>
-        <cite>${tab.quote}</cite>
-    `;
+    <h2>${tab.name} (${tab.version})</h2>
+    <p>${tab.date || "Brak daty"}</p>
+    <cite>${tab.quote}</cite>
+`;
     tab.paragraphs.forEach(paragraph => {
         if (typeof paragraph === "object" && paragraph.title && paragraph.content) {
             const section = document.createElement("div");
             section.innerHTML = `<h2>${paragraph.title}</h2>`;
             paragraph.content.forEach(item => {
                 const p = document.createElement("cite");
-                p.innerHTML = item+"<br>";
+                p.innerHTML = item + "<br>";
                 section.appendChild(p);
             });
             slide.appendChild(section);
         } else {
             const p = document.createElement("cite");
-            p.innerHTML = paragraph+"<br>";
+            p.innerHTML = paragraph + "<br>";
             slide.appendChild(p);
         }
     });
@@ -496,8 +534,11 @@ function loadUpdateSlideshow() {
     button.classList = "game-link feedback-button";
     button.style.cursor = "pointer";
     button.innerHTML = "Czytaj więcej - Dziennik zmian";
-    button.onclick = function () { modalOpen('updateModal'); };
+    button.onclick = function() {
+        modalOpen('updateModal');
+    };
     slide.appendChild(button);
+
 }
 
 function loadVersion() {
@@ -508,7 +549,6 @@ function loadVersion() {
         console.warn("Nie udało się załadować wersji. Sprawdź, czy tabsData.first.version jest poprawnie zdefiniowane.");
     }
 }
-
 loadTabs();
 loadUpdateSlideshow();
 loadVersion();

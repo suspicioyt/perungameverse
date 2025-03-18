@@ -81,18 +81,6 @@
             </div>
             <div class="slideshow-container borderColorChange">
                 <div class="slides">
-                    <h1>Plebiscyt!</h1>
-                    <div class="slide" id="plebiscytSlideshow">
-                        Zakończono głosowanie, oto wyniki:
-                        <img src="img/plebiscyt.png" alt="jak nie wyświetla to niżej masz wyniki">
-                        1. BitCoin Miner - 50%<br>
-                        2. Snake - 25%<br>
-                        Rizz Party Tycoon - 25%<br><br>
-                        Gra BitCoin Miner zostanie nową HOT grą na następny kwartał (może krócej).
-                        Zagraj w nią już teraz: <a href="game/bitcoinminer.html" class="game-short-link" target="_blank">🎮</a>
-                    </div>  
-                </div>
-                <div class="slides">
                     <h1>Najnowszy update!</h1>
                     <div class="slide" id="updateSlideshow"></div>
                 </div>
@@ -122,7 +110,7 @@
                     <span class="dot"></span>
                 </div>
             </div>
-            <div class="game-container borderColorChange" max="13">
+            <div class="game-container borderColorChange" max="12">
                 <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
             </div>
             <div id="perunAI">
@@ -153,7 +141,7 @@
                 <button class="tablinks" style="width: 100%;padding: 12px;margin-top:90px" onclick="openTab(event, 'updt')">📆 Aktualizacje</button>
             </div>
             <div id="tabContentsContainer">
-                <div style="text-align: center;" id="updt" class="tabcontent scrollable" style="display: block;">
+                <div style="text-align: center;" id="updt" class="tabcontent" style="display: block;">
                     <table>
                         <thead>
                             <tr>
@@ -206,7 +194,7 @@
         </div>
     </div>
     <div id="achievementModal" class="modal">
-        <div class="modal-content" id="achievementModalContent">
+        <div class="modal-content" id="achievementModalContent" style="overflow-y: auto;">
             <button class="refreshButton"><i class="fas fa-redo" onclick="reloadAchievements()"></i></button>
         </div>
     </div>
@@ -226,7 +214,10 @@
     <div id="chatModal" class="modal">
         <div class="modal-content">
             <div id="chat-container">
-                <div id="chat-window">
+                <div id="users-counter" class="users-counter">
+                    Aktywni użytkownicy: <span id="activeUsersCount">0</span>
+                </div>
+                <div id="chat-window" class="scrollable">
                     <ul id="chatMessages">
                         <div id="ChatLoading" class="spinner" style="display: block;"></div>
                     </ul>
@@ -262,10 +253,10 @@
         <div class="loader loader-child"></div>
     </div>
     <script src="script/script.js"></script>
-    <script src="script/achievement.js"></script>
+    <script src="script/achievements.js"></script>
     <script src="script/games.js"></script>
     <script src="script/changes.js"></script>
-    <script src="script/script2.js"></script>
     <script src="script/chat.js"></script>
+    <script src="script/script2.js"></script>
 </body>
 </html>

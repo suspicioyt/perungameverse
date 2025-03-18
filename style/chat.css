@@ -4,35 +4,16 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    border-radius: 8px; /* Rounded corners */
 }
 
 #chat-window {
     flex: 1;
-    overflow-y: scroll; /* Zmieniono na scroll */
+    overflow-y: hidden; /* Changed from scroll */
     padding: 15px;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: auto; /* Wyłącza rozmazywanie na iOS */
-    scrollbar-width: thin; /* Cienki pasek przewijania */
-    scrollbar-color: #888 #f0f2f5; /* Kolor paska */
-}
-
-/* Stylizacja paska przewijania dla Webkit (Chrome, Safari) */
-#chat-window::-webkit-scrollbar {
-    width: 8px;
-}
-
-#chat-window::-webkit-scrollbar-track {
-    background: #f0f2f5;
-    border-radius: 10px;
-}
-
-#chat-window::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 10px;
-}
-
-#chat-window::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    position: relative; /* For positioning the scroll button */
+    -webkit-overflow-scrolling: auto; /* Remove touch to prevent blur */
 }
 
 #chatMessages {
@@ -137,7 +118,8 @@
     background: #fff;
     border-top: 1px solid #e0e0e0;
     position: relative;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.03); /* Softer shadow */
+    z-index: 10; /* Ensure it stays above messages */
 }
 
 #chatMessage {
@@ -162,11 +144,12 @@
     border: none;
     cursor: pointer;
     font-size: 15px;
-    transition: background 0.2s;
+    transition: all 0.3s ease; /* Smoother transition */
 }
 
 #input-container button:hover {
     background: #0056b3;
+    transform: translateY(-1px); /* Slight lift effect */
 }
 
 .emoji-btn {
@@ -184,13 +167,15 @@
 .emoji-picker {
     position: absolute;
     bottom: 70px;
+    left: 15px; /* Align with input */
     background: #fff;
     border: 1px solid #d0d0d0;
     padding: 10px;
     border-radius: 15px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Deeper shadow */
     display: none;
     z-index: 100;
+    animation: slideUp 0.2s ease; /* Add animation */
 }
 
 .emoji-picker span {
@@ -217,6 +202,17 @@
     align-items: center;
     width: 100%;
     font-style: italic;
+    overflow-y: hidden;
+    max-height: 60px; /* Limit height */
+    overflow-y: auto; /* Scroll if too long */
+    word-wrap: break-word; /* Wrap text */
+    white-space: normal; /* Allow text wrapping */
+}
+
+.replying-to span:first-child {
+    flex: 1;
+    margin-right: 10px;
+    overflow-wrap: break-word; /* Better text wrapping */
 }
 
 .cancel-reply {
@@ -307,7 +303,10 @@
     0% { background-position: 0%; }
     100% { background-position: 200%; }
 }
-
+@keyframes slideUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 @media (max-width: 600px) {
     #chat-container {
         height: 90vh;
@@ -351,4 +350,13 @@
     margin-top: 4px;
     font-style: italic;
     opacity: 0.8;
+}
+.users-counter {
+    padding: 10px 15px;
+    background: #f7f9fc;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+    text-align: left;
 }

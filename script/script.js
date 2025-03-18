@@ -5,16 +5,17 @@ const element = document.querySelector('#parallaxEnd');
 
 function getElementPosition() {
     const rect = element.getBoundingClientRect();
-    return rect.top + window.scrollY - 150; // Pozycja elementu względem całej strony
+    return rect.top + window.scrollY - 150;
 }
+
 function checkadfree() {
   console.log(window.location.href);
-  if(window.location.href != 'https://suspicioyt.github.io/perungameverse') {
+  if(window.location.href != 'https://suspicioyt.github.io/perungameverse' || window.location.href != 'https://suspicioyt.github.io/perungameverse/') {
     document.getElementById('noadversionContainer').innerHTML='<div id="noadversion">Wersja bez reklam: <a href="https://suspicioyt.github.io/perungameverse">suspicioyt.github.io/perungameverse</a></div>'
   }
   
 }
-// Funkcja płynnego przewijania
+
 function smoothScrollTo(target) {
     isScrolling = true;
     window.scrollTo({
@@ -22,38 +23,32 @@ function smoothScrollTo(target) {
         behavior: 'smooth',
     });
 
-    // Odblokowanie przewijania po animacji
     setTimeout(() => {
         isScrolling = false;
-    }, 100); // Czas dopasowany do długości animacji
+    }, 100);
 }
 
-// Obsługa zdarzenia scrolla
 window.addEventListener('scroll', function () {
     const currentScrollY = window.scrollY;
     const elementHeight = element.offsetHeight;
 
-    // Sprawdzenie, czy scroll mieści się w przedziale 0 a wysokość elementu
     if (currentScrollY >= 0 && currentScrollY <= (getElementPosition() + elementHeight)) {
-        // Sprawdzamy, czy różnica w przewijaniu jest wystarczająca, aby wykonać akcję
         if (Math.abs(currentScrollY - lastScrollY) < threshold) {
-            return; // Ignorujemy małe zmiany w przewinięciu
+            return;
         }
 
-        // Przewijanie w dół
         if (!isScrolling && currentScrollY > lastScrollY) {
-            smoothScrollTo(getElementPosition()); // Przewiń do elementu docelowego
+            smoothScrollTo(getElementPosition());
             var header = document.querySelector('header');
             header.classList.add('scrolled');
         }
 
-        // Przewijanie w górę
         if (!isScrolling && currentScrollY < lastScrollY && currentScrollY > 0) {
-            smoothScrollTo(0); // Przewiń na początek strony
+            smoothScrollTo(0);
             var header = document.querySelector('header');
             header.classList.remove('scrolled');
         }
-        lastScrollY = currentScrollY; // Zaktualizuj ostatnią pozycję
+        lastScrollY = currentScrollY;
     }
 });
 document.addEventListener('DOMContentLoaded', function () {
@@ -66,36 +61,136 @@ document.addEventListener('DOMContentLoaded', function () {
     header.classList.add('scrolled');
   }
 })
+function updateGameContainers(filteredGames) {
+  const containers = document.querySelectorAll(".game-container");
+  const lastPlayedGameId = localStorage.getItem('lastPlayedGame');
 
-document.getElementById('searchInput').onkeyup = function(){
-  var input, filter, containers, box, a, i, txtValue;
-  input = document.getElementById("searchInput");
-  filter = input.value.toUpperCase();
-  containers = document.getElementsByClassName("game-container");
+  const sortedGames = filteredGames.sort((a, b) => {
+      if (a.id === lastPlayedGameId) return -1;
+      if (a.ulubione && !b.ulubione) return -1;
+      if (!a.ulubione && b.ulubione) return 1;
+      return 0;
+  });
 
-  // Iteracja przez wszystkie kontenery
-  for (i = 0; i < containers.length; i++) {
-      box = containers[i].getElementsByClassName("game-box");  // Pobierz wszystkie "game-box" w danym kontenerze
+  let gameIndex = 0;
+  containers.forEach(container => {
+      const maxGames = parseInt(container.getAttribute("max"), 10) || sortedGames.length;
 
-      // Iteracja przez wszystkie "game-box" w kontenerze
-      for (let j = 0; j < box.length; j++) {
-          a = box[j].getElementsByTagName("h2")[0];  // Pobierz pierwszy tag <h2>
-          if (a) {  // Sprawdzenie, czy tag <h2> istnieje
-              txtValue = a.textContent || a.innerText;
-              if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                  box[j].style.display = "";  // Jeśli pasuje, pokaż element
-              } else {
-                  box[j].style.display = "none";  // Jeśli nie pasuje, ukryj element
-              }
+      const refreshButton = container.querySelector(".refreshButton");
+      container.innerHTML = "";
+      if (refreshButton) container.appendChild(refreshButton);
+
+      for (let i = 0; i < maxGames && gameIndex < sortedGames.length; i++) {
+          const game = sortedGames[gameIndex];
+          gameIndex++;
+
+          const gameBox = document.createElement("div");
+          gameBox.classList.add("game-box");
+          gameBox.setAttribute('gameId', game.id);
+
+          if (game.id === lastPlayedGameId) {
+              gameBox.classList.add("lastPlayed");
+              const status = document.createElement("span");
+              status.innerHTML = "Ostatnio grane";
+              status.classList.add("lastPlayedLabel");
+              gameBox.appendChild(status);
           }
+
+          game.classes.forEach(className => gameBox.classList.add(className));
+
+          if (game.ulubione) {
+              gameBox.style.backgroundColor = "#FF4C4C";
+          }
+
+          if (game.status) {
+              const status = document.createElement("span");
+              status.innerHTML = game.status;
+              status.classList.add("game-label");
+              gameBox.appendChild(status);
+          }
+          if (game.classes.includes("ukonczona")) {
+              const statusEnd = document.createElement("span");
+              statusEnd.textContent = "Ukończona";
+              statusEnd.classList.add("game-status");
+              gameBox.appendChild(statusEnd);
+          }
+          if (game.classes.includes("money")) {
+              const statusEnd = document.createElement("span");
+              statusEnd.innerHTML = '<i class="fas fa-dollar-sign"></i>';
+              statusEnd.classList.add("game-status-money");
+              gameBox.appendChild(statusEnd);
+          }
+          if (game.classes.includes("internet")) {
+              const statusEnd = document.createElement("span");
+              statusEnd.innerHTML = '<i class="fas fa-globe"></i>';
+              statusEnd.classList.add("game-status-internet");
+              gameBox.appendChild(statusEnd);
+          }
+
+          const DEVcontent = document.createElement("div");
+          if (localStorage.getItem('DEVsettings') === "true") {
+              DEVcontent.classList.add("DEVgame-content");
+              DEVcontent.textContent = `#${game.id || "[Brak ID]"}`;
+              gameBox.appendChild(DEVcontent);
+          }
+
+          const title = document.createElement("h2");
+          title.textContent = game.name;
+          gameBox.appendChild(title);
+
+          const link = document.createElement("a");
+          link.href = game.link;
+          link.textContent = "Zagraj";
+          link.classList.add("game-link");
+          link.addEventListener('click', function () {
+              addPlayedGamesToStorage(game.id);
+              localStorage.setItem('lastPlayedGame', game.id);
+          });
+          link.target = "_blank";
+
+          if (game.tooltip) {
+              const tooltip = document.createElement("span");
+              tooltip.innerHTML = game.tooltip;
+              tooltip.classList.add("tooltiptext");
+              link.appendChild(tooltip);
+          }
+
+          gameBox.appendChild(link);
+
+          const favoriteButton = document.createElement("div");
+          favoriteButton.classList.add("favorite-button");
+          favoriteButton.innerHTML = heartLikeInner1 + game.id + heartLikeInner2 + game.id + heartLikeInner3;
+
+          const favoriteCheckbox = favoriteButton.querySelector("input");
+          favoriteCheckbox.checked = game.ulubione;
+          favoriteCheckbox.addEventListener("change", () => {
+              game.ulubione = favoriteCheckbox.checked;
+              saveFavorites();
+          });
+
+          gameBox.appendChild(favoriteButton);
+
+          container.appendChild(gameBox);
       }
-  }
+  });
+
+  attachFavoriteEvents();
 }
+document.getElementById('searchInput').onkeyup = function () {
+  const input = document.getElementById("searchInput");
+  const filter = input.value.toUpperCase();
+
+  const filteredGames = games.filter(game => {
+      const txtValue = game.name.toUpperCase();
+      return txtValue.indexOf(filter) > -1;
+  });
+
+  updateGameContainers(filteredGames);
+};
 
 window.onclick = function(event) {
   const dropdown = document.getElementById("dropdownFiltres");
 
-  // Jeśli kliknięto poza przyciskiem lub menu
   if (!event.target.matches('.filterdropbtn') && !event.target.matches('.dropdownFiltres-content') && !event.target.closest('.dropdownFiltres-content')) {
       if (dropdown.classList.contains("show")) {
           dropdown.classList.remove("show");
@@ -103,21 +198,15 @@ window.onclick = function(event) {
   }
 };
 
-
 function filterSelection(category) {
-  const boxes = document.querySelectorAll(".game-box");
-
-  boxes.forEach((box) => {
-    // Pobierz listę kategorii przypisaną do elementu
-    const boxCategories = box.className.split(" ");
-
-    if (category === "all" || boxCategories.includes(category)) {
-      box.style.display = ""; // Pokaż element
-    } else {
-      box.style.display = "none"; // Ukryj element
-    }
+  const filteredGames = games.filter(game => {
+      if (category === "all") return true;
+      return game.classes.includes(category);
   });
+
+  updateGameContainers(filteredGames);
 }
+
 function changeClass(element) {
   const buttons = document.getElementsByTagName('button');
   for (let button of buttons) {
@@ -150,7 +239,6 @@ function modalClose(modalId) {
   }
 }
 
-// Zamknięcie modalu po naciśnięciu Escape
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
       const modal = document.querySelector('.modal.show');
@@ -160,7 +248,6 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-// Zamknięcie modalu po kliknięciu w tło
 document.addEventListener('click', (event) => {
   const modal = document.querySelector('.modal.show');
   if (modal && event.target === modal) {
@@ -169,32 +256,35 @@ document.addEventListener('click', (event) => {
 });
 
 
-
+function generateUUID() {
+  if (crypto && crypto.randomUUID) {
+      return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+  });
+}
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Sprawdzanie, czy nazwa użytkownika jest zapisana w localStorage
   const storedUsername = localStorage.getItem("perunUsername");
-  let points = parseFloat(localStorage.getItem('perunPoints')) || 0;
+  const storedUUID = localStorage.getItem("perunUUID");
 
-  if (storedUsername) {
-    // Jeśli nazwa użytkownika jest zapisana, ukrywamy ekran powitalny (modal)
+  if (storedUsername && storedUUID) {
     document.getElementById("welcomeModal").style.display = 'none';
 
-    // Wyświetlanie nazwy użytkownika na stronie (można to zrobić np. w nagłówku)
     document.getElementById("usernameDisplay").textContent = storedUsername;
   } else {
-    // Jeśli nie ma zapisanej nazwy, wyświetlamy ekran powitalny (modal)
     document.getElementById("welcomeModal").style.display = 'block';
 
-    // Dynamicznie dodaj plik CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'effects/fireworks.css';
-    link.id = 'fireworksStyles'; // Nadaj unikalne id
+    link.id = 'fireworksStyles';
     document.head.appendChild(link);
 }
 
-  // Funkcja zapisu nazwy użytkownika do localStorage
   document.getElementById("saveUsernameBtn").addEventListener("click", function () {
     localStorage.setItem("DEVsettings","false");
     const username = document.getElementById("usernameInput").value.trim();
@@ -203,29 +293,25 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }    
     if (username) {
-      // Zapisanie nazwy użytkownika w localStorage
       localStorage.setItem("perunUsername", username);
+      localStorage.setItem("perunUUID", generateUUID());
 
       const linkToRemove = document.getElementById('fireworksStyles');
       if (linkToRemove) {
-        linkToRemove.remove(); // Usuwa element z DOM
+        linkToRemove.remove();
       }
 
-      // Ukrycie formularza i pokazanie wiadomości powitalnej
       document.getElementById("welcomeModal").style.display = 'none';
 
-      // Wyświetlanie nazwy użytkownika na stronie
       document.getElementById("usernameDisplay").textContent = `Witaj, ${username}!`;
       document.getElementById("player-name").textContent = username;
       
     } else {
-      // Jeśli nazwa nie została wprowadzona, pokazujemy komunikat o błędzie
       document.getElementById("errorMessage").style.display = 'block';
     }
   });
 });
 
-// When the user clicks on the button, scroll to the top of the document
 function topFunction() {
   document.body.scrollTop = 0;
   document.documentElement.scrollTop = 0;
@@ -254,50 +340,43 @@ var x = setInterval(function() {
   }
 }, 1000);
 
-// Wywołanie funkcji po załadowaniu strony
 window.onload = function() {
   loadPlayerData();
 };
 
 
-let slideIndex = 0; // Ustawienie na 0, bo indeksy zaczynają się od 0
+let slideIndex = 0;
 showSlides(slideIndex);
 
-// Funkcja do zmiany slajdów na podstawie indeksu
 function showSlides(n) {
     const slides = document.querySelectorAll('.slides');
     const dots = document.querySelectorAll('.dot');
 
-    if (n >= slides.length) slideIndex = 0; // Jeśli przekroczyliśmy liczbę slajdów, wracamy do 0
-    if (n < 0) slideIndex = slides.length - 1; // Jeśli n jest mniejsze niż 0, idziemy do ostatniego slajdu
+    if (n >= slides.length) slideIndex = 0;
+    if (n < 0) slideIndex = slides.length - 1;
 
-    slides.forEach(slide => slide.style.display = "none"); // Ukryj wszystkie slajdy
-    dots.forEach(dot => dot.classList.remove("active")); // Usuń aktywne klasy z wszystkich punktów
+    slides.forEach(slide => slide.style.display = "none");
+    dots.forEach(dot => dot.classList.remove("active"));
 
-    slides[slideIndex].style.display = "block"; // Wyświetl bieżący slajd
-    dots[slideIndex].classList.add("active"); // Dodaj aktywną klasę do bieżącego punktu
+    slides[slideIndex].style.display = "block";
+    dots[slideIndex].classList.add("active");
 }
 
-// Funkcja do zmiany slajdów za pomocą przycisków
 function changeSlide(n) {
     showSlides(slideIndex += n);
 }
 
-// Funkcja do zmiany slajdów na podstawie wybranego punktu
 function currentSlide(n) {
-    showSlides(slideIndex = n - 1); // Indeksowanie w tablicach zaczyna się od 0, więc odejmujemy 1
+    showSlides(slideIndex = n - 1);
 }
 
-// Obsługa automatycznego pokazu slajdów
 let autoSlide = setInterval(() => changeSlide(1), 3000);
 
-// Pauzowanie automatycznego pokazu podczas interakcji użytkownika
 function resetAutoSlide() {
     clearInterval(autoSlide);
-    autoSlide = setInterval(() => changeSlide(1), 3000); // Restartujemy automatyczny pokaz
+    autoSlide = setInterval(() => changeSlide(1), 3000);
 }
 
-// Dodanie obsługi kliknięć dla przycisków i punktów
 document.querySelector('.prev').addEventListener('click', () => {
     changeSlide(-1);
     resetAutoSlide();
@@ -310,47 +389,38 @@ document.querySelector('.next').addEventListener('click', () => {
 
 document.querySelectorAll('.dot').forEach((dot, index) => {
     dot.addEventListener('click', () => {
-        currentSlide(index + 1); // Przesuwamy o 1, bo punkty zaczynają się od 1, a tablica od 0
+        currentSlide(index + 1);
         resetAutoSlide();
     });
 });
 
-// Zatrzymanie automatycznego przewijania, gdy użytkownik najedzie na slajd
 document.querySelectorAll('.slides').forEach(slide => {
     slide.addEventListener('mouseover', () => {
-        clearInterval(autoSlide); // Zatrzymujemy automatyczne przewijanie
+        clearInterval(autoSlide);
     });
 
-    // Wznawianie automatycznego przewijania, gdy użytkownik opuści slajd
     slide.addEventListener('mouseleave', () => {
-        autoSlide = setInterval(() => changeSlide(1), 2000); // Wznawiamy automatyczne przewijanie
+        autoSlide = setInterval(() => changeSlide(1), 2000);
     });
 });
-// script.js
 window.addEventListener("load", () => {
   const loaderContainer = document.querySelector(".loader-container");
 
-  // Sprawdzenie, czy strona została załadowana wcześniej w tej sesji
   if (!sessionStorage.getItem("loaded")) {
-      // Jeśli nie, ustawiamy flagę w sessionStorage
       sessionStorage.setItem("loaded", "true");
-      loaderContainer.style.display = "flex";  // Pokazuje loadera
-      // Wyświetlenie loadera przez 5 sekund, jeśli strona nie była wcześniej załadowana
+      loaderContainer.style.display = "flex";
       setTimeout(() => {
-          loaderContainer.style.display = "none";  // Znika loader
+          loaderContainer.style.display = "none";
           location.reload();
-      }, 4000); // Animacja trwa 5 sekund
+      }, 4000); 
   } else {
-      // Jeśli strona została już załadowana w tej sesji, ukrywamy loader natychmiast
       loaderContainer.style.display = "none";
   }
 });
 
-// Klucze używane w localStorage
 const playerNameKey = "perunUsername";
 const playerPLNKey = "perunPLN";
 
-// Funkcja do aktualizacji dynamicznego napisu
 function updateDynamicText(key, elementId, defaultMessage) {
     const storedValue = localStorage.getItem(key);
     const dynamicTextElement = document.getElementById(elementId);
@@ -360,7 +430,6 @@ function updateDynamicText(key, elementId, defaultMessage) {
     }
 }
 
-// Funkcje specyficzne dla gracza
 function updatePlayerName() {
     updateDynamicText(playerNameKey, "playerName", "?");
 }
@@ -370,9 +439,8 @@ function updatePlayerPLN() {
   const dynamicTextElement = document.getElementById("playerPLN");
 
   if (dynamicTextElement) {
-      // Sprawdzenie, czy wartość jest liczbą, a jeśli tak, to zaokrąglenie do 2 miejsc po przecinku
       if (storedValue && !isNaN(storedValue)) {
-          dynamicTextElement.textContent = parseFloat(storedValue).toFixed(2) + " zł"; // Zaokrąglenie do 2 miejsc po przecinku
+          dynamicTextElement.textContent = parseFloat(storedValue).toFixed(2) + " zł";
       } else {
           dynamicTextElement.textContent = "0.00 zł";
       }
@@ -383,16 +451,14 @@ function updatePlayerPoints() {
   const dynamicTextElement = document.getElementById("playerPLN");
 
   if (dynamicTextElement) {
-      // Sprawdzenie, czy wartość jest liczbą, a jeśli tak, to zaokrąglenie do 2 miejsc po przecinku
       if (storedValue && !isNaN(storedValue)) {
-          dynamicTextElement.textContent = parseFloat(storedValue).toFixed(2) + " zł"; // Zaokrąglenie do 2 miejsc po przecinku
+          dynamicTextElement.textContent = parseFloat(storedValue).toFixed(2) + " zł";
       } else {
           dynamicTextElement.textContent = "-";
       }
   }
 }
 
-// Automatyczne odświeżanie napisów po zmianie w localStorage
 window.addEventListener("storage", (event) => {
     if (event.key === playerNameKey) {
         updatePlayerName();
@@ -401,22 +467,18 @@ window.addEventListener("storage", (event) => {
     }
 });
 
-// Wywołanie początkowe
 updatePlayerName();
 updatePlayerPLN();
 
-// Funkcja zmiany motywu
 function changeTheme(theme) {
   localStorage.setItem('theme', theme);
   document.getElementById('themeStylesheet').setAttribute('href', `style/theme/${theme}.css`);
 }
 
-// Funkcja inicjalizująca motyw po załadowaniu strony
 document.addEventListener("DOMContentLoaded", function () {
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.getElementById('themeStylesheet').setAttribute('href', `style/theme/${savedTheme}.css`);
   
-  // Ustawienie wartości selecta
   const themeSelect = document.getElementById('themeSelect');
   if (themeSelect) {
       themeSelect.value = savedTheme;
@@ -426,15 +488,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// Funkcja otwierająca/zamykająca sidenav
 document.getElementById('sidenavOpenButton').onclick = function() {
   const sidenav = document.getElementById('sidenav');
   
-  // Zmieniamy klasę 'show' na elemencie sidenav
   if (sidenav.classList.contains('show')) {
-      sidenav.classList.remove('show');  // Zamknij menu
+      sidenav.classList.remove('show');
   } else {
-      sidenav.classList.add('show');     // Otwórz menu
+      sidenav.classList.add('show');
   }
 };
 
@@ -442,12 +502,11 @@ document.getElementById('perunAIbuttonOpen').onclick = function() {
   const aiDiv = document.getElementById('perunAI');
   const aiButton = document.getElementById('perunAIbuttonOpen');
   
-  // Zmieniamy klasę 'show' na elemencie sidenav
   if (aiDiv.classList.contains('show')) {
-      aiDiv.classList.remove('show');  // Zamknij menu
+      aiDiv.classList.remove('show');
       aiButton.classList.remove('active');
   } else {
-      aiDiv.classList.add('show');     // Otwórz menu
+      aiDiv.classList.add('show');
       aiButton.classList.add('active');
   }
 };
@@ -537,16 +596,16 @@ async function getAIResponse() {
 function isUsernameDemoTimeExpired() {
   const lastChange = localStorage.getItem("lastChangeTime");
   const now = Date.now();
-  const lockTime = 24 * 60 * 60 * 1000; // 24 godziny w milisekundach
+  const lockTime = 24 * 60 * 60 * 1000;
 
-  if (!lastChange) return true; // Jeśli nie ma zapisu, uznajemy, że czas wygasł
+  if (!lastChange) return true;
 
   return now > parseInt(lastChange) + lockTime;
 }
 function toggleDevMode() {
   const currentMode = localStorage.getItem("DEVsettings") === "true";
   localStorage.setItem("DEVsettings", currentMode ? "false" : "true");
-  loadChatMessages(); // Odśwież wiadomości, aby pokazać/zakryć ID
+  loadChatMessages();
   document.getElementById("devToggle").checked = currentMode ? false : true;
 }
 document.addEventListener("DOMContentLoaded", function () {
@@ -561,7 +620,6 @@ document.addEventListener("DOMContentLoaded", function () {
     sendInput.disabled = true;
   }
 })
-
 
 const input = document.getElementById("usernameSettingsInput");
 const storageKey = "perunUsername";
@@ -594,6 +652,7 @@ function handleUsernameChange() {
           changeButton.disabled = true;
           changeButton.textContent = "Zmiana nazwy zablokowana na 24h";
           startCountdown(lockTime);
+          location.reload();
       } else {
           alert("Niepoprawny kod. Zmiana anulowana.");
       }
@@ -622,7 +681,6 @@ function startCountdown(remainingTime) {
     const countdownInterval = setInterval(updateCountdown, 1000);
 }
 
-// Inicjalizacja po załadowaniu strony
 (function initialize() {
     input.value = localStorage.getItem(storageKey) || "";
     const lastChange = localStorage.getItem(lastChangeKey);

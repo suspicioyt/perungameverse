@@ -110,3 +110,22 @@ label {
   text-align: center;
   background-color: rgba(255, 0, 0, 0.864);
 }
+
+
+
+
+.custom-btn {
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+}
+.btn-1 {
+  border: none;
+  background-color: #ff00bb;
+  box-shadow: 0 0 5px #ff00bb;
+}
+.btn-1:hover {
+   box-shadow: 0 0 10px #3e49a8, 0 0 20px #5d65ab, 0 0 20px #fff inset;
+}

@@ -1,7 +1,10 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzKkpd2zXxeS37TIybV1uiZ8CP3Z2E6M9_ZpFAI1ZzYlWwsVTzmQRS_heTr4GFo1zIz7w/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxKlwDqqAi6_zct_mtQ9ynVQN7mNv_J4EehtuZzmi1STKvJGRKiE76RPgBGZFi3c6doMg/exec";
 let lastDate = "";
 let replyingToMessageId = null;
-let cachedMessages = []; // Pamięć podręczna dla wiadomości
+let cachedMessages = [];
+
+const sessionId = localStorage.getItem("perunUUID"); 
+const username = localStorage.getItem("perunUsername");
 
 function sanitizeInput(input) {
     const div = document.createElement("div");
@@ -9,6 +12,39 @@ function sanitizeInput(input) {
     return div.innerHTML;
 }
 
+let displayedActiveUsers = 0;
+let lastServerActiveUsers = 0;
+const STABILIZATION_DELAY = 5000;
+
+function sendHeartbeat() {
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            action: "heartbeat", 
+            sessionId, 
+            username
+        }),
+        mode: "no-cors"
+    }).catch(error => console.error("Heartbeat error:", error));
+}
+
+function updateActiveUsersCount(serverCount) {
+    lastServerActiveUsers = serverCount;
+    const currentDisplayed = displayedActiveUsers;
+    
+    if (Math.abs(serverCount - currentDisplayed) > 1) {
+        setTimeout(() => {
+            if (lastServerActiveUsers === serverCount) {
+                displayedActiveUsers = serverCount;
+                document.getElementById("activeUsersCount").textContent = displayedActiveUsers;
+            }
+        }, STABILIZATION_DELAY);
+    } else {
+        displayedActiveUsers = serverCount;
+        document.getElementById("activeUsersCount").textContent = displayedActiveUsers;
+    }
+}
 function toggleEmojiPicker() {
     const picker = document.getElementById("emojiPicker");
     picker.style.display = picker.style.display === "block" ? "none" : "block";
@@ -22,10 +58,12 @@ function addEmoji(emoji) {
 }
 
 function scrollToBottom() {
-    const chatList = document.getElementById("chatMessages");
-    setTimeout(() => {
-        chatList.scrollTop = chatList.scrollHeight;
-    }, 100);
+    const chatWindow = document.getElementById("chat-window");
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+function scrollToTop() {
+    const chatWindow = document.getElementById("chat-window");
+    chatWindow.scrollTop = 0;
 }
 
 async function sendChatMessage() {
@@ -38,9 +76,19 @@ async function sendChatMessage() {
         return;
     }
 
-    // Wyłącz przycisk podczas wysyłania
+    if(chatMessage=='/scrollToBottom') {
+        scrollToBottom();
+        document.getElementById("chatMessage").value='';
+        return;
+    }
+    if(chatMessage=='/scrollToTop') {
+        scrollToTop();
+        document.getElementById("chatMessage").value='';
+        return;
+    }
+
     sendButton.disabled = true;
-    sendButton.textContent = "Wysyłanie..."; // Opcjonalnie: zmiana tekstu
+    sendButton.textContent = "Wysyłanie..."; 
 
     const timestamp = new Date().toISOString();
     const data = {
@@ -66,9 +114,8 @@ async function sendChatMessage() {
         console.error("Błąd wysyłania:", error);
         showError("Nie udało się wysłać wiadomości.");
     } finally {
-        // Włącz przycisk z powrotem, niezależnie od wyniku
         sendButton.disabled = false;
-        sendButton.textContent = "Wyślij"; // Przywróć oryginalny tekst
+        sendButton.textContent = "Wyślij";
     }
 }
 
@@ -145,24 +192,27 @@ async function addReaction(messageId, reaction) {
 async function loadChatMessages() {
     try {
         const response = await fetch(API_URL);
-        const chatMessages = await response.json();
+        const data = await response.json();
         const chatList = document.getElementById("chatMessages");
 
-        if (chatMessages.error) throw new Error(chatMessages.error);
-        if (!Array.isArray(chatMessages)) throw new Error("Nieprawidłowe dane wiadomości");
+        if (data.error) throw new Error(data.error);
+        if (!Array.isArray(data.messages)) throw new Error("Nieprawidłowe dane wiadomości");
 
-        // Aktualizuj pamięć podręczną
-        cachedMessages = chatMessages;
-
+        cachedMessages = data.messages;
         chatList.innerHTML = "";
         lastDate = "";
 
-        chatMessages.forEach(msg => {
+        data.messages.forEach(msg => {
             if (!msg.id) msg.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
             displayChatMessage(msg, msg.username === localStorage.getItem("perunUsername"));
         });
 
-        scrollToBottom();
+        updateActiveUsersCount(data.activeUsers || 0);
+
+        if (!sessionStorage.getItem("chatLoaded")) {
+            sessionStorage.setItem("chatLoaded", "true");
+            scrollToBottom();
+        }
     } catch (error) {
         console.error("Błąd ładowania:", error);
         showError("Nie udało się załadować wiadomości.");
@@ -209,15 +259,39 @@ function displayChatMessage(msg, isSelf) {
 
     const content = document.createElement("div");
     content.classList.add("message-content");
-    content.textContent = String(msg.message || "[Brak treści]");
+    
+    const imagePattern = /^\/img\(([^)]+)\)$/;
+    const match = msg.message.match(imagePattern);
+    
+    if (match && match[1]) {
+        const imgUrl = match[1].trim();
+        content.innerHTML = `<img src="${sanitizeUrl(imgUrl)}" alt="obraz" style="max-width: 100%; height: auto;" onerror="this.style.display='none'; this.nextSibling.style.display='block';"><span style="display: none;">[Błąd ładowania obrazu]</span>`;
+        const DEVcontentImg = document.createElement("div");
 
-    // Dodanie DEVcontent dla trybu deweloperskiego z # przed ID
-    const DEVcontent = document.createElement("div");
-    if (localStorage.getItem('DEVsettings') === "true") {
-        DEVcontent.classList.add("DEVmessage-content");
-        DEVcontent.textContent = String(`#${msg.id}` || "[Brak ID]"); // Dodano # przed msg.id
-        li.appendChild(DEVcontent);
+        const DEVcontent = document.createElement("div");
+        if (localStorage.getItem('DEVsettings') === "true") {
+            DEVcontent.classList.add("DEVmessage-content");
+            DEVcontent.textContent = String(`#${msg.id}` || "[Brak ID]");
+            li.appendChild(DEVcontent);
+        }
+
+        if (localStorage.getItem('DEVsettings') === "true") {
+            DEVcontentImg.classList.add("DEVmessageImg-content");
+            DEVcontentImg.textContent = String(imgUrl || "[Brak URL]");
+            li.appendChild(DEVcontentImg);
+        }
+    } else {
+        content.textContent = String(msg.message || "[Brak treści]");
     }
+    
+    function sanitizeUrl(url) {
+        if (!/^https?:\/\//i.test(url)) {
+            return `https://${url}`;
+        }
+        return url;
+    }
+
+
 
     if (msg.username === "SUSpicio") usernameLabel.classList.add("rainbowText");
     if (msg.username === "DEV") usernameLabel.style.color = "#ffd700";
@@ -294,16 +368,24 @@ function updateReplyingTo(msg) {
         const replyDiv = document.createElement("div");
         replyDiv.classList.add("replying-to");
 
-        // Znajdź oryginalną wiadomość w pamięci podręcznej
         const repliedMsg = cachedMessages.find(m => m.id === msg.id);
+        const replyText = document.createElement("span");
+        
         if (!repliedMsg) {
-            replyDiv.innerHTML = `Odpowiadasz na: [Wiadomość nie znaleziona] <span class="cancel-reply" onclick="cancelReply()">Anuluj</span>`;
+            replyText.textContent = `Odpowiadasz na: [Wiadomość nie znaleziona]`;
         } else if (localStorage.getItem('DEVsettings') === "true") {
-            replyDiv.innerHTML = `Odpowiadasz na #${msg.id} ${repliedMsg.username}: ${repliedMsg.message} <span class="cancel-reply" onclick="cancelReply()">Anuluj</span>`;
+            replyText.textContent = `Odpowiadasz na #${msg.id} ${repliedMsg.username}: ${repliedMsg.message}`;
         } else {
-            replyDiv.innerHTML = `Odpowiadasz na ${repliedMsg.username}: ${repliedMsg.message} <span class="cancel-reply" onclick="cancelReply()">Anuluj</span>`;
+            replyText.textContent = `Odpowiadasz na ${repliedMsg.username}: ${repliedMsg.message}`;
         }
 
+        const cancelSpan = document.createElement("span");
+        cancelSpan.classList.add("cancel-reply");
+        cancelSpan.textContent = "Anuluj";
+        cancelSpan.onclick = cancelReply;
+
+        replyDiv.appendChild(replyText);
+        replyDiv.appendChild(cancelSpan);
         container.insertBefore(replyDiv, input);
         input.placeholder = "";
     } else {
@@ -326,7 +408,7 @@ function showError(message) {
     setTimeout(() => errorLi.remove(), 3000);
 }
 
-// Inicjalizacja
 loadChatMessages();
 setInterval(loadChatMessages, 1000);
+setInterval(sendHeartbeat, 5000);
 scrollToBottom();
