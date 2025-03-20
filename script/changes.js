@@ -9,6 +9,7 @@ const tabsData = [
             {
                 title: "Nowości",
                 content: [
+                    "⭕ Nowy ekran ładowania",
                     "🌟 Całkiem nowe API AI",
                     "🔥 Nowe Ustawienia i Eksperymenty",
                     "🗨️ Automatyczna moderacja Chatu",
