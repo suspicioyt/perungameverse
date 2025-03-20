@@ -1,18 +1,19 @@
 :root {
-    --button-color: #ff00bb;
-    --button-active-color: rgb(66, 0, 58);
-    --button-hover-color: #3e49a8;
-    --highlight-bg-color: rgba(30, 33, 180, 0.2);
-    --shadow-color: rgba(13, 0, 255, 0.177);
+    --button-color: linear-gradient(90deg, rgb(16, 78, 0) 0%, rgb(12, 146, 19) 50%, rgba(28,181,0,1) 100%);
+    --button-active-color: linear-gradient(90deg, rgba(7,34,0,1) 0%, rgb(8, 72, 11) 50%, rgba(18,120,0,1) 100%);
+    --button-hover-color: linear-gradient(90deg, rgba(31,121,9,1) 0%, rgba(14,167,22,1) 50%, rgba(36,241,0,1) 100%);
+    --highlight-bg-color: rgba(63, 180, 30, 0.2);
+    --shadow-color: rgba(11, 128, 0, 0.177);
     --sticky-header-background-color:rgba(167, 167, 167, 0.95);
     --text-color:#eaeaea;
     --secondary-text-color:#000000;
     --tertiary-text-color: #434343;
-    --border-color:#001d67;
+    --quaternary-text-color: #ffffff;
+    --border-color:#1a8c00;
     --primary-background-color:#949494;
     --secondary-background-color:#4b4b4b;
-    --tertiary-background-color:rgba(141, 141, 141, 0.7);
+    --tertiary-background-color:rgba(137, 137, 137, 0.8);
     --quaternary-background-color:rgb(117, 117, 117);
-    --background-image: url('https://thumbs.dreamstime.com/b/digital-artwork-features-vibrant-hello-world-neon-text-surrounded-soft-bubble-like-clouds-captures-dreamy-glowing-344915658.jpg');
-    --parallax-image: url('../../img/perun4.png');
+    --background-image: url('https://www.brella.pl/blog/wp-content/uploads/2024/03/z28364331AMPWiosna-w-Polsce-zdjecie-ilustracyjne.jpg');
+    --parallax-image: url('../img/perun4.png');
 }

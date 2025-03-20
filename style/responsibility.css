@@ -12,7 +12,18 @@
     .game-box {
         width: calc(100% - 40px); /* Pełna szerokość pudełek gier na mniejszych ekranach */
     }
-
+    header #headertytul h1 {
+        font-size: 38px;
+    }
+    header.scrolled #headertytul h1 {
+        font-size: 32px;
+    }
+    h1 {
+        font-size: 32px;
+    }
+    #mainwindow h1 {
+        font-size: 2em;
+    }
     .scroll-down-button {
         width: 50px;
         height: 50px;
@@ -67,3 +78,25 @@
     #sidenav {padding-top: 15px;}
     #sidenav a {font-size: 18px;}
   }
+  @media (max-width: 600px) {
+    .aiContainer {
+        padding: 10px;
+        height: 70vh; /* Mniejsza wysokość na mobile */
+    }
+
+    .chat-box {
+        max-height: calc(100% - 60px);
+    }
+
+    .message {
+        font-size: 14px;
+        padding: 10px 12px;
+        max-width: 85%; /* Szersze na mniejszych ekranach */
+    }
+
+    .aiContainer input,
+    .aiContainer button {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+}

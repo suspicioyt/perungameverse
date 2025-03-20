@@ -69,14 +69,6 @@
         opacity: 1;
     }
 }
-@keyframes fadeIn {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -105,3 +97,18 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+@keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(15px); } /* Zmniejszona odległość */
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes gradient {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 100% 100%;
+    }
+    100% {
+        background-position: 0% 0%;
+    }
+  }

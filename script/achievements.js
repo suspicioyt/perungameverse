@@ -12,14 +12,14 @@ const achievementsData = [
         "name": "Runner",
         "opis": "Zbierz 100 punktów w Dino",
         "classes": ["beta"],
-        "status": ["dinoBestScore", 100]
+        "status": ["dinoBestScore", 150]
     },
     {
         "id": "03",
         "name": "Mistrz odbijania",
-        "opis": "Zbierz 20 punktów w Ping Pongu",
+        "opis": "Zbierz 10 punktów w Ping Pongu",
         "classes": ["beta"],
-        "status": ["pingPong", 20]
+        "status": ["pingPong", 10]
     },
     {
         "id": "04",
@@ -28,13 +28,13 @@ const achievementsData = [
         "classes": ["beta"],
         "status": ["flappyHighScore", 60]
     },
-    {
-        "id": "05",
-        "name": "Prezenty 2024",
-        "opis": "Zbierz wszystkie prezenty w evencie bożonarodzeniowym 2024",
-        "classes": ["beta"],
-        "status": ["clickedButtons", 15]
-    },
+    //{
+    //    "id": "05",
+    //    "name": "Prezenty 2024",
+    //    "opis": "Zbierz wszystkie prezenty w evencie bożonarodzeniowym 2024",
+    //    "classes": ["beta"],
+    //    "status": ["clickedButtons", 15]
+    //},
 ];
 
 function getAchievements() {
@@ -61,6 +61,25 @@ async function loadAchievements() {
                 console.warn("Błąd podczas parsowania danych z localStorage:", e);
             }
         }
+    });
+
+    const button = document.createElement("button");
+    button.classList.add("refreshButton");
+
+    const icon = document.createElement("i");
+    icon.classList.add("fas", "fa-redo");
+
+    button.appendChild(icon);
+    container.innerHTML = "";
+    container.appendChild(button);
+
+    button.addEventListener("click", function() {
+        icon.classList.add("rotate");
+
+        setTimeout(() => {
+            icon.classList.remove("rotate");
+            reloadAchievements();
+        }, 1000);
     });
 
     achievements.forEach(achievement => {

@@ -1,3 +1,12 @@
+const settingSwitches = [
+    { switchId: "01", value: false },
+    { switchId: "02", value: false },
+    { switchId: "03", value: true }
+];
+var countDownDate = new Date("Mar 13, 2025 18:00:00").getTime();
+const API_URL = "https://script.google.com/macros/s/AKfycbx5zHVbTlB7CnlUo7BWL5p0skuUc5EZb8lkchHtSK8W5l-y9A8csPJ-1YN6JHwfMM13Vw/exec";
+
+
 let isScrolling = false;
 let lastScrollY = 0;
 const threshold = 1;
@@ -8,13 +17,6 @@ function getElementPosition() {
     return rect.top + window.scrollY - 150;
 }
 
-function checkadfree() {
-  console.log(window.location.href);
-  if(window.location.href != 'https://suspicioyt.github.io/perungameverse' || window.location.href != 'https://suspicioyt.github.io/perungameverse/') {
-    document.getElementById('noadversionContainer').innerHTML='<div id="noadversion">Wersja bez reklam: <a href="https://suspicioyt.github.io/perungameverse">suspicioyt.github.io/perungameverse</a></div>'
-  }
-}
-checkadfree();
 function smoothScrollTo(target) {
     isScrolling = true;
     window.scrollTo({
@@ -51,8 +53,6 @@ window.addEventListener('scroll', function () {
     }
 });
 document.addEventListener('DOMContentLoaded', function () {
-  checkadfree();
-
   const currentScrollY = window.scrollY;
   const elementHeight = element.offsetHeight;
   if (elementHeight <= currentScrollY) {
@@ -225,33 +225,66 @@ function progressBar() {
 window.onscroll = function() { progressBar()};
 
 function modalOpen(modalId) {
-  const modalElement = document.getElementById(modalId);
-  if (modalElement && !modalElement.classList.contains("show")) {
-      modalElement.classList.add("show");
-  }
+    const modalElement = document.getElementById(modalId);
+    if (modalElement && !modalElement.classList.contains("show")) {
+        modalElement.classList.add("show");
+        saveModalState(); // Zapisz stan po otwarciu
+    }
 }
 
 function modalClose(modalId) {
-  const modalElement = document.getElementById(modalId);
-  if (modalElement) {
-      modalElement.classList.remove("show");
-  }
+    const modalElement = document.getElementById(modalId);
+    if (modalElement && modalElement.classList.contains("show")) {
+        modalElement.classList.remove("show");
+        saveModalState(); // Zapisz stan po zamknięciu
+    }
+}
+
+function saveModalState() {
+    const switches = JSON.parse(localStorage.getItem("settingSwitches")) || settingSwitches;
+    const autoOpenSwitch = switches.find(s => s.switchId === "02");
+
+    if (autoOpenSwitch && autoOpenSwitch.value) {
+        const openModals = Array.from(document.querySelectorAll('.modal.show'))
+            .map(modal => modal.id)
+            .filter(id => id); // Filtrujemy, aby upewnić się, że zapisujemy tylko modale z ID
+        sessionStorage.setItem("openModals", JSON.stringify(openModals));
+    } else {
+        sessionStorage.removeItem("openModals"); // Usuń zapis, jeśli switch jest wyłączony
+    }
+}
+
+function restoreModalState() {
+    const switches = JSON.parse(localStorage.getItem("settingSwitches")) || settingSwitches;
+    const autoOpenSwitch = switches.find(s => s.switchId === "02");
+
+    if (autoOpenSwitch && autoOpenSwitch.value) {
+        const openModals = JSON.parse(sessionStorage.getItem("openModals")) || [];
+        openModals.forEach(modalId => {
+            const modalElement = document.getElementById(modalId);
+            if (modalElement && !modalElement.classList.contains("show")) {
+                modalOpen(modalId); // Otwieramy modal tylko jeśli istnieje i nie jest już otwarty
+            }
+        });
+    }
 }
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
-      const modal = document.querySelector('.modal.show');
-      if (modal) {
-          modal.classList.remove("show");
-      }
-  }
+    if (event.key === 'Escape') {
+        const modal = document.querySelector('.modal.show');
+        if (modal) {
+            modal.classList.remove("show");
+            saveModalState();
+        }
+    }
 });
 
 document.addEventListener('click', (event) => {
-  const modal = document.querySelector('.modal.show');
-  if (modal && event.target === modal) {
-      modal.classList.remove("show");
-  }
+    const modal = document.querySelector('.modal.show');
+    if (modal && event.target === modal) {
+        modal.classList.remove("show");
+        saveModalState();
+    }
 });
 
 
@@ -287,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById("saveUsernameBtn").addEventListener("click", function () {
     localStorage.setItem("DEVsettings","false");
     const username = document.getElementById("usernameInput").value.trim();
-    if (username === 'SUSpicio' || username === 'DEV') {
+    if (username === 'SUSpicio' || username === 'SUSpicioDEV') {
       document.getElementById("errorMessage").style.display = 'block';
       return;
     }    
@@ -320,7 +353,7 @@ function downFunction() {
   document.documentElement.scrollTop = 1000000000;
 }
 
-var countDownDate = new Date("Mar 13, 2025 18:00:00").getTime();
+
 var x = setInterval(function() {
   var now = new Date().getTime();
   var distance = countDownDate - now;
@@ -402,20 +435,17 @@ document.querySelectorAll('.slides').forEach(slide => {
         autoSlide = setInterval(() => changeSlide(1), 2000);
     });
 });
-window.addEventListener("load", () => {
-  const loaderContainer = document.querySelector(".loader-container");
 
-  if (!sessionStorage.getItem("loaded")) {
-      sessionStorage.setItem("loaded", "true");
-      loaderContainer.style.display = "flex";
-      setTimeout(() => {
-          loaderContainer.style.display = "none";
-          location.reload();
-      }, 4000); 
-  } else {
-      loaderContainer.style.display = "none";
-  }
-});
+const loader = document.getElementById('loader');
+const hasLoaded = sessionStorage.getItem('hasLoaded');
+if (hasLoaded) {
+    loader.classList.add('hidden'); // Natychmiast ukryj, jeśli już wyświetlono
+} else {
+    setTimeout(() => {
+        loader.classList.add('hidden'); // Płynne zanikanie po 5s
+        sessionStorage.setItem('hasLoaded', 'true');
+    }, 5000); // 5 sekund
+}
 
 const playerNameKey = "perunUsername";
 const playerPLNKey = "perunPLN";
@@ -497,79 +527,60 @@ document.getElementById('sidenavOpenButton').onclick = function() {
   }
 };
 
-document.getElementById('perunAIbuttonOpen').onclick = function() {
-  const aiDiv = document.getElementById('perunAI');
-  const aiButton = document.getElementById('perunAIbuttonOpen');
-  
-  if (aiDiv.classList.contains('show')) {
-      aiDiv.classList.remove('show');
-      aiButton.classList.remove('active');
-  } else {
-      aiDiv.classList.add('show');
-      aiButton.classList.add('active');
-  }
-};
 async function getAIResponse() {
-  const userAiInput = document.getElementById("userAiInput").value.trim();
-  if (!userAiInput) {
-      alert("Proszę wpisz pytanie!");
-      return;
-  }
+    const userAiInput = document.getElementById("userAiInput").value.trim();
+    if (!userAiInput) {
+        alert("Proszę wpisz pytanie!");
+        return;
+    }
 
-  const chatBox = document.getElementById("chatBox");
-  const userMessageDiv = document.createElement("div");
-  userMessageDiv.classList.add("message", "user-message");
-  userMessageDiv.textContent = userAiInput;
-  chatBox.appendChild(userMessageDiv);
+    const chatBox = document.getElementById("chatBox");
+    const userMessageDiv = document.createElement("div");
+    userMessageDiv.classList.add("message", "user-message");
+    userMessageDiv.textContent = userAiInput;
+    chatBox.appendChild(userMessageDiv);
 
-  document.getElementById("userAiInput").value = "";
+    document.getElementById("userAiInput").value = "";
 
-  const loadingDiv = document.getElementById("loading");
-  loadingDiv.style.display = "block";
+    const apiKey = "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"; // Twój klucz API
 
-  const apiKey = "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";
+    const data = {
+        model: "google/gemini-2.0-flash-lite-preview-02-05:free", // Darmowy model OpenRouter
+        messages: [{ role: "user", content: userAiInput }],
+        max_tokens: 30, // Limit tokenów odpowiedzi
+        temperature: 0.2, // Kontrola kreatywności
+        top_p: 0.8 // Filtrowanie odpowiedzi
+    };
 
-  const data = {
-      inputs: userAiInput,
-      options: {
-          use_cache: false,
-          max_length: 30,  
-          temperature: 0.2,  
-          top_p: 0.8,
-          no_repeat_ngram_size: 2, 
-      }
-  };
+    try {
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
 
-  try {
-      const response = await fetch("https://api-inference.huggingface.co/models/distilgpt2", {
-          method: "POST",
-          headers: {
-              "Authorization": `Bearer ${apiKey}`,
-              "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-      });
+        if (!response.ok) {
+            const errorDetails = await response.json();
+            alert(`Wystąpił błąd: ${errorDetails.message || 'Nieznany błąd'}`);
+            return;
+        }
 
-      if (!response.ok) {
-          const errorDetails = await response.json();
-          alert(`Wystąpił błąd: ${errorDetails.error || 'Nieznany błąd'}`);
-          return;
-      }
+        const result = await response.json();
+        const aiResponse = result.choices[0]?.message?.content?.trim() || 'Brak odpowiedzi od AI';
 
-      const result = await response.json();
-      const aiResponse = result[0]?.generated_text?.trim() || 'Brak odpowiedzi od AI';
+        const aiMessageDiv = document.createElement("div");
+        aiMessageDiv.classList.add("message", "ai-message");
+        aiMessageDiv.textContent = aiResponse;
+        chatBox.appendChild(aiMessageDiv);
 
-      const aiMessageDiv = document.createElement("div");
-      aiMessageDiv.classList.add("message", "ai-message");
-      aiMessageDiv.textContent = aiResponse;
-      chatBox.appendChild(aiMessageDiv);
-
-  } catch (error) {
-      alert(`Wystąpił błąd: ${error.message}`);
-  } finally {
-      loadingDiv.style.display = "none"; 
-      chatBox.scrollTop = chatBox.scrollHeight; 
-  }
+    } catch (error) {
+        alert(`Wystąpił błąd: ${error.message}`);
+    } finally {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 }
 //const colors = [
 //    "rgb(255, 0, 0)", 
@@ -601,16 +612,8 @@ function isUsernameDemoTimeExpired() {
 
   return now > parseInt(lastChange) + lockTime;
 }
-function toggleDevMode() {
-  const currentMode = localStorage.getItem("DEVsettings") === "true";
-  localStorage.setItem("DEVsettings", currentMode ? "false" : "true");
-  loadChatMessages();
-  document.getElementById("devToggle").checked = currentMode ? false : true;
-}
+
 document.addEventListener("DOMContentLoaded", function () {
-  if(localStorage.getItem("DEVsettings") === "true") {
-    document.getElementById("devToggle").checked=true;
-  }
   if(!isUsernameDemoTimeExpired()) {
     const sendButton = document.getElementById('sendButton')
     sendButton.disabled = true;
@@ -694,3 +697,128 @@ function startCountdown(remainingTime) {
         }
     }
 })();
+
+
+
+function initializeSwitches() {
+    let switches = JSON.parse(localStorage.getItem("settingSwitches")) || settingSwitches;
+    if (!localStorage.getItem("settingSwitches")) {
+        localStorage.setItem("settingSwitches", JSON.stringify(switches));
+    }
+
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][switchId]');
+    checkboxes.forEach(checkbox => {
+        const switchId = checkbox.getAttribute("switchId");
+        const switchData = switches.find(s => s.switchId === switchId);
+        if (switchData) {
+            checkbox.checked = switchData.value;
+            checkbox.addEventListener("change", () => toggleSwitch(switchId));
+        }
+    });
+}
+
+// Przełączanie switcha
+function toggleSwitch(switchId) {
+    let switches = JSON.parse(localStorage.getItem("settingSwitches"));
+    const switchIndex = switches.findIndex(s => s.switchId === switchId);
+
+    if (switchIndex !== -1) {
+        switches[switchIndex].value = !switches[switchIndex].value;
+        localStorage.setItem("settingSwitches", JSON.stringify(switches));
+
+        if (switchId === "01") {
+            localStorage.setItem("DEVsettings", switches[switchIndex].value.toString());
+        }
+        if (switchId === "02" && !switches[switchIndex].value) {
+            sessionStorage.removeItem("openModals"); // Wyczyść zapis modalów w sessionStorage
+        }
+    }
+}
+function resetSwitches() {
+    localStorage.setItem("settingSwitches", JSON.stringify(settingSwitches));
+    localStorage.setItem("DEVsettings", "false")
+}
+// Inicjalizacja po załadowaniu strony
+document.addEventListener("DOMContentLoaded", function () {
+    initializeSwitches();
+    restoreModalState(); // Przywróć zapisane modale przy załadowaniu strony
+    initializeFontSizeSlider();
+});
+function initializeFontSizeSlider() {
+    const slider = document.getElementById("chatFontSizeSlider");
+
+    // Odczytaj zapisaną wartość z localStorage lub ustaw domyślną (16px)
+    const savedFontSize = localStorage.getItem("chatMessageFontSize") || "16";
+    slider.value = savedFontSize;
+    document.documentElement.style.setProperty("--chatMessageFontSize", `${savedFontSize}px`);
+
+    // Listener na zmianę wartości suwaka
+    slider.addEventListener("input", () => {
+        const newSize = slider.value;
+        document.documentElement.style.setProperty("--chatMessageFontSize", `${newSize}px`);
+        localStorage.setItem("chatMessageFontSize", newSize);
+    });
+}
+
+
+document.getElementById('ratingForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    document.getElementById('opinionSubmit').disabled=true;
+    const rating = document.querySelector('input[name="rating"]:checked');
+
+    if (!username || !rating) {
+        document.getElementById('errorMessage').style.display = 'block';
+        return;
+    }
+
+    const formData = {
+        action: "addRating", // Nowa akcja dla oceny
+        sessionId: localStorage.getItem("perunUUID") || "",
+        username: localStorage.getItem("perunUsername") || "",
+        rating: rating.value,
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+            mode: "no-cors" // Utrzymane dla zgodności z Twoim API
+        });
+        document.getElementById('ratingForm').reset();
+        document.getElementById('errorMessage').style.display = "none";
+        location.reload();
+    } catch (error) {
+        console.error("Błąd wysyłania:", error);
+        alert("Wystąpił błąd podczas wysyłania oceny.");
+    }
+});
+
+const ratingLabels = document.querySelectorAll('.rating label');
+ratingLabels.forEach(label => {
+    label.addEventListener('mouseover', function() {
+        const value = this.getAttribute('for').replace('star', '');
+        for (let i = 1; i <= 10; i++) {
+            const currentLabel = document.querySelector(`label[for="star${i}"]`);
+            if (i <= value) {
+                currentLabel.style.color = '#ffca08';
+            } else {
+                currentLabel.style.color = '#ddd';
+            }
+        }
+    });
+
+    label.addEventListener('mouseout', function() {
+        const checked = document.querySelector('input[name="rating"]:checked');
+        const checkedValue = checked ? checked.value : 0;
+        for (let i = 1; i <= 10; i++) {
+            const currentLabel = document.querySelector(`label[for="star${i}"]`);
+            if (i <= checkedValue) {
+                currentLabel.style.color = '#ffca08';
+            } else {
+                currentLabel.style.color = '#ddd';
+            }
+        }
+    });
+});

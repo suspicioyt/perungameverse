@@ -1,15 +1,15 @@
 body {
-    background-color: var(--button-color);
+    background: var(--button-color);
     color: var(--dar-text-color);
 }
 
 header {
-    background-color: var(--primary-background-color);
+    background: var(--primary-background-color);
     color: var(--text-color);
 }
 
 header.scrolled {
-    background-color: var(--sticky-header-background-color);
+    background: var(--sticky-header-background-color);
 }
 
 /* Parallax */
@@ -32,66 +32,74 @@ main {
     background: var(--tertiary-background-color);
 }
 .game-box {
-    background-color: var(--secondary-background-color);
+    background: var(--secondary-background-color);
     box-shadow: 0 6px 16px var(--shadow-color);
 }
 .game-box:hover {
-    background-color: var(--highlight-bg-color);
+    background: var(--highlight-bg-color);
     box-shadow: 0 8px 16px var(--shadow-color);
 }
-button, .game-link, .game-short-link {
-    background-color: var(--button-color);
+.game-link, .game-short-link {
+    background: var(--button-color);
     color: var(--secondary-text-color);
     box-shadow: 0 4px 12px var(--shadow-color); /* Enhanced shadow effect */
 }
+button {
+    background: var(--button-color);
+    color: var(--secondary-text-color);
+}
 
-button:hover,.game-short-link:hover, .game-link:hover {
-    background-color: var(--button-hover-color);
+button:hover {
+    background: var(--button-hover-color);
+    box-shadow: 0 8px 16px var(--button-hover-color);
+}
+.game-short-link:hover, .game-link:hover {
+    background: var(--button-hover-color);
     box-shadow: 0 8px 16px var(--button-hover-color);
     border: 3px solid var(--primary-background-color);
 }
 .game-label {
-    background-color: #FF5722;
+    background: #FF5722;
     color: var(--text-color);
 }
 .game-status {
-    background-color: #0cb800;
+    background: #0cb800;
     color: var(--text-color);
 }
 
 /* Styl dla stopki - Footer*/
 footer {
     color: var(--text-color);
-    background-color: var(--primary-background-color);
+    background: var(--primary-background-color);
 }
 #searchInput {
     color: var(--secondary-text-color);
     border: 2px solid var(--border-color);
-    background-color: var(--secondary-background-color);
+    background: var(--secondary-background-color);
     box-shadow: 0 4px 8px var(--shadow-color);
 }
 #searchInput:focus {
     border-color: var(--primary-color);
     box-shadow: 0 4px 12px var(--shadow-color);
-    background-color: var(--quaternary-background-color);
+    background: var(--quaternary-background-color);
 }
 
 /* Dropdown Button */
 .search-filters-container {
-    background-color: var(--secondary-background-color); /* ciemne tło dla lepszej widoczności */
+    background: var(--secondary-background-color); /* ciemne tło dla lepszej widoczności */
     box-shadow: 0 4px 10px var(--shadow-color);
 }
 .filterdropbtn {
-    background-color: var(--button-color);
+    background: var(--button-color);
     color: var(--secondary-text-color);
 }
 .filterdropbtn:hover, .filterdropbtn:focus {
-    background-color: var(--button-hover-color);
+    background: var(--button-hover-color);
     box-shadow: none;
     border: none;
 }
 .dropdownFiltres-content {
-    background-color: var(--secondary-background-color);
+    background: var(--secondary-background-color);
 }
 .dropdownFiltres-content button {
     color: var(--text-color);
@@ -113,11 +121,11 @@ footer {
     color: white;
 }
 .game-status-money {
-    background-color: #0cb800;
+    background: #0cb800;
     border: 2px solid #0a9900;
 }
 .game-status-internet {
-    background-color: #0068b8;
+    background: #0068b8;
     border: 2px solid #003d99;
 }
 .event {
@@ -127,41 +135,46 @@ footer {
 
 /* Modal */
 .modal {
-    background-color: var(--tertiary-background-color); /* Tło ciemne */
+    background: var(--tertiary-background-color); /* Tło ciemne */
 }
 .modal-content {
-    background-color: var(--secondary-background-color);
+    background: var(--secondary-background-color);
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 .modal-content h2 {
     color: var(--text-color);
 }
-
+.modal > h1 {
+    color:var(--text-color);
+}
 .tab {
-    background-color: var(--secondary-background-color);
+    background: var(--secondary-background-color);
 }
 .tab .tablinks {
-    background-color: var(--quaternary-background-color);
+    background: var(--quaternary-background-color);
     color: var(--secondary-text-color);
 }
 .tab .tablinks:hover {
-    background-color: var(--border-color);
+    background: var(--border-color);
 }
 
 .tab .tablinks.active {
-    background-color: var(--border-color);
+    background: var(--border-color);
 }
 
 .tabcontent {
-    background-color: var(--quaternary-background-color);
+    background: var(--quaternary-background-color);
 }
 .tabcontent > * {
-    background-color: var(--quaternary-background-color);
+    background: var(--quaternary-background-color);
     border: var(--quaternary-background-color) 6px solid;
 }
 .tabcontent h1 {
     color: var(--secondary-text-color);
     -webkit-text-stroke: 1px var(--secondary-text-color);
+}
+.tabcontent p {
+    color: var(--secondary-text-color);
 }
 .tabcontent h2 {
     color: var(--secondary-text-color);
@@ -174,7 +187,7 @@ footer {
     -webkit-text-stroke: 1px var(--secondary-text-color);
 }
 #tabContentsContainer {
-    background-color: var(--quaternary-background-color);
+    background: var(--quaternary-background-color);
     box-shadow: 0 2px 4px var(--shadow-color);
 }
 
@@ -188,22 +201,22 @@ footer {
     border: 1px solid var(--border-color);
 }
 #usernameForm button {
-    background-color: var(--button-color);
+    background: var(--button-color);
     color: var(--text-color);
 }
 
 #usernameForm button:hover {
-    background-color: var(--button-hover-color);
+    background: var(--button-hover-color);
 }
 #welcomeModal #errorMessage {
     color: red;
 }
 #welcomeModal {
-    background-color: var(--tertiary-background-color);
+    background: var(--tertiary-background-color);
 }
 /*Tooltip*/
 .tooltiptext {
-    background-color: var(--sticky-header-background-color);
+    background: var(--sticky-header-background-color);
     color: var(--text-color);
 }
 /*progress bar*/
@@ -215,13 +228,13 @@ footer {
 }
 /*Top button btn*/
 #topBtn {
-    background-color: var(--button-color);
+    background: var(--button-color);
     color: var(--text-color);
     box-shadow: 0 4px 8px var(--shadow-color);
 }
   
 #topBtn:hover {
-    background-color: var(--button-hover-color);
+    background: var(--button-hover-color);
 }
 
 .user-info {
@@ -229,7 +242,7 @@ footer {
 }
   
 #user-dropdown {
-  background-color: var(--secondary-background-color);
+  background: var(--secondary-background-color);
   box-shadow: 0px 8px 16px var(--shadow-color);
 }
 
@@ -239,7 +252,7 @@ footer {
 }
 
 #updt thead tr {
-    background-color: var(--button-color);
+    background: var(--button-color);
     color: var(--text-color);
 }
 
@@ -249,16 +262,16 @@ footer {
 }
 
 #updt tbody tr:nth-child(odd) {
-    background-color: var(--text-color);
+    background: var(--text-color);
 }
 
 #updt tbody tr:nth-child(even) {
-    background-color: var(--text-color);
+    background: var(--text-color);
 }
 
 #updt tbody td {
     color: var(--secondary-text-color);
-    background-color: var(--text-color);
+    background: var(--text-color);
 }
 
 .slideshow-container {
@@ -268,20 +281,20 @@ footer {
 }
 
 .slides .slide {
-    background-color: var(--secondary-background-color);
+    background: var(--secondary-background-color);
 }
 .prev, .next {
     color: var(--text-color);
-    background-color: var(--button-color);
+    background: var(--button-color);
 }
 .dot {
-    background-color: var(--button-color);
+    background: var(--button-color);
 }
 .dot:hover {
-    background-color: var(--button-hover-color)
+    background: var(--button-hover-color)
 }
 .dot.active {
-    background-color: var(--button-active-color);
+    background: var(--button-active-color);
 }
 #favoriteSlideshow {
     display: flex;
@@ -303,35 +316,21 @@ footer {
     -2px 2px 0 var(--shadow-color),  /* Dół-lewo */
     2px 2px 0 var(--shadow-color);   /* Dół-prawo */
 }
-/* Loader - animacja */
-.loader-container {
-    background-color: var(--primary-background-color); /* Tło loadera czarne */
-}
-
-.loader {
-    border: 8px solid var(--text-color);
-    border-top: 8px solid var(--button-color);
-}
-
-.loader-container h1 {
-    color: var(--text-color);
-}
-
 
 #customizationModal select,#customizationModal input[type="color"] {
     border: 1px solid var(--border-color);
 }
 #customizationModal button {
     padding: 10px;
-    background-color: var(--button-color);
+    background: var(--button-color);
     color: var(--text-color);
 }
 
 #customizationModal button:hover {
-    background-color: var(--button-hover-color);
+    background: var(--button-hover-color);
 }
 #sidenav {
-    background-color: var(--primary-background-color);
+    background: var(--primary-background-color);
     border-right: var(--secondary-text-color) solid 3px;
   }
   #sidenav a {
@@ -344,27 +343,126 @@ footer {
     color: var(--button-active-color);
   }
   .refreshButton {
-    background-color: var(--button-color);
+    background: var(--button-color);
     color: white;
 }
 .refreshButton:hover {
-    background-color: var(--button-hover-color);
+    background: var(--button-hover-color);
 }
 
-  .aiContainer {
-    background-color: var(--secondary-background-color);
-    box-shadow: 0 0 10px var(--shadow-color);
+.aiContainer {
+    background: none; 
 }
+
+.message {
+    box-shadow: 0 1px 2px var(--shadow-color); /* Subtelny cień */
+}
+
 .user-message {
-    background-color: var(--button-active-color);
+    background: var(--button-active-color); 
 }
+
 .ai-message {
-    background-color: var(--button-hover-color);
+    background: var(--button-color); /* Jasna zieleń dla AI */
 }
-.spinner {
-    border: 4px solid var(--secondary-background-color);
-    border-left: 4px solid var(--button-color);
+
+.user-message::after {
+    border-bottom: 6px solid var(--border-color);
 }
-#userAiInput {
-    display: block;
+
+.ai-message::after {
+    border-bottom: 6px solid var(--border-color);
+}
+
+.aiContainer input {
+    border: 1px solid var(--border-color); /* Subtelniejsza ramka */
+    background: var(--secondary-background-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.aiContainer input:focus {
+    border-color: var(--button-color);
+    box-shadow: 0 0 6px var(--shadow-color);
+}
+
+.aiContainer button {
+    background: var(--button-color); /* Neutralne tło */
+}
+
+.aiContainer button:hover {
+    background: var(--button-hover-color);/
+}
+
+.loader-container {
+    background: linear-gradient(135deg, var(--primary-background-color), var(--border-color)); /* Gradient bez zbędnych efektów */
+    color: var(--text-color);
+}
+
+.siteLoadingSpinner {
+    border: 6px solid var(--secondary-background-color);
+    border-top: 6px solid var(--border-color);
+}
+.lastPlayed {
+  background: linear-gradient(315deg, rgba(101,0,94,1) 3%, rgba(60,132,206,1) 38%, rgba(48,238,226,1) 68%, rgba(255,25,25,1) 98%);
+  animation: gradient 15s ease infinite;
+  background-size: 400% 400%;
+  background-attachment: fixed;
+  border: 5px var(--border-color) solid;
+}
+.lastPlayedLabel {
+    background: var(--button-color);
+    color: var(--text-color);
+  }
+
+ .rainbowText {
+   background: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
+ }
+.slider {
+  background: red;
+}
+.slider:before {
+  background-color: white;
+}
+
+input:checked + .slider {
+  background-color: green;
+}
+label {
+    color: var(--text-color);
+  }
+  #usernameDemoContainer {
+    background-color: rgba(255, 0, 0, 0.864);
+  }
+  .modal p {
+    color: var(--text-color);
+  }
+  #settingsModal hr {
+    margin: 20px;
+  }
+  #settingsModal input {
+    font-size: 18px;
+  }
+
+input[type="range" i] {
+    color: light-dark(var(--button-color), var(--border-color));
+}
+*::-webkit-scrollbar {
+    width: 10px; /* Szerokość pionowego paska */
+    height: 10px; /* Wysokość poziomego paska */
+}
+
+/* Kolor tła paska przewijania */
+*::-webkit-scrollbar-track {
+    background: var(--secondary-background-color); /* Kolor tła */
+}
+
+/* Kolor uchwytu przewijania */
+*::-webkit-scrollbar-thumb {
+    background: #555; /* Kolor uchwytu */
+    border-radius: 5px;
+}
+
+/* Kolor uchwytu po najechaniu */
+*::-webkit-scrollbar-thumb:hover {
+    background: #333;
 }

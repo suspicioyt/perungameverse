@@ -1,3 +1,4 @@
+const API_URL = "https://script.google.com/macros/s/AKfycbxKlwDqqAi6_zct_mtQ9ynVQN7mNv_J4EehtuZzmi1STKvJGRKiE76RPgBGZFi3c6doMg/exec";
 let lastDate = "";
 let replyingToMessageId = null;
 let cachedMessages = [];
@@ -6,44 +7,8 @@ let sendingChecker = false;
 // Flaga śledząca pierwsze ładowanie strony
 let isFirstLoad = true;
 
-const BLOCKED_WORDS_URL = "https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/pl";
-let blockedWords = [];
-
 const sessionId = localStorage.getItem("perunUUID");
 const username = localStorage.getItem("perunUsername");
-
-function manageWarnings(username, message) {
-    const warningsKey = `chatWarnings`;
-    const cooldownKey = `chatCooldown_${username}`;
-    let warnings = parseInt(localStorage.getItem(warningsKey)) || 0;
-
-    // Sprawdzenie cooldown
-    const cooldownTime = localStorage.getItem(cooldownKey);
-    if (cooldownTime && new Date() < new Date(cooldownTime)) {
-        const timeLeft = Math.ceil((new Date(cooldownTime) - new Date()) / 60000);
-        showError(`Jesteś zablokowany na czacie! Pozostało ${timeLeft} minut.`);
-        return false;
-    }
-
-    // Sprawdzenie blokowanych słów
-    if (containsBlockedWords(message)) {
-        warnings += 1;
-        localStorage.setItem(warningsKey, warnings.toString());
-
-        showError(`Ostrzeżenie ${warnings}/3: Użyłeś niedozwolonego słowa!`);
-        
-        if (warnings >= 3) {
-            const banDuration = 15 * 60 * 1000; // 1 godzina
-            const cooldownTime = new Date(Date.now() + banDuration).toISOString();
-            localStorage.setItem(cooldownKey, cooldownTime);
-            localStorage.setItem(warningsKey, "0");
-            showError("Zostałeś zablokowany na 15 minut za używanie niedozwolonych słów!");
-            setTimeout(() => window.location.reload(), 1000);
-        }
-        return false; // Blokuje wysyłanie moderowanej wiadomości
-    }
-    return true;
-}
 
 function sanitizeInput(input) {
     const div = document.createElement("div");
@@ -66,25 +31,6 @@ function sendHeartbeat() {
         }),
         mode: "no-cors"
     }).catch(error => console.error("Heartbeat error:", error));
-}
-async function fetchBlockedWords() {
-    try {
-        const response = await fetch(BLOCKED_WORDS_URL);
-        const text = await response.text();
-        blockedWords = text.split('\n')
-            .map(word => word.trim().toUpperCase())
-            .filter(word => word.length > 0);
-        console.log("Załadowano blokowane słowa:", blockedWords.length);
-    } catch (error) {
-        console.error("Błąd ładowania listy słów:", error);
-        blockedWords = ["KURWA", "DUPA", "CHUJ", "PIERDOL", "SUK"];
-    }
-}
-
-// Sprawdzanie blokowanych słów
-function containsBlockedWords(message) {
-    const words = message.toUpperCase().split(/\s+/);
-    return words.some(word => blockedWords.some(blocked => word.includes(blocked)));
 }
 
 function updateActiveUsersCount(serverCount) {
@@ -155,18 +101,12 @@ async function sendChatMessage() {
         return;
     }
 
-    if (!manageWarnings(username, chatMessage)) {
-        document.getElementById("chatMessage").value = "";
-        return;
-    }
-
     sendButton.disabled = true;
     sendButton.textContent = "Wysyłanie...";
     sendingChecker = true;
 
     const timestamp = new Date().toISOString();
     const data = {
-        sessionId: localStorage.getItem('perunUUID'),
         username,
         message: sanitizeInput(chatMessage),
         timestamp,
@@ -179,12 +119,12 @@ async function sendChatMessage() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
-            mode: "no-cors" // Utrzymane no-cors
+            mode: "no-cors"
         });
         document.getElementById("chatMessage").value = "";
         replyingToMessageId = null;
         updateReplyingTo(null);
-        await loadChatMessages(); // Zakładamy sukces i odświeżamy wiadomości
+        await loadChatMessages();
     } catch (error) {
         console.error("Błąd wysyłania:", error);
         showError("Nie udało się wysłać wiadomości.");
@@ -281,7 +221,7 @@ async function loadChatMessages() {
 
         data.messages.forEach(msg => {
             if (!msg.id) msg.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-            displayChatMessage(msg, msg.sessionId === localStorage.getItem("perunUUID"));
+            displayChatMessage(msg, msg.username === localStorage.getItem("perunUsername"));
         });
 
         updateActiveUsersCount(data.activeUsers || 0);
@@ -378,16 +318,9 @@ function displayChatMessage(msg, isSelf) {
         }
         return url;
     }
-    const usernameContainer = document.createElement("div");
-    if (msg.username === "SUSpicio" && msg.sessionId === "863718d4-8c34-4e02-9a5a-86563967124c") {
-        const verificationIcon = document.createElement("i");
-        verificationIcon.classList.add("fas", "fa-check-circle", "verified-icon");
-        usernameContainer.appendChild(usernameLabel);
-        usernameLabel.appendChild(verificationIcon);
-        usernameLabel.style.color = "#ffd700";
-    } else {
-        usernameContainer.appendChild(usernameLabel);
-    }
+
+    if (msg.username === "SUSpicio") usernameLabel.style.color = "#ffd700";
+    if (msg.username === "SUSpicioDEV") usernameLabel.style.color = "#ffd700";
 
     const time = document.createElement("div");
     time.classList.add("timestamp");
@@ -448,7 +381,7 @@ function displayChatMessage(msg, isSelf) {
         updateReplyingTo(msg);
     };
 
-    li.appendChild(usernameContainer);
+    li.appendChild(usernameLabel);
     li.appendChild(content);
     li.appendChild(time);
     li.appendChild(reactionsDiv);
@@ -524,8 +457,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-fetchBlockedWords().then(() => {
-    loadChatMessages();
-    setInterval(loadChatMessages, 1000);
-    setInterval(sendHeartbeat, 5000);
-});
+// Inicjalizacja
+loadChatMessages();
+setInterval(loadChatMessages, 1000);
+setInterval(sendHeartbeat, 5000);

@@ -137,10 +137,10 @@ const games = [
     {
         id: "16",
         name: "Ping Pong",
-        link: "pingpong/index.html",
-        status: "Beta",
+        link: "game/pingpong.html",
+        status: "",
         tooltip: "Odbijaj piłkę",
-        classes: ["beta"],
+        classes: ["ukonczona"],
         ulubione: false
     },
     {

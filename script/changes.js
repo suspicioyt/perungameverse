@@ -1,5 +1,42 @@
 const tabsData = [
     {
+        name: "🪻 Spring Update",
+        version: "1.1.5.2",
+        date: "20.03.2025r.",
+        quote: "Ptaki zaczynają śpiewać, a alergicy zaczynają kichać",
+        backgroundImage: "https://www.brella.pl/blog/wp-content/uploads/2024/03/z28364331AMPWiosna-w-Polsce-zdjecie-ilustracyjne.jpg",
+        paragraphs: [
+            {
+                title: "Nowości",
+                content: [
+                    "🌟 Całkiem nowe API AI",
+                    "🔥 Nowe Ustawienia i Eksperymenty",
+                    "🗨️ Automatyczna moderacja Chatu",
+                    "✈️ Nowe wysyłanie Opinii"
+                ]
+            },
+            {
+                title: "Gry",
+                content: [
+                    "🛠️ Zaktualizowano Ping Pong, Bloki 1, Flappy Bird",
+                    "🔤 Zaktualizowano bibliotekę słów"
+                ]
+            },
+            {
+                title: "Zmiany wizualne",
+                content: [
+                    "🛝 Zaktualizowano scrollbar",
+                    "💭 Zaktualizowany Chat i Perun AI",
+                    "🖥️ Poprawiono responsywność",
+                    "🪛 Zaktualizowano wygląd modali",
+                    "🌟 Nowy wygląd HUBA",
+                    "📖 Zaktualizowano wygląd Dziennika Zmian, Ustawień i Dostosowania",
+                    "🐞 Poprawa kilku błędów"
+                ]
+            }
+        ]
+    },
+    {
         name: "💡 Neon Update",
         version: "1.1.5.1",
         date: "18.03.2025r.",
@@ -442,7 +479,7 @@ function loadTabs() {
 
         const tabContent = document.createElement("div");
         tabContent.id = `tab${index}`;
-        tabContent.classList.add("tabcontent", "scrollable");
+        tabContent.classList.add("tabcontent");
 
         if (tab.backgroundImage) {
             tabContent.style.backgroundImage = `url(${tab.backgroundImage})`;
@@ -450,13 +487,13 @@ function loadTabs() {
 
         tabContent.innerHTML = `
         <h1>${tab.name} (${tab.version})</h1>
-        <p><strong>Data publikacji:</strong> ${tab.date || "Brak"}</p>
+        <p style="color:black"><strong>Data publikacji:</strong> ${tab.date || "Brak"}</p>
         <cite>${tab.quote}</cite>
     `;
         if (tab.date) {
             tabContent.innerHTML = `
             <h1>${tab.name} (${tab.version})</h1>
-            <p><strong>Data publikacji:</strong> ${tab.date || "Brak"}</p>
+            <p style="color:black"><strong>Data publikacji:</strong> ${tab.date || "Brak"}</p>
             <cite>${tab.quote}</cite>
         `;
         } else {
