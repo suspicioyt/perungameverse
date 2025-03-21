@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perun Studios</title>
-    <link rel="stylesheet" href="../style/dark.css">
+    <link rel="stylesheet" href="../style/main.css">
+    <link rel="stylesheet" id="themeStylesheet" href="../style/theme/dark.css">
+    <link rel="stylesheet" href="../style/color.css">
+    <link rel="stylesheet" href="../style/responsibility.css">
+    <link rel="stylesheet" href="../style/animations.css">
+    <link rel="stylesheet" href="../style/todo.css">
+    <link rel="stylesheet" href="../style/chat.css">
     <link rel="stylesheet" href="../effects/like.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="icon" type="image/x-icon" href="../img/perun2.png">
 </head>
 <body>
@@ -14,8 +20,11 @@
         <div class="progress-container">
             <div class="progress-bar" id="myBar"></div>
         </div>  
+        <div id="sidenavOpenButton">
+            <i class="fas fa-bars" style="font-size: 30px;"></i>
+        </div>
         <div id="headertytul">
-            <h1>PERUN STUDIOS HUB</h1>
+            <h1>PERUN STUDIOS GAMEVERSE</h1>
             <h3>Najlepsze gry na wyciągnięcie ręki</h3>
         </div>
         <div id="user-info-container" class="user-info">
@@ -34,36 +43,40 @@
     <div class="parallax"></div>
     <div id="parallaxEnd"></div>
     <main>
+        <div id="sidenav">
+            <a onclick="topFunction()" title="Idź do góry"><i class="fa fa-arrow-up"></i></a>
+            <a onclick="modalOpen('updateModal')" class="sidenavButton" title="Dziennik Zmian"><i class="fas fa-clipboard-list"></i></a>
+            <a onclick="modalOpen('chatModal');scrollToBottom()" class="sidenavButton" title="Chat"><i class="fas fa-comments"></i></a>
+            <a onclick="modalOpen('aiModal')" class="sidenavButton" title="Perun AI"><i class="fas fa-robot"></i></a>
+            <a onclick="modalOpen('opinionModal')" class="sidenavButton" title="Feedback"><i class="fas fa-paper-plane"></i></a>
+            <a onclick="downFunction()" title="Idź do dołu"><i class="fa fa-arrow-down"></i></a>
+          </div>
         <div id="mainwindow">
+            <div id="usernameDemoContainer" style="display: none;">
+                Twoja wersja Demo Zmiany Użytkownika potrwa jeszcze: ??:??:??
+            </div>
             <h1>Witaj, <span id="usernameDisplay"></span>! Wybierz grę:</h1>
-            <div class="search-filters-container">
-                <input type="text" id="searchInput" onkeyup="search()" placeholder="Szukaj">
+            <div class="search-filters-container borderColorChange">
+                <input type="text" id="searchInput" placeholder="Szukaj">
                 <div class="filterdropdown">
                     <button class="filterdropbtn">FILTRY</button>
                     <div id="dropdownFiltres" class="dropdownFiltres-content">
                         <button onclick="filterSelection('all'); changeClass(this)">Wszystkie</button>
                         <button onclick="filterSelection('hot'); changeClass(this)">HOT</button>
                         <button onclick="filterSelection('event'); changeClass(this)">EVENT</button>
-                        <button onclick="filterSelection('testy'); changeClass(this)">Testy</button>
-                        <button onclick="filterSelection('beta'); changeClass(this)">Beta</button>
-                        <button onclick="filterSelection('konserwacje'); changeClass(this)">Konserwacje</button>
                         <button onclick="filterSelection('nowosc'); changeClass(this)">Nowości</button>
-                        <button onclick="filterSelection('ukonczone'); changeClass(this)">Ukończone</button>
+                        <button onclick="filterSelection('ukonczona'); changeClass(this)">Ukończone</button>
+                        <button onclick="filterSelection('konserwacje'); changeClass(this)">Konserwacje</button>
+                        <button onclick="filterSelection('beta'); changeClass(this)">Beta</button>
+                        <button onclick="filterSelection('testy'); changeClass(this)">Testy</button>
                     </div>
                 </div>
             </div>
-            <div class="game-container" max="12"></div>
-            <div class="slideshow-container">
-                <div class="slides">
-                    <h1>Plebiscyt</h1>
-                    <div class="slide" id="plebiscytSlideshow">
-                        Wspólnie ustalmy która gra jest najlepsza, która ma zostać uznana za grę HOT na następny kwartał! <br><br>
-
-                        <button onclick="modalOpen('plebiscytModal')">Głosuj!</button><br><br>
-                        <p>Plebiscyt kończy się 23 marca 2025 r. o godz. 00:00</p>
-                        <p id="plebiscytCountdown"></p>
-                    </div> 
-                </div>
+            <div id="lastPlayedGames"></div>
+            <div class="game-container borderColorChange" max="12">
+                <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
+            </div>
+            <div class="slideshow-container borderColorChange">
                 <div class="slides">
                     <h1>Najnowszy update!</h1>
                     <div class="slide" id="updateSlideshow"></div>
@@ -79,7 +92,9 @@
                 <div class="slides">
                     <h1>BLOG Developerów!</h1>
                     <div class="slide" id="blogSlideshow">
-                        <h3 class="blog">Zobacz jak wygląda HUB bez żadnych podpiętych skryptów - <a href="pusty/index.html" class="game-short-link" target="_blank">👀</a></h3>
+                        <h3 class="blog">Zobacz jak wygląda HUB bez żadnych podpiętych skryptów - <a href="pusty/skrypt.html" class="game-short-link" target="_blank">👀</a></h3>
+                        <h3 class="blog">Zobacz jak wygląda HUB bez CSS odpowiedzialnego za kolory - <a href="pusty/kolory.html" class="game-short-link" target="_blank">👀</a></h3>
+                        <h3 class="blog">Zobacz jak wygląda HUB bez CSS odpowiedzialnego za budowę - <a href="pusty/budowa.html" class="game-short-link" target="_blank">👀</a></h3>
                     </div>
                 </div>
                 <button class="prev">&#10094;</button>
@@ -89,19 +104,15 @@
                     <span class="dot"></span>
                     <span class="dot"></span>
                     <span class="dot"></span>
-                    <span class="dot"></span>
                 </div>
             </div>
-            <div class="game-container" max="13"></div>
-            <button onclick="topFunction()" id="topBtn" title="Go to top">⬆️</button>
+            <div class="game-container borderColorChange" max="12">
+                <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
+            </div>
         </div>
     </main>
-    <div class="button-section">
-        <a id="updateModalBtn" class="game-link feedback-button" onclick="modalOpen('updateModal')">Dziennik zmian</a>
-        <a href="https://forms.gle/ZzyGN1X4Uo3g1GSd6" class="game-link feedback-button" target="_blank">Podziel się swoją opinią</a>
-    </div>
     <footer>
-        <p id="footerText">© 2025 Perun Studios & ChatGPT. Wszelkie prawa zastrzeżone. Wersja 1.0.0</p>
+        <p id="footerText">© 2025 Perun Studios & ChatGPT & Grok. Wszelkie prawa zastrzeżone. Wersja 1.0.0</p>
     </footer>
 
 
@@ -109,12 +120,13 @@
 
 
     <div id="updateModal" class="modal">
+        <h1>Dziennik zmian</h1>
         <div class="modal-content">
-            <div id="tabsContainer" class="tab scrollable">
-                <button class="tablinks" style="width: 100%;padding: 12px;" onclick="openTab(event, 'updt')">📆 Aktualizacje</button>
+            <div id="tabsContainer" class="tab">
+                <button class="tablinks" style="width: 100%;padding: 12px;margin-top:90px" onclick="openTab(event, 'updt')">📆 Aktualizacje</button>
             </div>
             <div id="tabContentsContainer">
-                <div style="text-align: center;" id="updt" class="tabcontent scrollable" style="display: block;">
+                <div style="text-align: center;" id="updt" class="tabcontent" style="display: block;">
                     <table>
                         <thead>
                             <tr>
@@ -127,21 +139,27 @@
                             <th class="tg-0pky">Niedziela</th>
                             </tr></thead>
                         <tbody>
-                            <tr>
+                        <tr>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">20:00</td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">20:00</td>
                             <td class="tg-0lax"></td>
                             <td class="tg-0lax"></td>
+                            <td class="tg-0lax">20:00</td>
+                        </tr>
+                        <tr>
                             <td class="tg-0lax"></td>
-                          <td class="tg-0lax"></td>
-                          <td class="tg-0lax"></td>
-                          <td class="tg-0lax"></td>
-                          <td class="tg-0lax">18:00</td>
+                            <td class="tg-0lax">Neon Update</td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">Spring Update</td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">Pizza Update</td>
                         </tr>
                     </tbody>
                     </table>
                     <b style="color: black;" id="demo"></b>
-                    <br>
-                    <h1>Leaki odnośnie następnego updatu</h1>
-                    <img src="img/Zrzut ekranu 2025-02-26 175948.png" alt="Perun AI" style="width: 80%;">
                 </div>
             </div>
         </div>
@@ -161,32 +179,117 @@
         </div>
     </div>
     <div id="achievementModal" class="modal">
-        <div class="modal-content game-container" id="achievementModalContent">
+        <h1>Osiągnięcia</h1>
+        <div class="modal-content" id="achievementModalContent" style="overflow-y: auto;">
+            <button class="refreshButton"><i class="fas fa-redo" onclick="reloadAchievements()"></i></button>
         </div>
     </div>
-    <div id="settingsModal" class="modal" style="display: none;">
-
+    <div id="settingsModal" class="modal">
+        <h1>Ustawienia</h1>
+        <div class="modal-content">
+            <h2>Ustawienia</h2>
+            <label for="nameInput">Nazwa użytkownika:</label>
+            <input type="text" name="nameInput" id="usernameSettingsInput">
+            <button onclick="handleUsernameChange()" id="usernameChangeButton">Zmień</button>
+            <br><br>
+            <label>Rozmiar czcionki wiadomości: </label>
+            <input type="range" id="chatFontSizeSlider" min="10" max="30" value="16"><button onclick='document.getElementById("chatFontSizeSlider").value=17;document.documentElement.style.setProperty("--chatMessageFontSize", `17px`);localStorage.setItem("chatMessageFontSize", 17)'>Reset</button>
+            <hr>
+            <h2>Eksperymenty <button onclick="resetSwitches();initializeSwitches()">Reset</button></h2>
+            <br>
+            <label>Tryb developera: </label>
+            <label class="switch" ><input type="checkbox" switchId="01"><span class="slider round"></span></label><br>
+            <label>Zapis modali: </label>
+            <label class="switch"><input type="checkbox" switchId="02"><span class="slider round"></span></label><br>
+            <label>Ładowanie obrazów na Chacie: </label>
+            <label class="switch"><input type="checkbox" switchId="03"><span class="slider round"></span></label>
+        </div>
+    </div>
+    <div id="chatModal" class="modal">
+        <h1>Chat</h1>
+        <div class="modal-content">
+            <div id="chat-container">
+                <div id="users-counter" class="users-counter">
+                    Aktywni użytkownicy: <span id="activeUsersCount">0</span>
+                </div>
+                <div id="chat-window">
+                    <ul id="chatMessages">
+                        <div id="ChatLoading" class="spinner" style="display: block;"></div>
+                    </ul>
+                </div>
+                <div id="input-container">
+                    <button class="emoji-btn" onclick="toggleEmojiPicker()">😊</button>
+                    <input id="chatMessage" type="text" placeholder="Napisz wiadomość... (Wiadomości podlegają moderacji)" maxlength="200"/>
+                    <button id="sendButton" onclick="sendChatMessage()">Wyślij</button>
+                </div>
+                <div id="emojiPicker" class="emoji-picker">
+                    <span onclick="addEmoji('😊')">😊</span>
+                    <span onclick="addEmoji('😂')">😂</span>
+                    <span onclick="addEmoji('❤️')">❤️</span>
+                    <span onclick="addEmoji('👍')">👍</span>
+                    <span onclick="addEmoji('😢')">😢</span>
+                    <span onclick="addEmoji('🔥')">🔥</span>
+                </div>
+            </div>
+        </div>
     </div>
     <div id="customizationModal" class="modal">
+        <h1>Dostosowanie</h1>
         <div class="modal-content">
-            <p>Wybierz motyw</p>
-            <select name="theme" id="theme">
+            <label>Motyw: </label>
+            <select name="theme" id="themeSelect">
                 <option value="dark">Ciemny</option>
                 <option value="gray">Szary</option>
                 <option value="light">Jasny</option>
             </select>
-            <label for="colorPicker">Wybierz kolor</label>
-            <input type="color" name="customColor" id="colorPicker">
         </div>
     </div>
-    <div id="plebiscytModal" class="modal">
+    <div id="aiModal" class="modal">
+        <h1>Perun AI</h1>
         <div class="modal-content">
-            <iframe src="https://forms.gle/fM3NzKckwS6JUEUq5" height="100%" width="100%" title="Plebiscyt"></iframe>
+              <div class="aiContainer">
+                <div class="chat-box" id="chatBox"></div>
+                <input type="text" id="userAiInput" placeholder="Zadaj pytanie..." />
+                <button onclick="getAIResponse()" style="border: none;">Wyślij</button>
+            </div>
         </div>
     </div>
-    <div class="loader-container">
-        <h1 class="loader-child">Perun Studios</h1>
-        <div class="loader loader-child"></div>
+    <div id="opinionModal" class="modal">
+        <h1>Opinie</h1>
+        <div class="modal-content">
+            <form id="ratingForm">
+                <label class="required">Oceń (1-10 gwiazdek)</label>
+                <div class="rating">
+                    <input type="radio" id="star10" name="rating" value="10" required>
+                    <label for="star10">★</label>
+                    <input type="radio" id="star9" name="rating" value="9">
+                    <label for="star9">★</label>
+                    <input type="radio" id="star8" name="rating" value="8">
+                    <label for="star8">★</label>
+                    <input type="radio" id="star7" name="rating" value="7">
+                    <label for="star7">★</label>
+                    <input type="radio" id="star6" name="rating" value="6">
+                    <label for="star6">★</label>
+                    <input type="radio" id="star5" name="rating" value="5">
+                    <label for="star5">★</label>
+                    <input type="radio" id="star4" name="rating" value="4">
+                    <label for="star4">★</label>
+                    <input type="radio" id="star3" name="rating" value="3">
+                    <label for="star3">★</label>
+                    <input type="radio" id="star2" name="rating" value="2">
+                    <label for="star2">★</label>
+                    <input type="radio" id="star1" name="rating" value="1">
+                    <label for="star1">★</label>
+                </div>
+                <br><br>
+                <!-- <label for="username" class="required">Imię/Nick</label>
+                <input type="text" id="username" name="username" required> -->
+        
+                <button type="submit" id="opinionSubmit">Wyślij</button><br>
+                Użyj starej metody: <a href="https://forms.gle/ZzyGN1X4Uo3g1GSd6" target="_blank" class="sidenavButton" title="Feedback"><i class="fas fa-paper-plane"></i></a>
+                <p id="errorMessage" class="error">Wypełnij wszystkie wymagane pola!</p>
+            </form>
+        </div>
     </div>
 </body>
 </html>
