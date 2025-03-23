@@ -1,10 +1,11 @@
 const settingSwitches = [
     { switchId: "01", value: false },
     { switchId: "02", value: false },
-    { switchId: "03", value: true }
+    { switchId: "03", value: true },
+    { switchId: "04", value: true }
 ];
-var countDownDate = new Date("Mar 23, 2025 20:00:00").getTime();
-const API_URL = "https://script.google.com/macros/s/AKfycbx5zHVbTlB7CnlUo7BWL5p0skuUc5EZb8lkchHtSK8W5l-y9A8csPJ-1YN6JHwfMM13Vw/exec";
+var countDownDate = new Date("Mar 30, 2025 20:00:00").getTime();
+const API_URL = "https://script.google.com/macros/s/AKfycbzFLO_vcR-MBEDW5Z8uT6p6YoaIYB-wAWx_pLy7J7gZKDQoXqAoswJhlhGfspDQGL-g/exec";
 
 
 let isScrolling = false;
@@ -305,9 +306,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (storedUsername && storedUUID) {
     document.getElementById("welcomeModal").style.display = 'none';
-
-    document.getElementById("usernameDisplay").textContent = storedUsername;
   } else {
+    if(!storedUUID){
+        localStorage.setItem("perunUUID", generateUUID());
+        location.reload();
+    }
+
     document.getElementById("welcomeModal").style.display = 'block';
 
     const link = document.createElement('link');
@@ -326,7 +330,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }    
     if (username) {
       localStorage.setItem("perunUsername", username);
-      localStorage.setItem("perunUUID", generateUUID());
 
       const linkToRemove = document.getElementById('fireworksStyles');
       if (linkToRemove) {
@@ -334,8 +337,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       document.getElementById("welcomeModal").style.display = 'none';
-
-      document.getElementById("usernameDisplay").textContent = `Witaj, ${username}!`;
       document.getElementById("player-name").textContent = username;
       
     } else {
@@ -460,7 +461,15 @@ function updateDynamicText(key, elementId, defaultMessage) {
 }
 
 function updatePlayerName() {
-    updateDynamicText(playerNameKey, "playerName", "?");
+    const storedValue = localStorage.getItem(playerNameKey);
+    const dynamicTextElement = document.getElementById("playerName");
+    if(dynamicTextElement) {
+        if (localStorage.getItem("perunUsername") === "SUSpicio" && localStorage.getItem("perunUUID") === "863718d4-8c34-4e02-9a5a-86563967124c") {
+            dynamicTextElement.innerHTML = 'SUSpicio <i class="fas fa-check-circle verified-icon">' || "?";
+        } else {
+            dynamicTextElement.textContent = storedValue || "?";
+        }
+    }
 }
 
 function updatePlayerPLN() {
@@ -542,18 +551,26 @@ async function getAIResponse() {
 
     document.getElementById("userAiInput").value = "";
 
-    const apiKey = "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"; // Twój klucz API
+    // Dodanie kółka ładowania
+    const loadingDiv = document.createElement("div");
+    loadingDiv.classList.add("message", "loading-message");
+    loadingDiv.innerHTML = '<span class="spinner"></span> Oczekiwanie na odpowiedź...';
+    chatBox.appendChild(loadingDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
 
+    const apiKey = "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";
     const data = {
-        model: "google/gemini-2.0-flash-lite-preview-02-05:free", // Darmowy model OpenRouter
-        messages: [{ role: "user", content: userAiInput }],
-        max_tokens: 30, // Limit tokenów odpowiedzi
-        temperature: 0.2, // Kontrola kreatywności
-        top_p: 0.8 // Filtrowanie odpowiedzi
+        inputs: userAiInput,
+        parameters: {
+            max_length: 50,
+            temperature: 0.7,
+            top_p: 0.9,
+            return_full_text: false
+        }
     };
 
     try {
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetch("https://api-inference.huggingface.co/models/google/gemma-3-27b-it", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
@@ -562,26 +579,37 @@ async function getAIResponse() {
             body: JSON.stringify(data)
         });
 
+        // Usunięcie kółka ładowania po otrzymaniu odpowiedzi
+        chatBox.removeChild(loadingDiv);
+
         if (!response.ok) {
             const errorDetails = await response.json();
-            alert(`Wystąpił błąd: ${errorDetails.message || 'Nieznany błąd'}`);
+            alert(`Wystąpił błąd: ${errorDetails.error || 'Nieznany błąd'}`);
             return;
         }
 
         const result = await response.json();
-        const aiResponse = result.choices[0]?.message?.content?.trim() || 'Brak odpowiedzi od AI';
+        let aiResponse = result[0]?.generated_text?.trim() || "Brak odpowiedzi od AI";
+
+        // Zamiana **tekst** na <b>tekst</b> i ''' na <br>
+        aiResponse = aiResponse
+            .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>") // Pogrubienie
+            .replace(/'''/g, "<br>"); // Nowa linia
 
         const aiMessageDiv = document.createElement("div");
         aiMessageDiv.classList.add("message", "ai-message");
-        aiMessageDiv.textContent = aiResponse;
+        aiMessageDiv.innerHTML = aiResponse; // Użycie innerHTML, aby renderować tagi HTML
         chatBox.appendChild(aiMessageDiv);
 
     } catch (error) {
+        // Usunięcie kółka ładowania w przypadku błędu
+        chatBox.removeChild(loadingDiv);
         alert(`Wystąpił błąd: ${error.message}`);
     } finally {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 }
+
 //const colors = [
 //    "rgb(255, 0, 0)", 
 //    "rgb(255, 127, 0)", 
@@ -765,9 +793,10 @@ document.getElementById('ratingForm').addEventListener('submit', async function(
     e.preventDefault();
     document.getElementById('opinionSubmit').disabled=true;
     const rating = document.querySelector('input[name="rating"]:checked');
+    const whattodo = document.getElementById("whattodoratingform");
 
     if (!username || !rating) {
-        document.getElementById('errorMessage').style.display = 'block';
+        document.getElementById('ratingFormErrorMessage').style.display = 'block';
         return;
     }
 
@@ -776,10 +805,12 @@ document.getElementById('ratingForm').addEventListener('submit', async function(
         sessionId: localStorage.getItem("perunUUID") || "",
         username: localStorage.getItem("perunUsername") || "",
         rating: rating.value,
+        whattodo: whattodo.value,
         timestamp: new Date().toISOString()
     };
 
     try {
+        document.getElementById('opinionSubmit').textContent = 'Wysyłanie...';
         const response = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -787,11 +818,12 @@ document.getElementById('ratingForm').addEventListener('submit', async function(
             mode: "no-cors" // Utrzymane dla zgodności z Twoim API
         });
         document.getElementById('ratingForm').reset();
-        document.getElementById('errorMessage').style.display = "none";
-        location.reload();
+        document.getElementById('ratingFormErrorMessage').style.display = "none";
     } catch (error) {
+        document.getElementById('opinionSubmit').textContent = 'Wyślij';
         console.error("Błąd wysyłania:", error);
         alert("Wystąpił błąd podczas wysyłania oceny.");
+        document.getElementById('opinionSubmit').disabled = false; // Add this
     }
 });
 
@@ -822,3 +854,16 @@ ratingLabels.forEach(label => {
         }
     });
 });
+
+function toggleDropdown(dropdownId) {
+    document.getElementById(dropdownId).classList.toggle("show");
+  }
+  
+  // Zamknij dropdown, jeśli klikniesz poza nim
+  window.onclick = function(event) {
+    if (!event.target.closest('.dropdown')) {
+      document.querySelectorAll('.dropdown-content').forEach(menu => {
+        menu.classList.remove("show");
+      });
+    }
+  };

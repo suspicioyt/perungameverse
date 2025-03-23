@@ -19,7 +19,7 @@ const achievementsData = [
         "name": "Mistrz odbijania",
         "opis": "Zbierz 10 punktów w Ping Pongu",
         "classes": ["beta"],
-        "status": ["pingPong", 10]
+        "status": ["pingPong", 11]
     },
     {
         "id": "04",

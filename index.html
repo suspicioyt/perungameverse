@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perun Studios</title>
+    <title>Perun Studios Gameverse</title>
     <link rel="stylesheet" href="style/main.css">
     <link rel="stylesheet" id="themeStylesheet" href="style/theme/dark.css">
     <link rel="stylesheet" href="style/color.css">
@@ -33,7 +33,6 @@
             <i class="fas fa-user" style="font-size: 30px;"></i>
             <div id="user-dropdown" class="dropdown">
               <ul>
-                <li><button id="achievementModalBtn" onclick="modalOpen('achievementModal')">Osiągnięcia</button></li>
                 <li><button id="settingsModalBtn" onclick="modalOpen('settingsModal')">Ustawienia</button></li>
                 <li><button id="customizationModalBtn" onclick="modalOpen('customizationModal')">Dostosowanie</button></li>
               </ul>
@@ -46,6 +45,7 @@
         <div id="sidenav">
             <a onclick="topFunction()" title="Idź do góry"><i class="fa fa-arrow-up"></i></a>
             <a onclick="modalOpen('updateModal')" class="sidenavButton" title="Dziennik Zmian"><i class="fas fa-clipboard-list"></i></a>
+            <a onclick="modalOpen('achievementModal')" class="sidenavButton" title="Osiągnięcia"><i class="fas fa-trophy"></i></a>
             <a onclick="modalOpen('chatModal');scrollToBottom()" class="sidenavButton" title="Chat"><i class="fas fa-comments"></i></a>
             <a onclick="modalOpen('aiModal')" class="sidenavButton" title="Perun AI"><i class="fas fa-robot"></i></a>
             <a onclick="modalOpen('opinionModal')" class="sidenavButton" title="Feedback"><i class="fas fa-paper-plane"></i></a>
@@ -55,7 +55,6 @@
             <div id="usernameDemoContainer" style="display: none;">
                 Twoja wersja Demo Zmiany Użytkownika potrwa jeszcze: ??:??:??
             </div>
-            <h1>Witaj, <span id="usernameDisplay"></span>! Wybierz grę:</h1>
             <div class="search-filters-container borderColorChange">
                 <input type="text" id="searchInput" placeholder="Szukaj">
                 <div class="filterdropdown">
@@ -123,7 +122,7 @@
         <h1>Dziennik zmian</h1>
         <div class="modal-content">
             <div id="tabsContainer" class="tab">
-                <button class="tablinks" style="width: 100%;padding: 12px;margin-top:90px" onclick="openTab(event, 'updt')">📆 Aktualizacje</button>
+                <button class="tablinks" style="width: 100%;padding: 12px;" onclick="openTab(event, 'updt')">📆 Aktualizacje</button>
             </div>
             <div id="tabContentsContainer">
                 <div style="text-align: center;" id="updt" class="tabcontent" style="display: block;">
@@ -141,21 +140,21 @@
                         <tbody>
                         <tr>
                             <td class="tg-0lax"></td>
-                            <td class="tg-0lax">20:00</td>
                             <td class="tg-0lax"></td>
-                            <td class="tg-0lax">20:00</td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax"></td>
                             <td class="tg-0lax"></td>
                             <td class="tg-0lax"></td>
                             <td class="tg-0lax">20:00</td>
                         </tr>
                         <tr>
                             <td class="tg-0lax"></td>
-                            <td class="tg-0lax">Neon Update</td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax">Spring Update</td>
                             <td class="tg-0lax"></td>
                             <td class="tg-0lax"></td>
-                            <td class="tg-0lax">Pizza Update</td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax"></td>
+                            <td class="tg-0lax">Casino Update</td>
                         </tr>
                     </tbody>
                     </table>
@@ -195,14 +194,12 @@
             <label>Rozmiar czcionki wiadomości: </label>
             <input type="range" id="chatFontSizeSlider" min="10" max="30" value="16"><button onclick='document.getElementById("chatFontSizeSlider").value=17;document.documentElement.style.setProperty("--chatMessageFontSize", `17px`);localStorage.setItem("chatMessageFontSize", 17)'>Reset</button>
             <hr>
-            <h2>Eksperymenty <button onclick="resetSwitches();initializeSwitches()">Reset</button></h2>
-            <br>
-            <label>Tryb developera: </label>
-            <label class="switch" ><input type="checkbox" switchId="01"><span class="slider round"></span></label><br>
-            <label>Zapis modali: </label>
-            <label class="switch"><input type="checkbox" switchId="02"><span class="slider round"></span></label><br>
-            <label>Ładowanie obrazów na Chacie: </label>
-            <label class="switch"><input type="checkbox" switchId="03"><span class="slider round"></span></label>
+            <h2>Eksperymenty</h2> <br>
+            <label class="switch"><input type="checkbox" switchId="01"><span class="slider round"></span></label><label>Tryb developera</label><br>
+            <label class="switch"><input type="checkbox" switchId="02"><span class="slider round"></span></label><label>Zapis modali</label><br>
+            <label class="switch"><input type="checkbox" switchId="03"><span class="slider round"></span></label><label>Ładowanie obrazów na Chacie</label><br>
+            <label class="switch"><input type="checkbox" switchId="04"><span class="slider round"></span></label><label>Ukrywanie zbanowanych słów na Chacie</label><br>
+            <button onclick="resetSwitches();initializeSwitches()">Reset</button>
         </div>
     </div>
     <div id="chatModal" class="modal">
@@ -211,6 +208,16 @@
             <div id="chat-container">
                 <div id="users-counter" class="users-counter">
                     Aktywni użytkownicy: <span id="activeUsersCount">0</span>
+                    <div class="dropdown">
+                        <button class="dropdown-button" id="activeUsersDropdownBtn" onclick="toggleDropdown('activeUsersDropdown')">
+                          <i class="fas fa-info-circle"></i>
+                        </button>
+                        <div class="dropdown-content" id="activeUsersDropdown">
+                          <ul id="activeUsers">
+
+                          </ul>
+                        </div>
+                      </div>
                 </div>
                 <div id="chat-window">
                     <ul id="chatMessages">
@@ -281,13 +288,15 @@
                     <input type="radio" id="star1" name="rating" value="1">
                     <label for="star1">★</label>
                 </div>
-                <br><br>
+                <br><br><br>
+                <label>Co dodać nowego/zmienić?</label>
+                <textarea name="whattodo" id="whattodoratingform"></textarea>
                 <!-- <label for="username" class="required">Imię/Nick</label>
                 <input type="text" id="username" name="username" required> -->
-        
-                <button type="submit" id="opinionSubmit">Wyślij</button><br>
+                <br><br>
+                <button type="submit" id="opinionSubmit">Wyślij</button><br><br><br>
                 <p>Użyj starej metody: <a href="https://forms.gle/ZzyGN1X4Uo3g1GSd6" target="_blank" class="sidenavButton" title="Feedback" style="color: white;"><i class="fas fa-paper-plane"></i></a></p>
-                <p id="errorMessage" class="error">Wypełnij wszystkie wymagane pola!</p>
+                <p id="ratingFormErrorMessage" class="error">Wypełnij wszystkie wymagane pola!</p>
             </form>
         </div>
     </div>

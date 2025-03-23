@@ -1,3 +1,14 @@
+:root {
+    --button-color: linear-gradient(90deg, rgb(78, 73, 0) 0%, rgb(190, 196, 17) 50%, rgb(255, 230, 0) 100%);
+    --button-active-color: linear-gradient(90deg, rgb(68, 65, 0) 0%, rgb(111, 105, 15) 50%, rgb(120, 108, 0) 100%);
+    --button-hover-color: linear-gradient(90deg, rgb(121, 116, 9) 0%, rgb(167, 164, 14)0%, rgb(241, 213, 0) 100%);
+    --highlight-bg-color: rgba(173, 180, 30, 0.2);
+    --shadow-color: rgba(128, 124, 0, 0.177);
+    --border-color:#b9a600;
+    --background-image: url('https://res.cloudinary.com/dietper/image/upload/v1649088226/pizza-jajeczna-main.jpg');
+    --parallax-image: url('../img/perun4.png');
+}
+
 body {
     background: var(--button-color);
     color: var(--dar-text-color);
@@ -59,8 +70,28 @@ button:hover {
     border: 3px solid var(--primary-background-color);
 }
 .game-label {
-    background: #FF5722;
-    color: var(--text-color);
+    color: var(--secondary-text-color);
+}
+.beta .game-label {
+    background: #ff6422;
+}
+.konserwacje .game-label {
+    background: #ffd322;
+}
+.testy .game-label {
+    background: #ff2222;
+}
+.hot .game-label {
+    background: #ff0000;
+	background-color: red;
+	box-shadow: -10px -10px 0 10px orange, -20px -20px 0 20px yellow;
+}
+
+.nowosc .game-label {
+    background: #3122ff;
+}
+.event .game-label {
+    background: #b4007e;
 }
 .game-status {
     background: #0cb800;
@@ -93,7 +124,7 @@ footer {
     background: var(--button-color);
     color: var(--secondary-text-color);
 }
-.filterdropbtn:hover, .filterdropbtn:focus {
+.filterdropbtn:hover {
     background: var(--button-hover-color);
     box-shadow: none;
     border: none;
@@ -146,6 +177,7 @@ footer {
 }
 .modal > h1 {
     color:var(--text-color);
+    background-color: var(--primary-background-color);
 }
 .tab {
     background: var(--secondary-background-color);

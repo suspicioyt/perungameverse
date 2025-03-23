@@ -3,47 +3,10 @@ let replyingToMessageId = null;
 let cachedMessages = [];
 let sendingChecker = false;
 
-// Flaga śledząca pierwsze ładowanie strony
 let isFirstLoad = true;
-
-const BLOCKED_WORDS_URL = "https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/pl";
-let blockedWords = [];
 
 const sessionId = localStorage.getItem("perunUUID");
 const username = localStorage.getItem("perunUsername");
-
-function manageWarnings(username, message) {
-    const warningsKey = `chatWarnings`;
-    const cooldownKey = `chatCooldown_${username}`;
-    let warnings = parseInt(localStorage.getItem(warningsKey)) || 0;
-
-    // Sprawdzenie cooldown
-    const cooldownTime = localStorage.getItem(cooldownKey);
-    if (cooldownTime && new Date() < new Date(cooldownTime)) {
-        const timeLeft = Math.ceil((new Date(cooldownTime) - new Date()) / 60000);
-        showError(`Jesteś zablokowany na czacie! Pozostało ${timeLeft} minut.`);
-        return false;
-    }
-
-    // Sprawdzenie blokowanych słów
-    if (containsBlockedWords(message)) {
-        warnings += 1;
-        localStorage.setItem(warningsKey, warnings.toString());
-
-        showError(`Ostrzeżenie ${warnings}/3: Użyłeś niedozwolonego słowa!`);
-        
-        if (warnings >= 3) {
-            const banDuration = 15 * 60 * 1000; // 1 godzina
-            const cooldownTime = new Date(Date.now() + banDuration).toISOString();
-            localStorage.setItem(cooldownKey, cooldownTime);
-            localStorage.setItem(warningsKey, "0");
-            showError("Zostałeś zablokowany na 15 minut za używanie niedozwolonych słów!");
-            setTimeout(() => window.location.reload(), 1000);
-        }
-        return false; // Blokuje wysyłanie moderowanej wiadomości
-    }
-    return true;
-}
 
 function sanitizeInput(input) {
     const div = document.createElement("div");
@@ -54,6 +17,70 @@ function sanitizeInput(input) {
 let displayedActiveUsers = 0;
 let lastServerActiveUsers = 0;
 const STABILIZATION_DELAY = 5000;
+
+let bannedWords = [];
+
+async function fetchBannedWords() {
+    try {
+        const response = await fetch("https://suspicioyt.github.io/perungameverse/data/bannedWords.json");
+        bannedWords = await response.json();
+    } catch (error) {
+        console.error("Błąd podczas pobierania zbanowanych słów:", error);
+        bannedWords = ["kurwa", "chuj", "pierdol"];
+    }
+}
+
+function levenshteinDistance(a, b) {
+    const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+    for (let i = 0; i <= a.length; i++) matrix[0][i] = i;
+    for (let j = 0; j <= b.length; j++) matrix[j][0] = j;
+    for (let j = 1; j <= b.length; j++) {
+        for (let i = 1; i <= a.length; i++) {
+            const indicator = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[j][i] = Math.min(
+                matrix[j][i - 1] + 1,
+                matrix[j - 1][i] + 1,
+                matrix[j - 1][i - 1] + indicator
+            );
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+function replaceBannedWords(message) {
+    const switches = JSON.parse(localStorage.getItem("settingSwitches")) || defaultSwitches;
+    const filterEnabled = switches.find(s => s.switchId === "04")?.value || false;
+
+    if (!filterEnabled || bannedWords.length === 0) return message;
+
+    let words = message.split(/\s+/);
+    words = words.map(word => {
+        const lowerWord = word.toLowerCase();
+
+        if (bannedWords.includes(lowerWord)) {
+            return "[zbanowane]";
+        }
+
+        for (const banned of bannedWords) {
+            const regex = new RegExp(`\\b${banned}(${banned.slice(-1)}*)\\b`, "i");
+            if (regex.test(lowerWord)) {
+                return "[zbanowane]";
+            }
+
+            const lengthDiff = Math.abs(lowerWord.length - banned.length);
+            if (lengthDiff <= 2 && lowerWord.length >= 3) {
+                const distance = levenshteinDistance(lowerWord, banned);
+                if (distance <= 1) {
+                    return "[zbanowane]";
+                }
+            }
+        }
+
+        return word;
+    });
+
+    return words.join(" ");
+}
 
 function sendHeartbeat() {
     fetch(API_URL, {
@@ -67,27 +94,42 @@ function sendHeartbeat() {
         mode: "no-cors"
     }).catch(error => console.error("Heartbeat error:", error));
 }
-async function fetchBlockedWords() {
-    try {
-        const response = await fetch(BLOCKED_WORDS_URL);
-        const text = await response.text();
-        blockedWords = text.split('\n')
-            .map(word => word.trim().toUpperCase())
-            .filter(word => word.length > 0);
-        console.log("Załadowano blokowane słowa:", blockedWords.length);
-    } catch (error) {
-        console.error("Błąd ładowania listy słów:", error);
-        blockedWords = ["KURWA", "DUPA", "CHUJ", "PIERDOL", "SUK"];
+
+function displayActiveUsers(activeUsers) {
+    const activeUsersList = document.getElementById("activeUsers");
+
+    activeUsersList.innerHTML = "";
+
+    if (activeUsers && Array.isArray(activeUsers) && activeUsers.length > 0) {
+        activeUsers.forEach(username => {
+            if (username) {
+                const li = document.createElement("li");
+                li.classList.add("active-user");
+
+                const usernameLabel = document.createElement("span");
+                usernameLabel.textContent = username || "Nieznany";
+
+                if (username === "SUSpicio") {
+                    const verificationIcon = document.createElement("i");
+                    verificationIcon.classList.add("fas", "fa-check-circle", "verified-icon");
+                    verificationIcon.style.color = "#ffd700";
+                    usernameLabel.appendChild(verificationIcon);
+                }
+
+                li.appendChild(usernameLabel);
+                activeUsersList.appendChild(li);
+            }
+        });
+    } else {
+        console.log("Brak aktywnych użytkowników. activeUsers:", activeUsers);
+        const li = document.createElement("li");
+        li.textContent = "Brak aktywnych użytkowników";
+        li.classList.add("active-user");
+        activeUsersList.appendChild(li);
     }
 }
 
-// Sprawdzanie blokowanych słów
-function containsBlockedWords(message) {
-    const words = message.toUpperCase().split(/\s+/);
-    return words.some(word => blockedWords.some(blocked => word.includes(blocked)));
-}
-
-function updateActiveUsersCount(serverCount) {
+function updateActiveUsersCount(serverCount, activeUsers) {
     lastServerActiveUsers = serverCount;
     const currentDisplayed = displayedActiveUsers;
 
@@ -96,11 +138,13 @@ function updateActiveUsersCount(serverCount) {
             if (lastServerActiveUsers === serverCount) {
                 displayedActiveUsers = serverCount;
                 document.getElementById("activeUsersCount").textContent = displayedActiveUsers;
+                displayActiveUsers(activeUsers);
             }
         }, STABILIZATION_DELAY);
     } else {
         displayedActiveUsers = serverCount;
         document.getElementById("activeUsersCount").textContent = displayedActiveUsers;
+        displayActiveUsers(activeUsers);
     }
 }
 
@@ -155,19 +199,14 @@ async function sendChatMessage() {
         return;
     }
 
-    if (!manageWarnings(username, chatMessage)) {
-        document.getElementById("chatMessage").value = "";
-        return;
-    }
-
     sendButton.disabled = true;
     sendButton.textContent = "Wysyłanie...";
     sendingChecker = true;
 
     const timestamp = new Date().toISOString();
     const data = {
-        sessionId: localStorage.getItem('perunUUID'),
         username,
+        sessionId: localStorage.getItem('perunUUID'),
         message: sanitizeInput(chatMessage),
         timestamp,
         replyTo: replyingToMessageId,
@@ -179,12 +218,12 @@ async function sendChatMessage() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
-            mode: "no-cors" // Utrzymane no-cors
+            mode: "no-cors"
         });
         document.getElementById("chatMessage").value = "";
         replyingToMessageId = null;
         updateReplyingTo(null);
-        await loadChatMessages(); // Zakładamy sukces i odświeżamy wiadomości
+        await loadChatMessages();
     } catch (error) {
         console.error("Błąd wysyłania:", error);
         showError("Nie udało się wysłać wiadomości.");
@@ -281,20 +320,42 @@ async function loadChatMessages() {
 
         data.messages.forEach(msg => {
             if (!msg.id) msg.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-            displayChatMessage(msg, msg.sessionId === localStorage.getItem("perunUUID"));
+            displayChatMessage(msg, msg.username === localStorage.getItem("perunUsername"));
         });
 
-        updateActiveUsersCount(data.activeUsers || 0);
+        updateActiveUsersCount(data.activeUsers || 0, data.activeUsernames);
 
-        // Przewiń do dołu tylko przy pierwszym ładowaniu
         if (isFirstLoad) {
             scrollToBottom();
-            isFirstLoad = false; // Ustawiamy flagę na false po pierwszym przewinięciu
+            isFirstLoad = false;
         }
     } catch (error) {
         console.error("Błąd ładowania:", error);
         showError("Nie udało się załadować wiadomości.");
     }
+}
+
+// Nowa funkcja do parsowania kolorów i <br>
+function parseColoredText(text) {
+    const colorMap = {
+        "red": "#ff0000",
+        "green": "#00ff00",
+        "blue": "#0000ff",
+        "yellow": "#ffff00",
+        "purple": "#800080",
+        "orange": "#ffa500"
+    };
+
+    // Zamiana <br> na element HTML
+    let result = text.replace(/&lt;br&gt;/gi, '<br>');
+
+    // Parsowanie znaczników kolorów
+    for (const [color, hex] of Object.entries(colorMap)) {
+        const regex = new RegExp(`&lt;${color}&gt;(.*?)&lt;/${color}&gt;`, "gi");
+        result = result.replace(regex, `<span style="color: ${hex}">$1</span>`);
+    }
+
+    return result;
 }
 
 function displayChatMessage(msg, isSelf) {
@@ -368,7 +429,9 @@ function displayChatMessage(msg, isSelf) {
         if (match && match[1] && !loadImages.value) {
             content.textContent = "[Obraz wyłączony]";
         } else {
-            content.textContent = String(msg.message || "[Brak treści]");
+            // Parsowanie kolorów i <br> po zastąpieniu zbanowanych słów
+            const sanitizedMessage = replaceBannedWords(String(msg.message || "[Brak treści]"));
+            content.innerHTML = parseColoredText(sanitizedMessage);
         }
     }
 
@@ -378,6 +441,7 @@ function displayChatMessage(msg, isSelf) {
         }
         return url;
     }
+
     const usernameContainer = document.createElement("div");
     if (msg.username === "SUSpicio" && msg.sessionId === "863718d4-8c34-4e02-9a5a-86563967124c") {
         const verificationIcon = document.createElement("i");
@@ -448,7 +512,7 @@ function displayChatMessage(msg, isSelf) {
         updateReplyingTo(msg);
     };
 
-    li.appendChild(usernameContainer);
+    li.appendChild(usernameLabel);
     li.appendChild(content);
     li.appendChild(time);
     li.appendChild(reactionsDiv);
@@ -513,19 +577,18 @@ function showError(message) {
     setTimeout(() => errorLi.remove(), 3000);
 }
 
-// Dodanie obsługi Enter do wysyłania wiadomości
 document.addEventListener("DOMContentLoaded", () => {
-    const chatInput = document.getElementById("chatMessage");
-    chatInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" && !sendingChecker) {
-            event.preventDefault();
-            sendChatMessage();
-        }
-    });
-});
+    fetchBannedWords().then(() => {
+        loadChatMessages();
+        setInterval(loadChatMessages, 2000);
+        setInterval(sendHeartbeat, 5000);
 
-fetchBlockedWords().then(() => {
-    loadChatMessages();
-    setInterval(loadChatMessages, 1000);
-    setInterval(sendHeartbeat, 5000);
+        const chatInput = document.getElementById("chatMessage");
+        chatInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && !sendingChecker) {
+                event.preventDefault();
+                sendChatMessage();
+            }
+        });
+    });
 });

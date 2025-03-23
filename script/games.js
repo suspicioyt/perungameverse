@@ -174,9 +174,27 @@ const games = [
         id: "20",
         name: "Wisielec",
         link: "wisielec/index.html",
-        status: "Nowość",
+        status: "Konserwacje",
         tooltip: "Odgaduj słowa",
-        classes: ["konserwacje","nowosc"],
+        classes: ["konserwacje"],
+        ulubione: false
+    },
+    {
+        id: "21",
+        name: "Pizza Tycoon",
+        link: "pizza/index.html",
+        status: "Nowość",
+        tooltip: "Stwórz fabrykę pizzy",
+        classes: ["beta","nowosc"],
+        ulubione: false
+    },
+    {
+        id: "22",
+        name: "Cringe Party Tycoon",
+        link: "rizzpartytycoon/index2.html",
+        status: "Event",
+        tooltip: "Sciringuj innych",
+        classes: ["beta","nowosc","event"],
         ulubione: false
     },
 ];

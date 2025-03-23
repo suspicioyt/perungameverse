@@ -31,13 +31,14 @@
     padding: 10px 15px;
     margin: 12px 0;
     border-radius: 20px;
-    max-width: 75%;
+    max-width: 70%;
     word-wrap: break-word;
     display: flex;
     flex-direction: column;
     position: relative;
     font-size: var(--chatMessageFontSize);
     line-height: 1.4;
+    width: auto;
 }
 
 .chatMessage.self {
@@ -139,7 +140,7 @@
     flex: 1;
     padding: 10px 15px;
     border-radius: 25px;
-    border: 3px solid var(--button-color);
+    border: 3px solid var(--border-color);
     outline: none;
     background-color: var(--secondary-background-color);
     font-size: 22px;
@@ -390,4 +391,7 @@
     color: var(--button-color); /* Kolor X.com */
     font-size: 14px; /* Rozmiar ikony */
     line-height: 1; /* Poprawne wyrównanie */
+}
+.active-user {
+    list-style-type: none;
 }

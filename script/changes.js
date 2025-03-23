@@ -1,5 +1,38 @@
 const tabsData = [
     {
+        name: "🍕 Pizza Update",
+        version: "1.1.5.3",
+        date: "23.03.2025r.",
+        quote: "Om nom nom nom",
+        backgroundImage: "https://res.cloudinary.com/dietper/image/upload/v1649088226/pizza-jajeczna-main.jpg",
+        paragraphs: [
+            {
+                title: "Nowości",
+                content: [
+                    "🤖 Mądrzejszy AI",
+                    "🟢 Lista aktywnych użytkowników"
+                ]
+            },
+            {
+                title: "Gry",
+                content: [
+                    "🛠️ Zaktualizowano Rizz Party Tycoon",
+                    "🎉 Dodano Pizza Tycoon, Cringe Party Tycoon"
+                ]
+            },
+            {
+                title: "Zmiany",
+                content: [
+                    "🏗️ Zmiany w strukturze i wyglądzie HUBA",
+                    "📈 Zmiany w Opiniach",
+                    "💬 Ulepszenia wyglądu Chatu",
+                    "🔧 Zmieniona moderacja Chatu",
+                    "🔨 Przebudowa Ustawień"
+                ]
+            }
+        ]
+    },
+    {
         name: "🪻 Spring Update",
         version: "1.1.5.2",
         date: "20.03.2025r.",
@@ -24,7 +57,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "🛝 Zaktualizowano scrollbar",
                     "💭 Zaktualizowany Chat i Perun AI",
@@ -59,7 +92,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "🪛 Zmieniono skrypt, aby szybciej można dodać nowe gry",
                     "🔍 Poprawa wyszukiwania i filtrowania gier"
@@ -90,7 +123,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "🔧 Zmieniono wygląd Perun AI"
                 ]
@@ -112,7 +145,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "🖥️ Naprawiono przesuwanie ekranu",
                     "🧭 Naprawiono Sidenav",
@@ -145,7 +178,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "🔖 Sekcje w dzienniku zmian",
                     "🪛 Ulepszono HUBA"
@@ -176,7 +209,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "📖 Nowy wygląd Dziennika Zmian",
                     "🔤 Nowa czcionka",
@@ -201,7 +234,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "✂️ Usunięto event bożonarodzeniowy",
                     "🪛 Poprawiono błędy",
@@ -236,7 +269,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "🪛 Ulepszono Huba",
                     '🌨️ Ulepszony Eventowy wygląd Huba'
@@ -267,7 +300,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "🪛 Ulepszono Huba",
                     "🪛 Poprawiono optymalizację",
@@ -299,7 +332,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "🪛 Zmieniono wygląd Dziennika Zmian i Huba",
                     "🛠️ Poprawiono błędy"
@@ -331,7 +364,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "🪛 Zmieniono skrypt, aby szybciej można dodać nowe gry",
                     "🛠️ Ulepszono UI Huba",
@@ -365,7 +398,7 @@ const tabsData = [
                 ]
             },
             {
-                title: "Zmiany wizualne",
+                title: "Zmiany",
                 content: [
                     "❌ Usunięto strzałkę przejścia do sekcji gier",
                     "🛠️ Poprawiono kilka błędów w Hubie"
@@ -440,10 +473,11 @@ const tabsData = [
                 content: [
                     "1. Testy - większość funkcji nie działa",
                     "2. Beta - kilka funkcji nie działa",
-                    "3. Konserwacje - gra działa poprawnie, ale potrzebuje kilku zmian",
-                    "3. Ukończone - gra działa poprawnie",
+                    "3. Konserwacje - gra działa poprawnie, ale potrzebuje kilku zmian wizualnych",
+                    "4. Ukończone - gra działa całkowicie poprawnie",
                     "Nowość - świeżo dodana gra w aktualizacji",
-                    "HOT - najpopularniejsza gra"
+                    "HOT - najpopularniejsza gra",
+                    "EVENT - gra dodana na określony czas"
                 ]
             },
             {
@@ -583,7 +617,7 @@ function loadUpdateSlideshow() {
 function loadVersion() {
     const footerElement = document.getElementById('footerText');
     if (footerElement && tabsData[0]?.version) {
-        footerElement.innerHTML = `© 2025 Perun Studios & ChatGPT. Wszelkie prawa zastrzeżone. Wersja ${tabsData[0].version}`;
+        footerElement.innerHTML = `© 2025 Perun Studios & ChatGPT & Grok. Wszelkie prawa zastrzeżone.. Wersja ${tabsData[0].version}`;
     } else {
         console.warn("Nie udało się załadować wersji. Sprawdź, czy tabsData.first.version jest poprawnie zdefiniowane.");
     }

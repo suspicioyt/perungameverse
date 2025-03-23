@@ -1,19 +1,11 @@
 :root {
-    --button-color: linear-gradient(90deg, rgb(16, 78, 0) 0%, rgb(12, 146, 19) 50%, rgba(28,181,0,1) 100%);
-    --button-active-color: linear-gradient(90deg, rgba(7,34,0,1) 0%, rgb(8, 72, 11) 50%, rgba(18,120,0,1) 100%);
-    --button-hover-color: linear-gradient(90deg, rgba(31,121,9,1) 0%, rgba(14,167,22,1) 50%, rgba(36,241,0,1) 100%);
-    --highlight-bg-color: rgba(63, 180, 30, 0.2);
-    --shadow-color: rgba(11, 128, 0, 0.177);
     --sticky-header-background-color:rgba(204, 204, 204, 0.95);
     --text-color:#000000;
     --secondary-text-color:#ffffff;
     --tertiary-text-color: #747474;
     --quaternary-text-color: #ffffff;
-    --border-color:#1a8c00;
     --primary-background-color:#dcdcdc;
     --secondary-background-color:#a5a5a5;
-    --tertiary-background-color:rgba(196, 195, 195, 0.8);
+    --tertiary-background-color:rgba(196, 195, 195, 0.7);
     --quaternary-background-color:rgb(184, 184, 184);
-    --background-image: url('https://www.brella.pl/blog/wp-content/uploads/2024/03/z28364331AMPWiosna-w-Polsce-zdjecie-ilustracyjne.jpg');
-    --parallax-image: url('../img/perun4.png');
 }
