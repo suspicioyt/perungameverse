@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rizz Party Tycoon - Perun Studios</title>
+    <link rel="icon" type="image/x-icon" href="../img/perun2.png">
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: 'Comic Sans MS', 'Roboto', sans-serif; /* Cringe font */
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            text-transform: uppercase; /* Więcej cringe */
+        }
+        header {
+            background: linear-gradient(45deg, #FF00FF, #00FFFF);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px #FF00FF;
+            border-bottom: 5px dashed #FFFF00;
+        }
+        header h1 {
+            font-size: 3rem;
+            color: #FFFF00;
+            margin: 0;
+            text-shadow: 2px 2px 5px #FF00FF;
+            animation: cringeText 1s infinite;
+        }
+        @keyframes cringeText {
+            0% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+            100% { transform: rotate(-2deg); }
+        }
+        #stats {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            background: #1D1D1D url('https://media.giphy.com/media/26FPJGjAwuSqcK0wE/giphy.gif') repeat;
+            padding: 15px;
+            border-radius: 15px;
+            border: 3px solid #00FF00;
+        }
+        #party-area {
+            position: relative;
+            height: 300px;
+            background: url('https://via.placeholder.com/600x300?text=LET\'S+PARTY') no-repeat center;
+            background-size: cover;
+            border-radius: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+            border: 5px solid #FF00FF;
+            transition: all 0.3s ease;
+        }
+        #party-area.active {
+            filter: brightness(1.5) saturate(2) hue-rotate(15deg);
+            animation: partyFreak 1s infinite;
+        }
+        @keyframes partyFreak {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.05) rotate(5deg); }
+            75% { transform: scale(1.05) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        #party-guests {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .guest {
+            position: absolute;
+            font-size: 30px;
+            animation: cringeDance 1.5s infinite;
+            text-shadow: 0 0 10px #FF00FF;
+        }
+        @keyframes cringeDance {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        #actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        button {
+            background: linear-gradient(135deg, #FF00FF, #00FFFF);
+            color: #000;
+            padding: 15px 25px;
+            border: 3px solid #FFFF00;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 3px #FFFFFF;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #00FFFF, #FF00FF);
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 0 15px #00FF00;
+        }
+        button:disabled {
+            background: #555;
+            color: #999;
+            border-color: #333;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #log {
+            background-color: #1D1D1D;
+            padding: 20px;
+            border-radius: 15px;
+            max-height: 350px;
+            overflow-y: auto;
+            border: 3px dashed #FF4500;
+        }
+        #log h2 {
+            color: #FFFF00;
+            margin-top: 0;
+            text-shadow: 0 0 10px #FF00FF;
+        }
+        #logEntries div {
+            padding: 8px 0;
+            border-bottom: 2px dotted #00FF00;
+            font-size: 1.1rem;
+        }
+        .spinner {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            border: 5px solid #FFFF00;
+            border-top: 5px solid #FF00FF;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #cringe-meter {
+            margin: 15px auto;
+            width: 250px;
+            height: 25px;
+            background: #333;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #FF00FF;
+        }
+        #cringe-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF00FF, #00FFFF, #FFFF00);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Rizz Party Tycoon</h1>
+    </header>
+    <main>
+        <section id="stats">
+            <div>💎 Rizz: <span id="rizz">0</span></div>
+            <div>🎉 Goście: <span id="guests">0</span></div>
+            <div>💰 Hajs: <span id="money">100</span></div>
+            <div>⭐ Ranking: <span id="rank">1</span></div>
+            <div>🤓 Cringe Points: <span id="cringePoints">0</span></div>
+        </section>
+        <div id="party-area">
+            <div id="party-guests"></div>
+        </div>
+        <div id="cringe-meter"><div id="cringe-fill" style="width: 0%"></div></div>
+        <section id="actions">
+            <button onclick="throwParty('kupa')">💩 Impreza Kupa (10 monet)</button>
+            <button onclick="throwParty('discoPolo')">🎤 Disco Polo Party (50 monet)</button>
+            <button onclick="throwParty('galactic')">👽 Galaktyczny Rave (100 monet)</button>
+            <button onclick="buyUpgrade('djCiocia', 50, 5, 0.1, 10)">👵 DJ Ciocia (+5 Rizz, +10% Cringe, 50 monet)</button>
+            <button onclick="buyUpgrade('neonCrocs', 80, 8, 0.15, 15)">🐊 Neonowe Crocsy (+8 Rizz, +15% Cringe, 80 monet)</button>
+            <button onclick="buyUpgrade('wujekDance', 120, 10, 0.2, 20)">🕺 Taniec Wujka (+10 Rizz, +20% Cringe, 120 monet)</button>
+            <button onclick="advertise()">📢 Spam na TikToku (30 monet)</button>
+            <button onclick="signSponsor()">✍️ Sponsor z Allegro</button>
+        </section>
+        <section id="log">
+            <h2>Log Szalonych Wydarzeń</h2>
+            <div id="logEntries"></div>
+        </section>
+    </main>
+    <audio id="partyMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto"></audio>
+
+    <script>
+        // Stan gry
+        let gameState = {
+            rizz: 0,
+            guests: 0,
+            money: 100,
+            rank: 1,
+            cringePoints: 0,
+            entryFee: 5,
+            cringeMultiplier: 1,
+            sponsorCooldown: false,
+            activeSponsor: null,
+            partyInProgress: false,
+            upgrades: { djCiocia: 0, neonCrocs: 0, wujekDance: 0 }
+        };
+
+        const sponsors = [
+            { name: "Żabka", payout: 50 },
+            { name: "Januszex", payout: 100 },
+            { name: "Biedra", payout: 150 }
+        ];
+
+        const partyTypes = {
+            kupa: { cost: 10, baseGuests: 3, rizzBoost: 1, duration: 1500, bg: "https://via.placeholder.com/600x300/8B4513/FFFF00?text=Impreza+Kupa", cringe: 20 },
+            discoPolo: { cost: 50, baseGuests: 15, rizzBoost: 3, duration: 3000, bg: "https://via.placeholder.com/600x300/FF1493/FFFF00?text=Disco+Polo+Party", cringe: 30 },
+            galactic: { cost: 100, baseGuests: 30, rizzBoost: 5, duration: 4000, bg: "https://via.placeholder.com/600x300/9400D3/00FFFF?text=Galactic+Rave", cringe: 10 }
+        };
+
+        // Aktualizacja wyświetlacza
+        function updateStats() {
+            document.getElementById("rizz").textContent = Math.floor(gameState.rizz);
+            document.getElementById("guests").textContent = Math.floor(gameState.guests);
+            document.getElementById("money").textContent = Math.floor(gameState.money);
+            document.getElementById("rank").textContent = gameState.rank;
+            document.getElementById("cringePoints").textContent = gameState.cringePoints;
+            document.getElementById("cringe-fill").style.width = `${Math.min(gameState.cringeMultiplier * 50, 100)}%`;
+        }
+
+        // Logowanie wydarzeń
+        function logEvent(message) {
+            const logEntries = document.getElementById("logEntries");
+            const newLog = document.createElement("div");
+            newLog.innerHTML = message;
+            logEntries.prepend(newLog);
+            if (logEntries.children.length > 10) logEntries.removeChild(logEntries.lastChild);
+        }
+
+        // Sprawdzanie affordability
+        function canAfford(cost) {
+            return gameState.money >= cost;
+        }
+
+        // Animacja gości
+        function animateGuests(count) {
+            const guestArea = document.getElementById("party-guests");
+            guestArea.innerHTML = "";
+            const cringeGuests = ["💩", "🧀", "🤡", "👴", "🐸", "🦷"];
+            for (let i = 0; i < Math.min(count, 25); i++) {
+                const guest = document.createElement("div");
+                guest.className = "guest";
+                guest.textContent = cringeGuests[Math.floor(Math.random() * cringeGuests.length)];
+                guest.style.left = `${Math.random() * 90}%`;
+                guest.style.top = `${Math.random() * 80}%`;
+                guest.style.animationDelay = `${Math.random() * 0.5}s`;
+                guestArea.appendChild(guest);
+            }
+        }
+
+        // Organizowanie imprezy z mini-grą cringe
+        async function throwParty(type) {
+            if (gameState.partyInProgress) {
+                logEvent("IMPREZA JUŻ LECI, SPOKÓJ!");
+                return;
+            }
+
+            const party = partyTypes[type];
+            if (!canAfford(party.cost)) {
+                logEvent(`BRAK KASY NA ${type.toUpperCase()} PARTY, SORRY!`);
+                return;
+            }
+
+            gameState.partyInProgress = true;
+            gameState.money -= party.cost;
+            document.getElementById("party-area").style.backgroundImage = `url(${party.bg})`;
+            document.getElementById("party-area").classList.add("active");
+            document.getElementById("partyMusic").play();
+            logEvent(`<span class="spinner"></span> ROZKRĘCAMY ${type === "kupa" ? "IMPREZĘ KUPA" : type === "discoPolo" ? "DISCO POLO PARTY" : "GALAKTYCZNY RAVE"}...`);
+            updateStats();
+
+            // Mini-gra: kliknij dla cringe boost
+            let cringeBoost = 0;
+            const cringeButton = document.createElement("button");
+            cringeButton.textContent = "🤓 DODAJ CRINGE!";
+            cringeButton.style.position = "absolute";
+            cringeButton.style.top = "50%";
+            cringeButton.style.left = "50%";
+            cringeButton.style.transform = "translate(-50%, -50%)";
+            cringeButton.onclick = () => cringeBoost += 0.2;
+            document.getElementById("party-area").appendChild(cringeButton);
+
+            await new Promise(resolve => setTimeout(resolve, party.duration));
+
+            cringeButton.remove();
+            const newGuests = Math.floor((Math.random() * party.baseGuests + party.baseGuests) * gameState.cringeMultiplier);
+            const rizzBoost = Math.floor(Math.random() * 5) + party.rizzBoost + gameState.upgrades.djCiocia * 5 + gameState.upgrades.neonCrocs * 8 + gameState.upgrades.wujekDance * 10;
+            const earnings = newGuests * gameState.entryFee + (gameState.activeSponsor ? gameState.activeSponsor.payout : 0);
+            const cringePoints = Math.floor(party.cringe * (1 + cringeBoost));
+
+            gameState.guests += newGuests;
+            gameState.rizz += rizzBoost;
+            gameState.money += earnings;
+            gameState.cringePoints += cringePoints;
+            animateGuests(newGuests);
+
+            logEvent(`<b>${type === "kupa" ? "IMPREZA KUPA" : type === "discoPolo" ? "DISCO POLO PARTY" : "GALAKTYCZNY RAVE"} ZAKOŃCZONA!</b> ${newGuests} LUDZI, +${rizzBoost} RIZZ, +${earnings} HAJSU, +${cringePoints} CRINGE!`);
+            gameState.partyInProgress = false;
+            document.getElementById("party-area").classList.remove("active");
+            document.getElementById("partyMusic").pause();
+            document.getElementById("partyMusic").currentTime = 0;
+            updateStats();
+            checkRank();
+        }
+
+        // Kupowanie cringe’owych ulepszeń
+        function buyUpgrade(type, cost, rizzValue, cringeValue, cringePoints) {
+            if (!canAfford(cost)) {
+                logEvent(`ZA MAŁO KASY NA ${type.toUpperCase()}, HAHA!`);
+                return;
+            }
+
+            gameState.money -= cost;
+            gameState.rizz += rizzValue;
+            gameState.cringeMultiplier += cringeValue;
+            gameState.cringePoints += cringePoints;
+            gameState.upgrades[type]++;
+            logEvent(`KUPIONO ${type === "djCiocia" ? "DJ CIOCIA" : type === "neonCrocs" ? "NEONOWE CROCSY" : "TANIEC WUJKA"}! +${rizzValue} RIZZ, +${cringeValue * 100}% CRINGE, +${cringePoints} CP!`);
+            updateStats();
+        }
+
+        // Reklama
+        function advertise() {
+            if (!canAfford(30)) {
+                logEvent("BRAK HAJSU NA SPAM, LOL!");
+                return;
+            }
+
+            gameState.money -= 30;
+            const newGuests = Math.floor(Math.random() * 25) + 15;
+            gameState.guests += newGuests;
+            gameState.cringePoints += 5;
+            logEvent(`SPAM NA TIKTOKU DZIAŁA! +${newGuests} GŁUPICH GOŚCI I +5 CRINGE!`);
+            updateStats();
+            checkRank();
+        }
+
+        // Podpisanie sponsora
+        function signSponsor() {
+            if (gameState.sponsorCooldown) {
+                logEvent("SPONSORZY MAJĄ DOŚĆ TWOJEGO CRINGE’U!");
+                return;
+            }
+
+            gameState.activeSponsor = sponsors[Math.floor(Math.random() * sponsors.length)];
+            gameState.cringePoints += 10;
+            logEvent(`SPONSOR ${gameState.activeSponsor.name} WCHODZI NA CHATĘ! +${gameState.activeSponsor.payout} HAJSU ZA IMPRĘ I +10 CRINGE!`);
+            gameState.sponsorCooldown = true;
+            setTimeout(() => {
+                gameState.sponsorCooldown = false;
+                logEvent("NOWI SPONSORZY CZEKAJĄ NA TWÓJ VIBE!");
+            }, 300000); // 5 minut
+            updateStats();
+        }
+
+        // Generowanie pasywnego dochodu
+        function generateIncome() {
+            const income = Math.floor(gameState.guests * gameState.entryFee * 0.4);
+            if (income > 0) {
+                gameState.money += income;
+                gameState.cringePoints += Math.floor(income / 20);
+                logEvent(`GOŚCIE RZUCAJĄ ${income} HAJSU I +${Math.floor(income / 20)} CRINGE NA AFTER!`);
+                updateStats();
+            }
+        }
+
+        // Losowe wydarzenie z cringe’em
+        function randomEvent() {
+            const chance = Math.random();
+            if (chance < 0.2) {
+                const bonusGuests = Math.floor(Math.random() * 200) + 100;
+                const bonusMoney = bonusGuests * gameState.entryFee;
+                gameState.guests += bonusGuests;
+                gameState.money += bonusMoney;
+                gameState.cringePoints += 50;
+                logEvent(`<b>VIRAL ALERT!</b> TWOJA IMPREZA NA TIKTOKU! +${bonusGuests} KIBICÓW, +${bonusMoney} HAJSU, +50 CRINGE!`);
+            } else if (chance < 0.35) {
+                const penalty = Math.floor(Math.random() * 150) + 80;
+                gameState.money -= penalty;
+                gameState.guests = Math.max(0, gameState.guests - 50);
+                gameState.cringePoints += 30;
+                logEvent(`KATASTROFA! WUJAS ZEPSUŁ GŁOŚNIKI – ${penalty} HAJSU I -50 GOŚCI, ALE +30 CRINGE!`);
+            } else if (chance < 0.5) {
+                gameState.rizz += 30;
+                gameState.cringePoints += 20;
+                logEvent(`CIOCIA ZACZĘŁA RAPOWAĆ! +30 RIZZ I +20 CRINGE!`);
+            } else {
+                gameState.cringePoints += 10;
+                logEvent(`KTOŚ KRZYCZY "JEDZIEMY Z KOXEM!" – +10 CRINGE!`);
+            }
+            updateStats();
+            checkRank();
+        }
+
+        // Sprawdzanie rankingu
+        function checkRank() {
+            if (gameState.cringePoints >= 5000) gameState.rank = 5;
+            else if (gameState.cringePoints >= 2000) gameState.rank = 4;
+            else if (gameState.cringePoints >= 1000) gameState.rank = 3;
+            else if (gameState.cringePoints >= 500) gameState.rank = 2;
+            else gameState.rank = 1;
+        }
+
+        // Punkty lojalności (teraz cringe points)
+        function earnLoyaltyPoints() {
+            const points = Math.floor(Math.random() * 20) + 15;
+            gameState.cringePoints += points;
+            logEvent(`FAN ZROBIŁ CRINGE’OWY TANIEC – +${points} CRINGE POINTS!`);
+            updateStats();
+        }
+
+        // Interwały gry
+        setInterval(generateIncome, 30000); // Dochód co 30 sekund
+        setInterval(randomEvent, 60000); // Wydarzenie co 60 sekund
+        setInterval(earnLoyaltyPoints, 600000); // Cringe co 10 minut
+
+        // Inicjalizacja
+        updateStats();
+    </script>
+</body>
+</html>

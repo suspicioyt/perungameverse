@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nonogram | Perun Studios</title>
+    <link rel="icon" type="image/x-icon" href="../img/perun2.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+        .game-container {
+            display: grid;
+            grid-template-rows: auto auto 1fr;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 20px;
+        }
+        .clues-container {
+            display: grid;
+            grid-template-columns: auto auto;
+            gap: 5px;
+            align-items: center;
+        }
+        .row-clues {
+            display: grid;
+            grid-template-rows: repeat(5, 55px);
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .row-clues > div {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+        .col-clues {
+            padding-left: 35px;
+            display: grid;
+            grid-template-columns: repeat(5, 53px);
+            justify-items: center;
+            align-items: flex-end;
+            
+        }
+        .col-clues > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .nonogram {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-gap: 2px;
+            background-color: #555;
+            padding: 5px;
+            border-radius: 10px;
+            margin: 0 auto;
+        }
+        #contentmain {
+            width: 300px;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2s ease;
+        }
+        .cell.filled {
+            background-color: #333;
+        }
+        .cell.marked {
+            background-color: #ddd;
+        }
+        .cell.cross {
+            background-color: #fff;
+        }
+        .cell.cross::after {
+            content: "";
+            position: absolute;
+            width: 80%;
+            height: 2px;
+            background-color: red;
+            transform: rotate(45deg);
+            top: 50%;
+            left: 10%;
+            transform-origin: center;
+        }
+        .cell.cross::before {
+            content: "";
+            position: absolute;
+            width: 80%;
+            height: 2px;
+            background-color: red;
+            transform: rotate(-45deg);
+            top: 50%;
+            left: 10%;
+            transform-origin: center;
+        }
+        .clue {
+            font-size: 14px;
+            text-align: center;
+            color: #333;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .controls button, .controls select {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .controls button:hover, .controls select:hover {
+            background-color: #0056b3;
+        }
+        .controls select {
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nonogram</h1>
+    <div class="game-container">
+        <div id="contentmain">
+            <div id="colClues" class="col-clues"></div>
+            <div id="rowClues" class="row-clues" style="float: left;"></div>
+            <div class="nonogram" id="nonogram" style="float: right;">
+                <!-- Komórki nonogramu zostaną dodane dynamicznie -->
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <select id="modeSelector">
+            <option value="fill">Zamaluj</option>
+            <option value="cross">Krzyżyk</option>
+        </select>
+        <button id="checkSolution">Sprawdź rozwiązanie</button>
+        <button id="resetBoard">Resetuj planszę</button>
+    </div>
+    <script>
+        const nonogram = document.getElementById('nonogram');
+        const rowCluesElement = document.getElementById('rowClues');
+        const colCluesElement = document.getElementById('colClues');
+        const modeSelector = document.getElementById('modeSelector');
+
+        const generateRandomSolution = (size) => {
+            return Array.from({ length: size }, () =>
+                Array.from({ length: size }, () => Math.random() < 0.5 ? 1 : 0)
+            );
+        };
+
+        const calculateClues = (solution) => {
+            const size = solution.length;
+            const rowClues = solution.map(row => {
+                const clues = [];
+                let count = 0;
+                row.forEach(cell => {
+                    if (cell === 1) {
+                        count++;
+                    } else if (count > 0) {
+                        clues.push(count);
+                        count = 0;
+                    }
+                });
+                if (count > 0) clues.push(count);
+                return clues.length ? clues : [0];
+            });
+
+            const colClues = Array.from({ length: size }, (_, col) => {
+                const clues = [];
+                let count = 0;
+                for (let row = 0; row < size; row++) {
+                    if (solution[row][col] === 1) {
+                        count++;
+                    } else if (count > 0) {
+                        clues.push(count);
+                        count = 0;
+                    }
+                }
+                if (count > 0) clues.push(count);
+                return clues.length ? clues : [0];
+            });
+
+            return { rowClues, colClues };
+        };
+
+        const size = 5;
+        const solution = generateRandomSolution(size);
+        const clues = calculateClues(solution);
+
+        // Dodawanie wskazówek
+        clues.rowClues.forEach(clueSet => {
+            const clueRow = document.createElement('div');
+            clueSet.forEach(clue => {
+                const clueElement = document.createElement('div');
+                clueElement.className = 'clue';
+                clueElement.textContent = clue;
+                clueRow.appendChild(clueElement);
+            });
+            rowCluesElement.appendChild(clueRow);
+        });
+
+        clues.colClues.forEach(clueSet => {
+            const clueColumn = document.createElement('div');
+            clueSet.forEach(clue => {
+                const clueElement = document.createElement('div');
+                clueElement.className = 'clue';
+                clueElement.textContent = clue;
+                clueColumn.appendChild(clueElement);
+            });
+            colCluesElement.appendChild(clueColumn);
+        });
+
+        // Tworzenie planszy
+        for (let row = 0; row < size; row++) {
+            for (let col = 0; col < size; col++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                cell.addEventListener('click', () => {
+                    const mode = modeSelector.value;
+                    if (mode === 'fill') {
+                        cell.classList.toggle('filled');
+                        cell.classList.remove('cross');
+                    } else if (mode === 'cross') {
+                        cell.classList.toggle('cross');
+                        cell.classList.remove('filled');
+                    }
+                });
+                nonogram.appendChild(cell);
+            }
+        }
+
+        // Funkcja sprawdzająca poprawność
+        function checkSolution() {
+            let isCorrect = true;
+            document.querySelectorAll('.cell').forEach(cell => {
+                const row = cell.dataset.row;
+                const col = cell.dataset.col;
+                const isFilled = cell.classList.contains('filled');
+                if ((solution[row][col] === 1 && !isFilled) || (solution[row][col] === 0 && isFilled)) {
+                    isCorrect = false;
+                }
+            });
+
+            if (isCorrect) {
+                alert('Gratulacje! Rozwiązałeś/aś nonogram!');
+            } else {
+                alert('Błąd! Spróbuj ponownie.');
+            }
+        }
+
+        // Funkcja resetująca planszę
+        function resetBoard() {
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('filled', 'marked', 'cross');
+            });
+        }
+
+        // Dodanie obsługi przycisków
+        document.getElementById('checkSolution').addEventListener('click', checkSolution);
+        document.getElementById('resetBoard').addEventListener('click', resetBoard);
+    </script>
+</body>
+</html>

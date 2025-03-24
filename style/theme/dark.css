@@ -1,0 +1,11 @@
+:root {
+    --sticky-header-background-color:rgba(30, 30, 30, 0.95);
+    --text-color:#ffffff;
+    --secondary-text-color:#000000;
+    --tertiary-text-color: #717171;
+    --quaternary-text-color: #ffffff;
+    --primary-background-color:#0e0e0e;
+    --secondary-background-color:#292929;
+    --tertiary-background-color:rgba(0, 0, 0, 0.7);
+    --quaternary-background-color:rgba(179, 179, 179, 0.767);
+}

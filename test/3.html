@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perun Studios - Ranking Graczy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            flex-direction: column;
+        }
+
+        #ranking-container {
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #ranking-list {
+            list-style: none;
+        }
+
+        .ranking-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 10px;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ranking-item .username {
+            font-weight: bold;
+        }
+
+        .ranking-item .points {
+            color: #007bff;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="ranking-container">
+        <h2>Ranking Graczy</h2>
+        <ul id="ranking-list"></ul>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzA58YQOv1MORLtarAIvMI6FG58bU72ENWgCbjEWdjwatHkEzY-Hqeo0G4LbYbIiPDTjg/exec"; // Wklej URL API
+
+        async function sendPlayerData() {
+            const username = localStorage.getItem("perunUsername") || "Anonim";
+            const points = localStorage.getItem("perunPoints") || "0";
+            const pln = localStorage.getItem("perunPLN") || "0";
+
+            const data = {
+                username: username,
+                points: parseInt(points),
+                pln: parseInt(pln)
+            };
+
+            try {
+                await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                    mode: "no-cors"
+                });
+                console.log("Dane zostały wysłane do Google Sheets");
+            } catch (error) {
+                console.error("Błąd podczas wysyłania danych:", error);
+            }
+        }
+
+        async function loadRanking() {
+            try {
+                const response = await fetch(API_URL);
+                const ranking = await response.json();
+                const rankingList = document.getElementById("ranking-list");
+
+                rankingList.innerHTML = ""; // Czyść listę przed dodaniem nowych wyników
+
+                ranking.forEach((player, index) => {
+                    const li = document.createElement("li");
+                    li.classList.add("ranking-item");
+                    li.innerHTML = `
+                        <span class="username">${index + 1}. ${player.username}</span>
+                        <span class="points">${player.points} punktów</span>
+                    `;
+                    rankingList.appendChild(li);
+                });
+            } catch (error) {
+                console.error("Błąd ładowania rankingu:", error);
+            }
+        }
+
+        // Automatyczne wysyłanie danych co 3 sekundy
+        setInterval(sendPlayerData, 3000);
+        setInterval(loadRanking, 3000);
+
+        // Ładowanie rankingu po załadowaniu strony
+        loadRanking();
+    </script>
+</body>
+</html>

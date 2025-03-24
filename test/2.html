@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perun Studios - Czat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f2f5;
+            padding: 10px;
+        }
+
+        #chat-container {
+            width: 100%;
+            max-width: 800px;
+            height: 80vh;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f0f2f5;
+        }
+
+        #chatMessages {
+            list-style: none;
+        }
+
+        .chatMessage {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .chatMessage.self {
+            background: #0084ff;
+            color: white;
+            margin-left: auto;
+        }
+
+        .chatMessage.other {
+            background: #e9ecef;
+            color: #333;
+            margin-right: auto;
+        }
+
+        .username-label {
+            position: absolute;
+            top: -8px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 8px;
+            background: #444;
+            color: white;
+        }
+
+        .chatMessage.self .username-label {
+            right: 8px;
+            background: #0066cc;
+        }
+
+        .chatMessage.other .username-label {
+            left: 8px;
+            background: #666;
+        }
+
+        .message-content {
+            margin-top: 8px;
+        }
+
+        .timestamp {
+            font-size: 10px;
+            color: #999;
+            text-align: right;
+            margin-top: 3px;
+            opacity: 0.8;
+        }
+
+        .chatMessage.self .timestamp {
+            color: #cce4ff;
+        }
+
+        .date-separator {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .date-separator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ddd;
+            z-index: 1;
+        }
+
+        .date-separator span {
+            background: #f0f2f5;
+            padding: 0 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        #input-container {
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            background: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+        #chatMessage {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            outline: none;
+            font-size: 14px;
+        }
+
+        #chatMessage:focus {
+            border-color: #0084ff;
+        }
+
+        #input-container button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #0084ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #input-container button:hover {
+            background: #0066cc;
+        }
+
+        .emoji-btn {
+            font-size: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .emoji-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .emoji-picker {
+            position: absolute;
+            bottom: 60px;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 100;
+        }
+
+        .emoji-picker span {
+            cursor: pointer;
+            font-size: 24px;
+            margin: 4px;
+        }
+
+        .emoji-picker span:hover {
+            transform: scale(1.2);
+        }
+
+        .replying-to {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 8px;
+            border-left: 2px solid #0084ff;
+        }
+
+        .reaction {
+            cursor: pointer;
+            margin-left: 6px;
+            font-size: 14px;
+        }
+
+        .reaction:hover {
+            transform: scale(1.2);
+        }
+
+        .reaction-count {
+            font-size: 10px;
+            color: #777;
+            margin-left: 2px;
+        }
+
+        .edit-btn, .delete-btn {
+            display: none;
+            position: absolute;
+            top: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .edit-btn {
+            right: 24px;
+            color: #fff;
+        }
+
+        .delete-btn {
+            right: 6px;
+            color: #ff4d4d;
+        }
+
+        .chatMessage.self:hover .edit-btn,
+        .chatMessage.self:hover .delete-btn {
+            display: block;
+        }
+
+        .edit-btn:hover, .delete-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .error-message {
+            color: #ff4d4d;
+            font-size: 12px;
+            text-align: center;
+            margin: 8px 0;
+            background: #ffe6e6;
+            padding: 6px;
+            border-radius: 8px;
+        }
+
+        .rainbowText {
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bc84d, #4da8da, #9b59b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: rainbow 5s infinite;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0%; }
+            100% { background-position: 200%; }
+        }
+
+        @media (max-width: 600px) {
+            #chat-container {
+                height: 90vh;
+                border-radius: 8px;
+            }
+
+            .chatMessage {
+                max-width: 80%;
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+
+            .username-label {
+                font-size: 10px;
+                padding: 1px 4px;
+            }
+
+            #input-container {
+                padding: 8px;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-window">
+            <ul id="chatMessages"></ul>
+        </div>
+        <div id="input-container">
+            <button class="emoji-btn" onclick="toggleEmojiPicker()">😊</button>
+            <input id="chatMessage" type="text" placeholder="Napisz wiadomość..." />
+            <button onclick="sendChatMessage()">Wyślij</button>
+        </div>
+        <div id="emojiPicker" class="emoji-picker">
+            <span onclick="addEmoji('😊')">😊</span>
+            <span onclick="addEmoji('😂')">😂</span>
+            <span onclick="addEmoji('❤️')">❤️</span>
+            <span onclick="addEmoji('👍')">👍</span>
+            <span onclick="addEmoji('😢')">😢</span>
+            <span onclick="addEmoji('🔥')">🔥</span>
+        </div>
+    </div>
+    <script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwcRa8GwyPXsfzKPGcCdigMMJzlhHbIn6uMF96WziElMr8JnUOehKTCQHNNDoPH9G0T/exec"; // Wklej URL z Google Apps Script po wdrożeniu
+let lastDate = "";
+let lastScrollHeight = 0;
+let replyingToMessageId = null;
+let lastFetchedMessageId = null;
+
+// Funkcje pomocnicze
+function sanitizeInput(input) {
+    const div = document.createElement("div");
+    div.textContent = input;
+    return div.innerHTML;
+}
+
+function toggleEmojiPicker() {
+    const picker = document.getElementById("emojiPicker");
+    picker.style.display = picker.style.display === "block" ? "none" : "block";
+}
+
+function addEmoji(emoji) {
+    const input = document.getElementById("chatMessage");
+    input.value += emoji;
+    toggleEmojiPicker();
+    input.focus();
+}
+
+// Wysłanie wiadomości
+async function sendChatMessage() {
+    const username = localStorage.getItem("perunUsername") || "Anonim";
+    const chatMessage = document.getElementById("chatMessage").value.trim();
+    
+    if (!chatMessage) {
+        showError("Nie możesz wysłać pustej wiadomości!");
+        return;
+    }
+
+    const timestamp = new Date().toISOString();
+    const data = {
+        username,
+        message: sanitizeInput(chatMessage),
+        timestamp,
+        replyTo: replyingToMessageId,
+        reactions: {}
+    };
+
+    try {
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+            mode: "no-cors"
+        });
+
+        document.getElementById("chatMessage").value = "";
+        replyingToMessageId = null;
+        updateReplyingTo(null);
+        await loadChatMessages();
+    } catch (error) {
+        console.error("Błąd wysyłania wiadomości:", error);
+        showError("Nie udało się wysłać wiadomości.");
+    }
+}
+
+// Usuwanie wiadomości
+async function deleteMessage(messageId) {
+    const username = localStorage.getItem("perunUsername") || "Anonim";
+    const data = {
+        action: "delete",
+        messageId,
+        username
+    };
+
+    try {
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+            mode: "no-cors"
+        });
+        await loadChatMessages();
+    } catch (error) {
+        console.error("Błąd usuwania wiadomości:", error);
+        showError("Nie udało się usunąć wiadomości.");
+    }
+}
+
+// Edycja wiadomości
+async function editMessage(messageId) {
+    const messageElement = document.querySelector(`[data-id="${messageId}"] .message-content`);
+    const currentText = messageElement.textContent;
+    const newText = prompt("Edytuj wiadomość:", currentText);
+
+    if (newText === null || newText.trim() === "" || newText === currentText) return;
+
+    const username = localStorage.getItem("perunUsername") || "Anonim";
+    const data = {
+        action: "edit",
+        messageId,
+        username,
+        message: sanitizeInput(newText)
+    };
+
+    try {
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+            mode: "no-cors"
+        });
+        await loadChatMessages();
+    } catch (error) {
+        console.error("Błąd edycji wiadomości:", error);
+        showError("Nie udało się edytować wiadomości.");
+    }
+}
+
+// Dodawanie reakcji
+async function addReaction(messageId, reaction) {
+    const username = localStorage.getItem("perunUsername") || "Anonim";
+    const data = {
+        action: "react",
+        messageId,
+        username,
+        reaction
+    };
+
+    try {
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+            mode: "no-cors"
+        });
+        await loadChatMessages();
+    } catch (error) {
+        console.error("Błąd dodawania reakcji:", error);
+        showError("Nie udało się dodać reakcji.");
+    }
+}
+
+// Ładowanie wiadomości
+async function loadChatMessages() {
+    try {
+        const response = await fetch(API_URL);
+        const chatMessages = await response.json();
+        const chatList = document.getElementById("chatMessages");
+
+        if (chatMessages.error) {
+            throw new Error(chatMessages.error);
+        }
+
+        if (!Array.isArray(chatMessages)) {
+            throw new Error("Oczekiwano tablicy wiadomości, otrzymano: " + JSON.stringify(chatMessages));
+        }
+
+        const shouldScroll = chatList.scrollTop + chatList.clientHeight >= lastScrollHeight - 50;
+        chatList.innerHTML = "";
+        lastDate = "";
+
+        chatMessages.forEach(msg => {
+            if (!msg.id) msg.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            displayChatMessage(msg, msg.username === localStorage.getItem("perunUsername"));
+        });
+
+        if (shouldScroll) {
+            chatList.scrollTop = chatList.scrollHeight;
+        }
+
+        lastScrollHeight = chatList.scrollHeight;
+        lastFetchedMessageId = chatMessages.length > 0 ? chatMessages[chatMessages.length - 1].id : null;
+    } catch (error) {
+        console.error("Błąd ładowania wiadomości:", error);
+        showError("Nie udało się załadować wiadomości.");
+    }
+}
+
+// Wyświetlanie wiadomości
+function displayChatMessage(msg, isSelf) {
+    const chatList = document.getElementById("chatMessages");
+    let parsedDate;
+    try {
+        parsedDate = new Date(msg.timestamp);
+    } catch (error) {
+        console.warn(`Nieprawidłowy format daty dla timestampu: ${msg.timestamp}`);
+        parsedDate = new Date();
+    }
+
+    const chatMessageDate = isNaN(parsedDate) ? "Nieznana data" : parsedDate.toLocaleDateString('pl-PL', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+
+    if (chatMessageDate !== lastDate) {
+        lastDate = chatMessageDate;
+        const separator = document.createElement("li");
+        separator.classList.add("date-separator");
+        separator.innerHTML = `<span>${chatMessageDate}</span>`;
+        chatList.appendChild(separator);
+    }
+
+    const li = document.createElement("li");
+    li.classList.add("chatMessage", isSelf ? "self" : "other");
+    li.dataset.id = msg.id;
+
+    const usernameLabel = document.createElement("span");
+    usernameLabel.classList.add("username-label");
+    usernameLabel.textContent = String(msg.username || "Nieznany");
+
+    if (msg.replyTo) {
+        const replyDiv = document.createElement("div");
+        replyDiv.classList.add("replying-to");
+        replyDiv.textContent = `Odpowiada na: [Wiadomość #${msg.replyTo}]`;
+        li.appendChild(replyDiv);
+    }
+
+    const content = document.createElement("div");
+    content.classList.add("message-content");
+    content.textContent = String(msg.message || "[Brak treści]");
+
+    if (msg.username === "SUSpicio") {
+        usernameLabel.classList.add("rainbowText");
+    }
+    if (msg.username === "DEV") {
+        usernameLabel.style.color = "#ffd700";
+    }
+
+    const time = document.createElement("div");
+    time.classList.add("timestamp");
+    time.textContent = isNaN(parsedDate) ? "Nieznany czas" : parsedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const reactionsDiv = document.createElement("div");
+    if (msg.reactions && typeof msg.reactions === "object") {
+        for (const [reaction, users] of Object.entries(msg.reactions)) {
+            if (Array.isArray(users)) {
+                const reactionSpan = document.createElement("span");
+                reactionSpan.classList.add("reaction");
+                reactionSpan.textContent = reaction;
+                reactionSpan.onclick = () => addReaction(msg.id, reaction);
+                const countSpan = document.createElement("span");
+                countSpan.classList.add("reaction-count");
+                countSpan.textContent = users.length;
+                reactionSpan.appendChild(countSpan);
+                reactionsDiv.appendChild(reactionSpan);
+            }
+        }
+    }
+    const addReactionSpan = document.createElement("span");
+    addReactionSpan.classList.add("reaction");
+    addReactionSpan.textContent = "👍";
+    addReactionSpan.onclick = () => addReaction(msg.id, "👍");
+    reactionsDiv.appendChild(addReactionSpan);
+
+    if (isSelf) {
+        const editBtn = document.createElement("span");
+        editBtn.classList.add("edit-btn");
+        editBtn.textContent = "✏️";
+        editBtn.onclick = (e) => {
+            e.stopPropagation();
+            editMessage(msg.id);
+        };
+
+        const deleteBtn = document.createElement("span");
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.textContent = "🗑️";
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteMessage(msg.id);
+        };
+
+        li.appendChild(editBtn);
+        li.appendChild(deleteBtn);
+    }
+
+    li.onclick = (e) => {
+        if (e.target.classList.contains("reaction") || e.target.classList.contains("edit-btn") || e.target.classList.contains("delete-btn")) return;
+        replyingToMessageId = msg.id;
+        updateReplyingTo(msg);
+    };
+
+    li.appendChild(usernameLabel);
+    li.appendChild(content);
+    li.appendChild(time);
+    li.appendChild(reactionsDiv);
+    chatList.appendChild(li);
+}
+
+function updateReplyingTo(msg) {
+    const input = document.getElementById("chatMessage");
+    if (msg) {
+        input.placeholder = `Odpowiadasz na wiadomość #${msg.id}...`;
+    } else {
+        input.placeholder = "Napisz wiadomość...";
+    }
+}
+
+function showError(message) {
+    const chatList = document.getElementById("chatMessages");
+    const errorLi = document.createElement("li");
+    errorLi.classList.add("error-message");
+    errorLi.textContent = message;
+    chatList.appendChild(errorLi);
+    chatList.scrollTop = chatList.scrollHeight;
+    setTimeout(() => errorLi.remove(), 3000);
+}
+
+// Inicjalizacja
+loadChatMessages();
+setInterval(loadChatMessages, 1000);
+    </script>
+</body>
+</html>
