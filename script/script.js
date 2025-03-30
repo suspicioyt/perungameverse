@@ -4,7 +4,7 @@ const settingSwitches = [
     { switchId: "03", value: true },
     { switchId: "04", value: true }
 ];
-var countDownDate = new Date("Mar 30, 2025 20:00:00").getTime();
+var countDownDate = new Date("Apr 06, 2025 20:00:00").getTime();
 const API_URL = "https://script.google.com/macros/s/AKfycbzFLO_vcR-MBEDW5Z8uT6p6YoaIYB-wAWx_pLy7J7gZKDQoXqAoswJhlhGfspDQGL-g/exec";
 
 

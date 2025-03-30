@@ -1,5 +1,27 @@
 const tabsData = [
     {
+        name: "♣️ Casino Update",
+        version: "1.1.5.4",
+        date: "30.03.2025r.",
+        quote: "ding Ding DING",
+        backgroundImage: "https://cdn.pixabay.com/photo/2020/09/24/16/45/card-suit-5599226_1280.png",
+        paragraphs: [
+            {
+                title: "Gry",
+                content: [
+                    "🎰 Dodano Automat i Black Jack",
+                    "🕹️ Zaktualizowano DuoPlayer, Nonogram"
+                ]
+            },
+            {
+                title: "Zmiany",
+                content: [
+                    "🔧 Poprawki błędów",
+                ]
+            }
+        ]
+    },
+    {
         name: "🍕 Pizza Update",
         version: "1.1.5.3",
         date: "23.03.2025r.",
@@ -617,7 +639,7 @@ function loadUpdateSlideshow() {
 function loadVersion() {
     const footerElement = document.getElementById('footerText');
     if (footerElement && tabsData[0]?.version) {
-        footerElement.innerHTML = `© 2025 Perun Studios & ChatGPT & Grok. Wszelkie prawa zastrzeżone.. Wersja ${tabsData[0].version}`;
+        footerElement.innerHTML = `© 2025 Perun Studios & ChatGPT & Grok. Wszelkie prawa zastrzeżone. Wersja ${tabsData[0].version}<br>Tło: ${tabsData[0].backgroundImage}`;
     } else {
         console.warn("Nie udało się załadować wersji. Sprawdź, czy tabsData.first.version jest poprawnie zdefiniowane.");
     }

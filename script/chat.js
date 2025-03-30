@@ -62,7 +62,7 @@ function replaceBannedWords(message) {
         }
 
         for (const banned of bannedWords) {
-            const regex = new RegExp(`\\b${banned}(${banned.slice(-1)}*)\\b`, "i");
+            const regex = new RegExp(`\\b${banned}(${banned.slice(-2)}*)\\b`, "i");
             if (regex.test(lowerWord)) {
                 return "[zbanowane]";
             }

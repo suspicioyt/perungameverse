@@ -38,7 +38,7 @@ const games = [
     {
         id: "05",
         name: "Dino Game",
-        link: "dino/index.html",
+        link: "game/dino.html",
         status: "Konserwacje",
         tooltip: "Klasyczna gra Dino",
         classes: ["konserwacje"],
@@ -47,10 +47,10 @@ const games = [
     {
         id: "06",
         name: "DuoPlayer",
-        link: "duoplayer/index.html",
-        status: "Testy",
+        link: "game/duoplayer.html",
+        status: "Konserwacje",
         tooltip: "Rywalizuj z innym graczem",
-        classes: ["testy"],
+        classes: ["konserwacje"],
         ulubione: false
     },
     {
@@ -128,10 +128,10 @@ const games = [
     {
         id: "15",
         name: "Nonogram",
-        link: "nonogram/index.html",
-        status: "Beta",
+        link: "game/nonogram.html",
+        status: "Konserwacje",
         tooltip: "Rozwiąż te puzzle",
-        classes: ["beta"],
+        classes: ["konserwacje"],
         ulubione: false
     },
     {
@@ -146,7 +146,7 @@ const games = [
     {
         id: "17",
         name: "Flappy Bird",
-        link: "flappybird/index.html",
+        link: "game/flappybird.html",
         status: "Beta",
         tooltip: "Skacz, aby przejść przez dziury",
         classes: ["beta"],
@@ -159,12 +159,13 @@ const games = [
         status: "",
         tooltip: "Skacz, aby przejść przez dziury",
         classes: ["ukonczona","internet"],
+        internet: "https://codepen.io/bfa/pen/ggGYeE",
         ulubione: false
     },
     {
         id: "19",
         name: "Bloki 2",
-        link: "bloki2/index.html",
+        link: "game/bloki2.html",
         status: "Beta",
         tooltip: "Odbijaj piłkę i niszcz bloki",
         classes: ["beta"],
@@ -183,9 +184,9 @@ const games = [
         id: "21",
         name: "Pizza Tycoon",
         link: "pizza/index.html",
-        status: "Nowość",
+        status: "Beta",
         tooltip: "Stwórz fabrykę pizzy",
-        classes: ["beta","nowosc"],
+        classes: ["beta"],
         ulubione: false
     },
     {
@@ -194,7 +195,26 @@ const games = [
         link: "rizzpartytycoon/index2.html",
         status: "Event",
         tooltip: "Sciringuj innych",
-        classes: ["beta","nowosc","event"],
+        classes: ["beta","event"],
+        ulubione: false
+    },
+    {
+        id: "23",
+        name: "Automat",
+        link: "game/machine.html",
+        status: "Nowość",
+        tooltip: "Wylosuj 3 takie same ikony",
+        classes: ["beta","nowosc","money"],
+        ulubione: false
+    },
+    {
+        id: "24",
+        name: "Black Jack",
+        link: "game/blackjack.html",
+        status: "Nowość",
+        tooltip: "Dobieraj karty",
+        internet: "https://www.youtube.com/watch?v=bMYCWccL-3U",
+        classes: ["beta","nowosc","internet"],
         ulubione: false
     },
 ];
@@ -290,7 +310,11 @@ function loadGames() {
             if (game.classes.includes("internet")) {
                 const statusEnd = document.createElement("span");
                 statusEnd.innerHTML = '<i class="fas fa-globe"></i>';
+                statusEnd.title="Kliknij, aby skopiować link";
                 statusEnd.classList.add("game-status-internet");
+                statusEnd.addEventListener('click', function () {
+                    navigator.clipboard.writeText(game.internet);
+                });   
                 gameBox.appendChild(statusEnd);
             }
         
