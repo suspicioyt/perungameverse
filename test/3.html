@@ -1,124 +1,250 @@
 <!DOCTYPE html>
-<html lang="pl">
-<head>
+<html>
+  <head>
     <meta charset="UTF-8">
+    <title>Ranking Użytkowników</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perun Studios - Ranking Graczy</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
+body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      h1 {
+        color: #1a2a44;
+        text-align: center;
+        font-size: 2.8em;
+        margin-bottom: 40px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1s ease-in;
+      }
+      .container {
+        max-width: 1100px;
+        width: 100%;
+        margin: 0 auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease;
+      }
+      table:hover {
+        transform: scale(1.01);
+      }
+      th, td {
+        padding: 18px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      th {
+        background-color: #2980b9;
+        color: white;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+      td {
+        color: #2c3e50;
+        font-size: 1em;
+      }
+      tr {
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+      tr:nth-child(even) {
+        background-color: #f9fafb;
+      }
+      tr:hover {
+        background-color: #e8f0fe;
+      }
+      /* Złoto dla 1. miejsca */
+      tbody tr:nth-child(1) {
+        background-color: #fff3cd;
+        font-weight: bold;
+        border-left: 5px solid #ffd700; /* Złoty pasek */
+      }
+      tr:nth-child(1) td {
+        color: #d4a017;
+      }
+      /* Srebro dla 2-3 miejsca */
+      tr:nth-child(2),
+      tr:nth-child(3) {
+        background-color: #e9ecef;
+        font-weight: bold;
+        border-left: 5px solid #c0c0c0; /* Srebrny pasek */
+      }
+      tr:nth-child(2) td,
+      tr:nth-child(3) td {
+        color: #6b7280;
+      }
+      /* Brąz dla 4-10 miejsca */
+      tr:nth-child(n+4):nth-child(-n+10) {
+        background-color: #fef3e8;
+        border-left: 5px solid #cd7f32; /* Brązowy pasek */
+      }
+      tr:nth-child(n+4):nth-child(-n+10) td {
+        color: #8b5523;
+      }
+      .button-container {
+        text-align: center;
+        margin-top: 30px;
+      }
+      button {
+        padding: 14px 30px;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+      }
+      button:hover {
+        background-color: #c0392b;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(231, 76, 60, 0.5);
+      }
+      button:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @media (max-width: 600px) {
+        table, th, td {
+          font-size: 0.85em;
+          padding: 12px;
         }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-            flex-direction: column;
+        h1 {
+          font-size: 2em;
         }
-
-        #ranking-container {
-            width: 90%;
-            max-width: 400px;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        button {
+          padding: 12px 25px;
+          font-size: 1em;
         }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        #ranking-list {
-            list-style: none;
-        }
-
-        .ranking-item {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 10px;
-            background: #f0f0f0;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .ranking-item .username {
-            font-weight: bold;
-        }
-
-        .ranking-item .points {
-            color: #007bff;
-        }
-
+      }
     </style>
-</head>
-<body>
-    <div id="ranking-container">
-        <h2>Ranking Graczy</h2>
-        <ul id="ranking-list"></ul>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Ranking Użytkowników</h1>
+      <table id="rankingTable">
+        <thead>
+          <tr>
+            <th>Miejsce</th>
+            <th>Użytkownik</th>
+            <th>Punkty</th>
+            <th>PLN</th>
+            <th>Osiągnięcia</th>
+          </tr>
+        </thead>
+        <tbody id="rankingBody">
+          <!-- Wypełniane dynamicznie -->
+        </tbody>
+      </table>
+      <div id="message"></div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzA58YQOv1MORLtarAIvMI6FG58bU72ENWgCbjEWdjwatHkEzY-Hqeo0G4LbYbIiPDTjg/exec"; // Wklej URL API
+      // Definicja URL API
+      const API_URL = "https://script.google.com/macros/s/AKfycbyAKTt28YxhduBjNieGlX2rUJP0vHc9BKzr8mD8v3IC8mLae_x_9u2Z70ik3YxxzZqSnA/exec";
 
-        async function sendPlayerData() {
-            const username = localStorage.getItem("perunUsername") || "Anonim";
-            const points = localStorage.getItem("perunPoints") || "0";
-            const pln = localStorage.getItem("perunPLN") || "0";
+      function updateRanking() {
+    fetch(`${API_URL}?action=getRankingData`, { method: 'GET' })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Błąd sieci: ' + response.status);
+      }
+      return response.json();
+    })
+    .then(ranking => {
+        // Sortowanie po punktach (malejąco)
+        ranking.sort((a, b) => {
+            const pointsDiff = parseInt(b.points) - parseInt(a.points);
+            return pointsDiff !== 0 ? pointsDiff : a.username.localeCompare(b.username);
+        });
+  
+        const tbody = document.getElementById('rankingBody');
+        tbody.innerHTML = '';
+        ranking.forEach((user, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.username}</td>
+            <td>${user.points}</td>
+            <td>${user.rank}</td>
+            <td>${parseFloat(user.pln).toFixed(2)}</td>
+            <td>${user.doneAchievements || '0'}/${achievementsData.length}</td>
+          `;
+          tbody.appendChild(row);
+        });
+        document.getElementById("rankingMessage").innerHTML='Ranking zaktualizowany: ' + new Date().toLocaleString();
+      })
+      .catch(error => {
+        console.error('Błąd podczas aktualizacji rankingu:', error);
+      });
+}
 
-            const data = {
-                username: username,
-                points: parseInt(points),
-                pln: parseInt(pln)
-            };
+// Funkcja wysyłająca dane z localStorage
+function sendLocalData() {
+    const perunUUID = localStorage.getItem('perunUUID') || '';
+    const perunUsername = localStorage.getItem('perunUsername') || 'Anonim';
+    const perunPoints = localStorage.getItem('perunPoints') || '0';
+    const perunRank = localStorage.getItem('perunRank') || '0';
+    const perunPLN = localStorage.getItem('perunPLN') || '0';
+    const doneAchievements = JSON.parse(localStorage.getItem('completedAchievementsIds') || '[]').length || 0;
+  
+    if (!perunUUID) {
+      console.warn('Brak perunUUID w localStorage');
+      return;
+    }
+  
+    const payload = {
+      action: "updateRankingFromLocal",
+      perunUUID: perunUUID,
+      perunUsername: perunUsername,
+      perunPoints: perunPoints,
+      perunRank: perunRank,
+      perunPLN: perunPLN,
+      doneAchievements: doneAchievements,
+      timestamp: new Date().toISOString()
+    };
+  
+    fetch(API_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+      .catch(error => {
+        console.error('Błąd podczas wysyłania danych:', error);
+      });
+}
 
-            try {
-                await fetch(API_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                    mode: "no-cors"
-                });
-                console.log("Dane zostały wysłane do Google Sheets");
-            } catch (error) {
-                console.error("Błąd podczas wysyłania danych:", error);
-            }
-        }
-
-        async function loadRanking() {
-            try {
-                const response = await fetch(API_URL);
-                const ranking = await response.json();
-                const rankingList = document.getElementById("ranking-list");
-
-                rankingList.innerHTML = ""; // Czyść listę przed dodaniem nowych wyników
-
-                ranking.forEach((player, index) => {
-                    const li = document.createElement("li");
-                    li.classList.add("ranking-item");
-                    li.innerHTML = `
-                        <span class="username">${index + 1}. ${player.username}</span>
-                        <span class="points">${player.points} punktów</span>
-                    `;
-                    rankingList.appendChild(li);
-                });
-            } catch (error) {
-                console.error("Błąd ładowania rankingu:", error);
-            }
-        }
-
-        // Automatyczne wysyłanie danych co 3 sekundy
-        setInterval(sendPlayerData, 3000);
-        setInterval(loadRanking, 3000);
-
-        // Ładowanie rankingu po załadowaniu strony
-        loadRanking();
+// Inicjalizacja przy załadowaniu strony
+document.addEventListener('DOMContentLoaded', function () {
+    updateRanking();
+    setInterval(updateRanking, 15000);
+    sendLocalData();
+    setInterval(sendLocalData, 5000);
+});
     </script>
-</body>
+  </body>
 </html>

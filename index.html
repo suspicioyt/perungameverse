@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perun Studios Gameverse</title>
+    <title>Perun Gameverse</title>
     <link rel="stylesheet" href="style/main.css">
     <link rel="stylesheet" id="themeStylesheet" href="style/theme/dark.css">
     <link rel="stylesheet" href="style/color.css">
@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="style/todo.css">
     <link rel="stylesheet" href="style/chat.css">
     <link rel="stylesheet" href="effects/like.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style/public.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="img/perun2.png">
 </head>
 <body>
@@ -24,32 +25,30 @@
             <i class="fas fa-bars" style="font-size: 30px;"></i>
         </div>
         <div id="headertytul">
-            <h1>PERUN STUDIOS GAMEVERSE</h1>
+            <h1>PERUN GAMEVERSE</h1>
             <h3>Najlepsze gry na wyciągnięcie ręki</h3>
         </div>
-        <div id="user-info-container" class="user-info">
+        <div id="user-info-container" onclick="modalOpen('playerInfoModal')" class="user-info" style="cursor: pointer;">
             <div id="playerName">?</div>
             <div id="playerPLN">?</div>
+            <div id="playerRank">?</div>
             <i class="fas fa-user" style="font-size: 30px;"></i>
-            <div id="user-dropdown" class="dropdown">
-              <ul>
-                <li><button id="settingsModalBtn" onclick="modalOpen('settingsModal')">Ustawienia</button></li>
-                <li><button id="customizationModalBtn" onclick="modalOpen('customizationModal')">Dostosowanie</button></li>
-              </ul>
-            </div>
         </div>
     </header>
-    <div class="parallax"></div>
+    <div id="parallax"></div>
     <div id="parallaxEnd"></div>
     <main>
         <div id="sidenav">
-            <a onclick="topFunction()" title="Idź do góry"><i class="fa fa-arrow-up"></i></a>
-            <a onclick="modalOpen('updateModal')" class="sidenavButton" title="Dziennik Zmian"><i class="fas fa-clipboard-list"></i></a>
-            <a onclick="modalOpen('achievementModal')" class="sidenavButton" title="Osiągnięcia"><i class="fas fa-trophy"></i></a>
-            <a onclick="modalOpen('chatModal');scrollToBottom()" class="sidenavButton" title="Chat"><i class="fas fa-comments"></i></a>
-            <a onclick="modalOpen('aiModal')" class="sidenavButton" title="Perun AI"><i class="fas fa-robot"></i></a>
-            <a onclick="modalOpen('opinionModal')" class="sidenavButton" title="Feedback"><i class="fas fa-paper-plane"></i></a>
-            <a onclick="downFunction()" title="Idź do dołu"><i class="fa fa-arrow-down"></i></a>
+            <a onclick="modalOpen('updateModal')" class="sidenavButton" title="Dziennik Zmian"><i class="fa-solid fa-clipboard-list"></i></a>
+            <a onclick="modalOpen('achievementModal')" class="sidenavButton" title="Osiągnięcia"><i class="fa-solid fa-trophy"></i></a>
+            <a onclick="modalOpen('settingsModal')" class="sidenavButton" title="Ustawienia"><i class="fa-solid fa-cog"></i></a>
+            <a onclick="modalOpen('personalizationModal')" class="sidenavButton" title="Personalizacje"><i class="fa-solid fa-palette"></i></a>
+            <a onclick="modalOpen('chatModal');scrollToBottom()" class="sidenavButton" title="Chat"><i class="fa-solid fa-comments"></i></a>
+            <!-- <a onclick="modalOpen('rankingModal')" class="sidenavButton" title="Ranking"><i class="fa-solid fa-ranking-star"></i></a> -->
+            <a onclick="modalOpen('aiModal')" class="sidenavButton" title="Perun AI"><i class="fa-solid fa-robot"></i></a>
+            <!-- <a onclick="modalOpen('consoleModal')" class="sidenavButton" title="Konsola"><i class="fas fa-terminal"></i></a> -->
+            <a onclick="modalOpen('opinionModal')" class="sidenavButton" title="Feedback"><i class="fa-solid fa-paper-plane"></i></a>
+            <a onclick="modalOpen('navigationModal')" class="sidenavButton" title="Nawigacja"><i class="fa-solid fa-compass"></i></a>
           </div>
         <div id="mainwindow">
             <div id="usernameDemoContainer" style="display: none;">
@@ -75,7 +74,7 @@
             <div class="game-container borderColorChange" max="12">
                 <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
             </div>
-            <div class="slideshow-container borderColorChange">
+            <div class="slideshow-container" id="slideshow1">
                 <div class="slides">
                     <h1>Najnowszy update!</h1>
                     <div class="slide" id="updateSlideshow"></div>
@@ -104,6 +103,9 @@
                     <span class="dot"></span>
                     <span class="dot"></span>
                 </div>
+            </div>
+            <div class="game-container borderColorChange" max="12">
+                <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
             </div>
             <div class="game-container borderColorChange" max="12">
                 <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
@@ -154,7 +156,7 @@
                             <td class="tg-0lax"></td>
                             <td class="tg-0lax"></td>
                             <td class="tg-0lax"></td>
-                            <td class="tg-0lax">Road Update</td>
+                            <td class="tg-0lax">Easter Update</td>
                         </tr>
                     </tbody>
                     </table>
@@ -183,6 +185,75 @@
             <button class="refreshButton"><i class="fas fa-redo" onclick="reloadAchievements()"></i></button>
         </div>
     </div>
+    <div id="playerInfoModal" class="modal">
+        <h1>Informacje</h1>
+        <div class="modal-content">
+        </div>
+    </div>
+    <div id="navigationModal" class="modal">
+        <h1>Nawigacja</h1>
+        <div class="modal-content">
+            <div class="navigation-thumbnails">
+                <div class="thumbnail-item" onclick="scrollToSection(0,'')">
+                    <div class="thumbnail-header">Parallax</div>
+                    <p>Przewiń do górnej części strony</p>
+                </div>
+                <div class="thumbnail-item" onclick="scrollToSection('game-container','0')">
+                    <div class="thumbnail-header">Gry 1</div>
+                    <p>Lista dostępnych gier</p>
+                </div>
+                <div class="thumbnail-item" onclick="scrollToSection('slideshow1')">
+                    <div class="thumbnail-header">Slajdy</div>
+                    <p>Sekcja z pokazem slajdów</p>
+                </div>
+                <div class="thumbnail-item" onclick="scrollToSection('game-container','1')">
+                    <div class="thumbnail-header">Gry 2</div>
+                    <p>Lista dostępnych gier</p>
+                </div>
+                <div class="thumbnail-item" onclick="scrollToSection('game-container','2')">
+                    <div class="thumbnail-header">Gry 3</div>
+                    <p>Lista dostępnych gier</p>
+                </div>
+                <div class="thumbnail-item" onclick="scrollToSection(1,'')">
+                    <div class="thumbnail-header">Stopka</div>
+                    <p>Przewiń do dolnej części strony</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="rankingModal" class="modal">
+        <h1>Ranking</h1>
+        <div class="modal-content">
+            <table id="rankingTable">
+                <thead>
+                  <tr>
+                    <th>Miejsce</th>
+                    <th>Użytkownik</th>
+                    <th>Ranga</th>
+                    <th>Punkty</th>
+                    <th>PLN</th>
+                    <th>Osiągnięcia</th>
+                  </tr>
+                </thead>
+                <tbody id="rankingBody">
+                  <!-- Wypełniane dynamicznie -->
+                </tbody>
+              </table>
+              <div id="rankingMessage"></div>
+        </div>
+    </div>
+    <div id="consoleModal" class="modal">
+        <h1>Konsola</h1>
+        <div class="modal-content">
+            <div class="console-container">
+                <div id="consoleOutput"></div>
+                <div class="input-container">
+                    <input type="text" id="consoleInput" placeholder="Wpisz komendę lub kod JS i naciśnij Enter...">
+                    <button onclick="clearConsole()">Wyczyść</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="settingsModal" class="modal">
         <h1>Ustawienia</h1>
         <div class="modal-content">
@@ -199,6 +270,7 @@
             <label class="switch"><input type="checkbox" switchId="02"><span class="slider round"></span></label><label>Zapis modali</label><br>
             <label class="switch"><input type="checkbox" switchId="03"><span class="slider round"></span></label><label>Ładowanie obrazów na Chacie</label><br>
             <label class="switch"><input type="checkbox" switchId="04"><span class="slider round"></span></label><label>Ukrywanie zbanowanych słów na Chacie</label><br>
+            <label class="switch"><input type="checkbox" switchId="05"><span class="slider round"></span></label><label>???</label><br>
             <button onclick="resetSwitches();initializeSwitches()">Reset</button>
         </div>
     </div>
@@ -221,7 +293,7 @@
                 </div>
                 <div id="chat-window">
                     <ul id="chatMessages">
-                        <div id="ChatLoading" class="spinner" style="display: block;"></div>
+                        <div id="spinnerContainer"><div id="ChatLoading" class="spinner" style="display: block;"></div></div>
                     </ul>
                 </div>
                 <div id="input-container">
@@ -236,12 +308,13 @@
                     <span onclick="addEmoji('👍')">👍</span>
                     <span onclick="addEmoji('😢')">😢</span>
                     <span onclick="addEmoji('🔥')">🔥</span>
+                    <span onclick="addEmoji('🐇')">🐇</span>
                 </div>
             </div>
         </div>
     </div>
-    <div id="customizationModal" class="modal">
-        <h1>Dostosowanie</h1>
+    <div id="personalizationModal" class="modal">
+        <h1>Personalizacja</h1>
         <div class="modal-content">
             <label>Motyw: </label>
             <select name="theme" id="themeSelect">
@@ -261,8 +334,38 @@
             </div>
         </div>
     </div>
+    <div id="ownGameModal" class="modal">
+        <h1>Własna gra</h1>
+        <div class="modal-content">
+            <div id="slide1" class="slide active">
+                <h2>1. Tytuł strony</h2>
+                <textarea id="titleInput" placeholder="Wpisz tytuł swojej strony..."></textarea>
+            </div>
+        
+            <div id="slide2" class="slide">
+                <h2>2. Treść (body)</h2>
+                <textarea id="bodyInput" placeholder="Wpisz kod HTML dla body..."></textarea>
+            </div>
+        
+            <div id="slide3" class="slide">
+                <h2>3. Style (CSS)</h2>
+                <textarea id="styleInput" placeholder="Wpisz kod CSS..."></textarea>
+            </div>
+        
+            <div id="slide4" class="slide">
+                <h2>4. Skrypt (JavaScript)</h2>
+                <textarea id="scriptInput" placeholder="Wpisz kod JavaScript..."></textarea>
+            </div>
+        
+            <div class="navigation">
+                <button onclick="prevSlide()">Poprzedni</button>
+                <button onclick="nextSlide()">Następny</button>
+                <button onclick="saveAndPreview()">Zapisz i Podgląd</button>
+            </div>
+        </div>
+    </div>
     <div id="opinionModal" class="modal">
-        <h1>Opinie</h1>
+        <h1>Opinia</h1>
         <div class="modal-content">
             <form id="ratingForm">
                 <label class="required">Oceń (1-10 gwiazdek)</label>
@@ -313,6 +416,8 @@
     <script src="script/games.js"></script>
     <script src="script/changes.js"></script>
     <script src="script/chat.js"></script>
+    <script src="script/console.js"></script>
+    <script src="script/event.js"></script>
     <script src="script/script2.js"></script>
 </body>
 </html>

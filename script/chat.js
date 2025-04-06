@@ -51,7 +51,7 @@ function replaceBannedWords(message) {
     const switches = JSON.parse(localStorage.getItem("settingSwitches")) || defaultSwitches;
     const filterEnabled = switches.find(s => s.switchId === "04")?.value || false;
 
-    if (!filterEnabled || bannedWords.length === 0) return message;
+    if (!filterEnabled || bannedWords.length === 1) return message;
 
     let words = message.split(/\s+/);
     words = words.map(word => {

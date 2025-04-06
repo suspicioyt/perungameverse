@@ -1,0 +1,17 @@
+.add-button.hidden {
+    opacity: 0.2;
+    pointer-events: none;
+    cursor: none;
+}
+.add-button {
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    background: none;
+    border-width: initial;
+    border-style: none;
+    border-color: initial;
+    border-image: initial;
+    border-radius: 5px;
+    padding: 1px;
+}

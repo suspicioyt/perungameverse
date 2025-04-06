@@ -64,7 +64,6 @@
             border-radius: 15px;
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 1), 0 0 20px rgba(255, 215, 0, 0.3);
             margin-bottom: 35px;
-            position: relative;
         }
         .reel {
             width: 110px;
@@ -87,7 +86,7 @@
         .reel .symbol {
             position: absolute;
             top: 0;
-            animation: reelSpin 0.15s linear infinite;
+            animation: reelSpin 0.1s linear infinite;
         }
         .reel.star {
             background: linear-gradient(135deg, #FFD700, #FFFF99);
@@ -140,14 +139,11 @@
             margin-top: 20px;
             text-shadow: 0 0 8px rgba(255, 152, 0, 0.6);
             font-weight: bold;
+            transition: opacity 0.5s ease;
         }
         @keyframes reelSpin {
-            0% {
-                transform: translateY(-110px);
-            }
-            100% {
-                transform: translateY(110px);
-            }
+            0% { transform: translateY(-110px); }
+            100% { transform: translateY(110px); }
         }
         @keyframes winGlow {
             0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
@@ -157,13 +153,13 @@
 </head>
 <body>
     <div id="slotMachine">
-        <h1>Automat PerunPLN</h1>
+        <h1>Automat</h1>
         <div id="reels">
             <div class="reel" id="reel1">?</div>
             <div class="reel" id="reel2">?</div>
             <div class="reel" id="reel3">?</div>
         </div>
-        <button id="spinButton" onclick="spin()">Zakręć (0.25 PLN)</button>
+        <button id="spinButton">Zakręć (0.25 PLN)</button>
         <div id="balance">Saldo: 0.00 PLN</div>
         <div id="message"></div>
     </div>
@@ -176,20 +172,35 @@
         const balanceDisplay = document.getElementById('balance');
         const messageDisplay = document.getElementById('message');
         const spinButton = document.getElementById('spinButton');
-        let balance = localStorage.getItem('perunPLN') ? parseFloat(localStorage.getItem('perunPLN')) : 10.00;
+        let balance = parseFloat(localStorage.getItem('perunPLN')) || 10.00;
         let isSpinning = false;
 
-        // Początkowe ikony (zachowane między kręcenia)
+        // Początkowe ikony
         let currentIcons = {
             reel1: reel1.textContent === '?' ? getRandomIcon() : reel1.textContent,
             reel2: reel2.textContent === '?' ? getRandomIcon() : reel2.textContent,
             reel3: reel3.textContent === '?' ? getRandomIcon() : reel3.textContent
         };
 
-        function updateBalance() {
+        // Funkcja formatowania liczb
+        const formatNumber = (num) => num.toFixed(2);
+
+        // Aktualizacja salda
+        function updateBalance(saveToStorage = false) {
             balance = parseFloat(balance.toFixed(2));
-            balanceDisplay.textContent = `Saldo: ${balance.toFixed(2)} PLN`;
-            localStorage.setItem('perunPLN', balance);
+            balanceDisplay.textContent = `Saldo: ${formatNumber(balance)} PLN`;
+            if (saveToStorage) {
+                localStorage.setItem('perunPLN', balance);
+            }
+        }
+
+        // Synchronizacja z localStorage
+        function syncBalance() {
+            const storedBalance = parseFloat(localStorage.getItem('perunPLN')) || 0;
+            if (storedBalance !== balance) {
+                balance = storedBalance;
+                updateBalance();
+            }
         }
 
         function getRandomIcon() {
@@ -200,15 +211,16 @@
             return Math.floor(Math.random() * (5 - 2 + 1)) + 3; // 3-5 PLN
         }
 
-        function spin() {
+        async function spin() {
             if (isSpinning) return;
-            if (balance < 0.20) {
+            syncBalance(); // Sprawdź saldo przed kręceniem
+            if (balance < 0.25) {
                 messageDisplay.textContent = 'Brak wystarczających środków!';
                 return;
             }
 
             balance -= 0.25;
-            updateBalance();
+            updateBalance(true); // Zapisz po odjęciu kosztu
             messageDisplay.textContent = '';
             isSpinning = true;
             spinButton.disabled = true;
@@ -218,7 +230,7 @@
             reel2.classList.remove('star', 'win');
             reel3.classList.remove('star', 'win');
 
-            // Start animacji z aktualnymi ikonami
+            // Start animacji
             reel1.innerHTML = '<div class="symbol">' + currentIcons.reel1 + '</div>';
             reel2.innerHTML = '<div class="symbol">' + currentIcons.reel2 + '</div>';
             reel3.innerHTML = '<div class="symbol">' + currentIcons.reel3 + '</div>';
@@ -232,42 +244,31 @@
                 reel2.classList.add('spinning');
                 reel3.classList.add('spinning');
                 spins++;
-                if (spins >= 15) {
+                if (spins >= 20) {
                     clearInterval(spinInterval);
-                    stopReel1();
+                    stopReels();
                 }
-            }, 100);
+            }, 80);
         }
 
-        function stopReel1() {
-            reel1.classList.remove('spinning');
-            setTimeout(() => {
-                currentIcons.reel1 = getRandomIcon(); // Ustalona ikona dla reel1
-                reel1.innerHTML = currentIcons.reel1;
-                stopReel2();
-            }, 500);
-        }
+        function stopReels() {
+            const stopReel = (reel, iconKey, delay, callback) => {
+                setTimeout(() => {
+                    reel.classList.remove('spinning');
+                    currentIcons[iconKey] = getRandomIcon();
+                    reel.innerHTML = currentIcons[iconKey];
+                    if (callback) callback();
+                }, delay);
+            };
 
-        function stopReel2() {
-            reel2.classList.remove('spinning');
-            setTimeout(() => {
-                currentIcons.reel2 = getRandomIcon(); // Ustalona ikona dla reel2
-                reel2.innerHTML = currentIcons.reel2;
-                stopReel3();
-            }, 500);
-        }
-
-        function stopReel3() {
-            reel3.classList.remove('spinning');
-            setTimeout(() => {
-                currentIcons.reel3 = getRandomIcon(); // Ustalona ikona dla reel3
-                reel3.innerHTML = currentIcons.reel3;
-                setResult();
-            }, 500);
+            stopReel(reel1, 'reel1', 500, () => {
+                stopReel(reel2, 'reel2', 500, () => {
+                    stopReel(reel3, 'reel3', 500, setResult);
+                });
+            });
         }
 
         function setResult() {
-            // Sprawdzanie wyniku na podstawie zatrzymanych ikon
             if (currentIcons.reel1 === currentIcons.reel2 && currentIcons.reel2 === currentIcons.reel3) {
                 let winAmount;
                 if (currentIcons.reel1 === '⭐') {
@@ -275,23 +276,31 @@
                     reel1.classList.add('star');
                     reel2.classList.add('star');
                     reel3.classList.add('star');
-                    messageDisplay.textContent = `Wielka Wygrana! +${winAmount}.00 PLN`;
+                    messageDisplay.textContent = `Wielka Wygrana! +${formatNumber(winAmount)} PLN`;
                 } else {
                     winAmount = getRandomWin();
-                    messageDisplay.textContent = `Wygrana! +${winAmount}.00 PLN`;
+                    messageDisplay.textContent = `Wygrana! +${formatNumber(winAmount)} PLN`;
                 }
                 balance += winAmount;
                 reel1.classList.add('win');
                 reel2.classList.add('win');
                 reel3.classList.add('win');
+                updateBalance(true); // Zapisz po wygranej
             } else {
                 messageDisplay.textContent = 'Przegrałeś. Spróbuj ponownie!';
             }
 
-            updateBalance();
             isSpinning = false;
             spinButton.disabled = false;
         }
+
+        // Synchronizacja przy zmianie localStorage przez inną stronę
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'perunPLN') {
+                balance = parseFloat(event.newValue) || 0;
+                updateBalance();
+            }
+        });
 
         // Inicjalizacja
         reel1.innerHTML = currentIcons.reel1;
@@ -299,6 +308,9 @@
         reel3.innerHTML = currentIcons.reel3;
         updateBalance();
         spinButton.addEventListener('click', spin);
+
+        // Ciągła synchronizacja
+        setInterval(syncBalance, 100); // Synchronizuj co 0.1 sekundy
     </script>
 </body>
 </html>

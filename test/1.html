@@ -1,167 +1,1002 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perun AI</title>
-  <style>
-      .toggle {
-        display: none;
-      }
-
-      .dynamic-bar {
-        position: fixed;
-        bottom: 10px;
-        right: 10px;
-        width: 200px;
-        height: 50px;
-        background-color: #4CAF50;
-        cursor: pointer;
-        transition: height 0.3s ease; 
-      }
-
-      .toggle:checked + .dynamic-bar {
-        height: 600px; 
-        width: 300px;
-      }
-      #aiBaner {
-        width: 100%;
-        height: 50px;
-      }
-      .aiContainer {
+    <meta charset="UTF-8">
+    <title>Konsola HTML z PerunScript</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            color: #e0e0e0;
+        }
+        .container {
+            margin: 30px auto;
+            width: 800px;
+            border: 1px solid #444;
+            background: #0a0a0a;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        #console {
             width: 100%;
-            margin: auto;
-            background-color: white;
+            height: 550px;
+            background: #111;
+            color: #00ff00;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            height: 80vh;
             overflow-y: auto;
+            box-sizing: border-box;
+            border-bottom: 1px solid #333;
+            font-size: 14px;
+            line-height: 1.4;
         }
-        .chat-box {
-            max-height: 70vh;
+        #input {
+            width: 100%;
+            min-height: 150px;
+            background: #222;
+            color: #00ff00;
+            border: none;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            box-sizing: border-box;
+            white-space: pre-wrap;
             overflow-y: auto;
-            margin-bottom: 20px;
+            outline: none;
+            font-size: 14px;
+            resize: vertical;
+            border-top: 1px solid #333;
         }
-        .message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 15px;
-            max-width: 80%;
-            word-wrap: break-word;
+        #input[contenteditable]:empty:before {
+            content: attr(placeholder);
+            color: #666;
         }
-        .user-message {
-            background-color: #d1e7ff;
-            align-self: flex-start;
-            border-top-right-radius: 0;
+        #status-bar {
+            background: linear-gradient(to right, #333, #444);
+            color: #bbb;
+            padding: 8px 15px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #555;
         }
-        .ai-message {
-            background-color: #f0f0f0;
-            align-self: flex-end;
-            
-            border-top-left-radius: 0;
+        .buttons {
+            margin-left: 10px;
         }
-        input, button {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        .button {
+            background: #555;
+            color: #00ff00;
+            border: 1px solid #777;
+            padding: 4px 12px;
+            cursor: pointer;
+            margin-left: 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
         }
-        #loading {
-            display: none;
-            text-align: center;
+        .button:hover {
+            background: #777;
         }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-  </style>
+        .prompt { color: #00ff00; }
+        .error { color: #ff5555; }
+        .log { color: #ffffff; }
+        .ps { color: #ffff00; }
+        .string { color: #00ffff; }
+        .keyword { color: #ff00ff; }
+        .number { color: #0000ff; }
+        .array { color: #ff9900; }
+        .function { color: #00ff00; }
+        .info { color: #00ffff; }
+        .warn { color: #ffff00; }
+        .debug { color: #aaaaaa; }
+    </style>
 </head>
 <body>
-  <input type="checkbox" id="toggle" class="toggle" />
-  <label for="toggle" class="dynamic-bar">
-    <div id="aiBaner">Perun AI</div>
-    <div class="aiContainer">
-      <div class="chat-box" id="chatBox"></div>
-      <input type="text" id="userAiInput" placeholder="Zadaj pytanie..." />
-      <button onclick="getAIResponse()">Wyślij</button>
-      <div id="loading" class="spinner"></div>
-  </div>
-  </label>
+    <div class="container">
+        <div id="console"></div>
+        <div id="input" contenteditable="true" placeholder="Wpisz kod (Shift+Enter lub Ctrl+Enter wysyła, Ctrl+Z/Y dla cofnij/ponów)"></div>
+        <div id="status-bar">
+            <span>PerunScript v1.0 | Historia: 0 | Shift+Enter/Ctrl+Enter: Wykonaj | Ctrl+Z/Y: Cofnij/Ponów</span>
+            <span class="buttons">
+                <button class="button" onclick="clearConsole()">Wyczyść</button>
+            </span>
+        </div>
+    </div>
 
-<script>
-    async function getAIResponse() {
-        const userInput = document.getElementById("userInput").value.trim();
-        if (!userInput) {
-            alert("Proszę wpisz pytanie!");
-            return;
+    <script>
+// --- Elementy DOM ---
+const consoleDiv = document.getElementById('console');
+const input = document.getElementById('input');
+const statusBar = document.getElementById('status-bar');
+const originalConsole = window.console;
+
+// --- Stan konsoli ---
+const variables = new Map();
+const functions = new Map();
+const history = [];
+const inputHistory = [];
+let historyIndex = -1;
+let inputHistoryIndex = -1;
+let executionStack = 0;
+let rawInput = '';
+
+// --- Funkcje pomocnicze ---
+function printToConsole(text, className = '') {
+    const line = document.createElement('div');
+    line.textContent = text;
+    if (className) line.className = className;
+    consoleDiv.appendChild(line);
+    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+}
+
+function updateStatusBar() {
+    statusBar.firstElementChild.textContent = `PerunScript v1.0 | Historia: ${history.length} | Shift+Enter/Ctrl+Enter: Wykonaj | Ctrl+Z/Y: Cofnij/Ponów`;
+}
+
+function clearConsole() {
+    consoleDiv.innerHTML = '';
+    printWelcomeMessage();
+}
+
+function placeCaretAtEnd(el) {
+    const range = document.createRange();
+    const sel = window.getSelection();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+}
+
+function saveInputState() {
+    if (inputHistoryIndex < inputHistory.length - 1) {
+        inputHistory.splice(inputHistoryIndex + 1);
+    }
+    inputHistory.push({ raw: rawInput, html: input.innerHTML });
+    inputHistoryIndex = inputHistory.length - 1;
+    if (inputHistory.length > 50) inputHistory.shift();
+}
+
+function undo() {
+    if (inputHistoryIndex > 0) {
+        inputHistoryIndex--;
+        rawInput = inputHistory[inputHistoryIndex].raw;
+        input.innerHTML = inputHistory[inputHistoryIndex].html;
+        placeCaretAtEnd(input);
+    }
+}
+
+function redo() {
+    if (inputHistoryIndex < inputHistory.length - 1) {
+        inputHistoryIndex++;
+        rawInput = inputHistory[inputHistoryIndex].raw;
+        input.innerHTML = inputHistory[inputHistoryIndex].html;
+        placeCaretAtEnd(input);
+    }
+}
+
+// --- Integracja z konsolą przeglądarki ---
+const consoleMethods = ['log', 'warn', 'error', 'info', 'debug'];
+consoleMethods.forEach(method => {
+    const originalMethod = originalConsole[method];
+    originalConsole[method] = (...args) => {
+        const message = args.map(arg => String(arg)).join(' ');
+        printToConsole(`[${method.toUpperCase()}] ${message}`, method);
+        if (method === 'log') {
+            // Automatyczne wysyłanie do PerunScript, jeśli to komenda
+            const psCode = message.trim();
+            if (psCode.startsWith('ps:')) {
+                interpretPerunScript(psCode.slice(3).trim()).catch(err => 
+                    printToConsole(`Błąd z konsoli: ${err.message}`, 'error')
+                );
+            }
+        }
+        originalMethod.apply(originalConsole, args);
+    };
+});
+
+window.onerror = function(message, source, lineno, colno, error) {
+    printToConsole(`Błąd JS: ${message} (linia ${lineno}, kolumna ${colno})`, 'error');
+    return false;
+};
+
+// --- Tokenizacja kodu ---
+function tokenize(code) {
+    const tokens = [];
+    let current = '';
+    let inString = false;
+    let inArray = false;
+    let i = 0;
+
+    while (i < code.length) {
+        const char = code[i];
+        if (char === '"' && !inArray) {
+            if (!inString) {
+                if (current) tokens.push(current.trim());
+                current = char;
+                inString = true;
+            } else {
+                current += char;
+                tokens.push(current);
+                current = '';
+                inString = false;
+            }
+        } else if (char === '[' && !inString) {
+            if (current) tokens.push(current.trim());
+            current = char;
+            inArray = true;
+        } else if (char === ']' && inArray) {
+            current += char;
+            tokens.push(current);
+            current = '';
+            inArray = false;
+        } else if (inString || inArray) {
+            current += char;
+        } else if (/[\s{}();=<>!+\-*/%[\]]/.test(char)) {
+            if (current) {
+                tokens.push(current.trim());
+                current = '';
+            }
+            if (!/\s/.test(char)) tokens.push(char);
+        } else {
+            current += char;
+        }
+        i++;
+    }
+    if (current) tokens.push(current.trim());
+    return tokens.filter(t => t);
+}
+
+function highlightSyntax(code) {
+    const keywords = ['print', 'set', 'for', 'if', 'else', 'while', 'func', 'return', 'int', 'float', 'string', 'bool', 'array', 'len', 'push', 'pop', 'clear', 'slice', 'join', 'input', 'reverse', 'sum', 'rand', 'sort', 'time', 'log', 'min', 'max', 'avg', 'contains', 'indexOf', 'remove', 'upper', 'lower', 'trim', 'sleep', 'replace', 'split', 'round', 'pow', 'sqrt', 'concat', 'map', 'filter', 'abs', 'sin', 'cos', 'tan', 'log10', 'exp', 'ceil', 'floor', 'alert', 'prompt', 'clearvars', 'type', 'exit', 'wait', 'confirm', 'beep'];
+    const funcs = ['len', 'push', 'pop', 'clear', 'slice', 'join', 'input', 'reverse', 'sum', 'rand', 'sort', 'time', 'log', 'min', 'max', 'avg', 'contains', 'indexOf', 'remove', 'upper', 'lower', 'trim', 'sleep', 'replace', 'split', 'round', 'pow', 'sqrt', 'concat', 'map', 'filter', 'abs', 'sin', 'cos', 'tan', 'log10', 'exp', 'ceil', 'floor', 'alert', 'prompt', 'clearvars', 'type', 'exit', 'wait', 'confirm', 'beep'];
+
+    const tokens = tokenize(code);
+    let highlighted = '';
+    let prevToken = '';
+
+    tokens.forEach((token, index) => {
+        let addSpace = false;
+        if (index > 0 && !['(', ')', '{', '}', ';', '=', '+', '-', '*', '/', '%', '<', '>', '!', '&', '|', '[', ']'].includes(token) && 
+            !['(', '{', '=', '+', '-', '*', '/', '%', '<', '>', '!', '&', '|'].includes(prevToken)) {
+            addSpace = true;
         }
 
-        const chatBox = document.getElementById("chatBox");
-        const userMessageDiv = document.createElement("div");
-        userMessageDiv.classList.add("message", "user-message");
-        userMessageDiv.textContent = userInput;
-        chatBox.appendChild(userMessageDiv);
+        if (addSpace) highlighted += ' ';
+        
+        if (token.startsWith('"') && token.endsWith('"')) {
+            highlighted += `<span class="string">${token}</span>`;
+        } else if (/^\d+\.?\d*$/.test(token)) {
+            highlighted += `<span class="number">${token}</span>`;
+        } else if (token === 'true' || token === 'false') {
+            highlighted += `<span class="keyword">${token}</span>`;
+        } else if (token.startsWith('[') && token.endsWith(']')) {
+            highlighted += `<span class="array">${token}</span>`;
+        } else if (keywords.includes(token)) {
+            highlighted += `<span class="keyword">${token}</span>`;
+        } else if (funcs.includes(token)) {
+            highlighted += `<span class="function">${token}</span>`;
+        } else {
+            highlighted += token;
+        }
 
-        document.getElementById("userInput").value = "";
+        prevToken = token;
+    });
 
-        const loadingDiv = document.getElementById("loading");
-        loadingDiv.style.display = "block";
+    return highlighted;
+}
 
-        const apiKey = "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";
+// --- Interpreter PerunScript ---
+async function interpretPerunScript(code, returnContext = false) {
+    const lines = code.split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
+    let i = 0;
+    let returnValue;
 
-        const data = {
-            inputs: userInput,
-            options: {
-                use_cache: false,
-                max_length: 30,  
-                temperature: 0.2,  
-                top_p: 0.8,
-                no_repeat_ngram_size: 2, 
-            }
-        };
+    while (i < lines.length) {
+        const line = lines[i];
+        const tokens = tokenize(line);
 
         try {
-            const response = await fetch("https://api-inference.huggingface.co/models/distilgpt2", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${apiKey}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
+            if (tokens[0] === 'help') {
+                printHelp();
+            } else if (tokens[0] === 'print') {
+                const value = line.slice(6).trim();
+                const result = evaluateExpression(value);
+                printToConsole(String(result), 'ps');
+                originalConsole.log(`PerunScript: ${result}`);
+            } else if (tokens[0] === 'set' && tokens[2] === '=') {
+                const type = tokens[1];
+                const varName = tokens[3];
+                const value = line.split('=')[1].trim();
+                const evaluatedValue = castValue(evaluateExpression(value), type);
+                variables.set(varName, evaluatedValue);
+            } else if (['=', '+=', '-='].includes(tokens[1])) {
+                const varName = tokens[0];
+                if (!variables.has(varName)) throw new Error(`Zmienna ${varName} nie zadeklarowana`);
+                const value = line.split(tokens[1])[1].trim();
+                const evaluatedValue = evaluateExpression(value);
+                const currentValue = variables.get(varName);
+                if (tokens[1] === '=') {
+                    variables.set(varName, castValue(evaluatedValue, typeof currentValue === 'object' ? 'array' : typeof currentValue));
+                } else if (tokens[1] === '+=') {
+                    if (Array.isArray(currentValue)) {
+                        currentValue.push(evaluatedValue);
+                    } else {
+                        variables.set(varName, currentValue + evaluatedValue);
+                    }
+                } else if (tokens[1] === '-=') {
+                    variables.set(varName, currentValue - evaluatedValue);
+                }
+            } else if (tokens[0] === 'for') {
+                const forMatch = line.match(/for\s*\(\s*int\s+(\w+)\s*=\s*([^;]+);\s*([^;]+);\s*([^)]+)\)\s*{/);
+                if (!forMatch) throw new Error('Nieprawidłowa składnia for');
+                
+                const [_, varName, init, condition, increment] = forMatch;
+                let block = '';
+                i++;
+                let braceCount = 1;
+                while (i < lines.length && braceCount > 0) {
+                    if (lines[i].includes('{')) braceCount++;
+                    if (lines[i].includes('}')) braceCount--;
+                    if (braceCount > 0) block += lines[i] + '\n';
+                    i++;
+                }
+                i--;
 
-            if (!response.ok) {
-                const errorDetails = await response.json();
-                alert(`Wystąpił błąd: ${errorDetails.error || 'Nieznany błąd'}`);
-                return;
+                const initValue = evaluateExpression(init);
+                variables.set(varName, initValue);
+                while (evaluateCondition(condition)) {
+                    await interpretPerunScript(block);
+                    evaluateExpression(increment);
+                }
+                variables.delete(varName);
+            } else if (tokens[0] === 'while') {
+                const whileMatch = line.match(/while\s*\(([^)]+)\)\s*{/);
+                if (!whileMatch) throw new Error('Nieprawidłowa składnia while');
+                
+                const condition = whileMatch[1];
+                let block = '';
+                i++;
+                let braceCount = 1;
+                while (i < lines.length && braceCount > 0) {
+                    if (lines[i].includes('{')) braceCount++;
+                    if (lines[i].includes('}')) braceCount--;
+                    if (braceCount > 0) block += lines[i] + '\n';
+                    i++;
+                }
+                i--;
+
+                while (evaluateCondition(condition)) {
+                    await interpretPerunScript(block);
+                }
+            } else if (tokens[0] === 'if') {
+                const ifMatch = line.match(/if\s*\(([^)]+)\)\s*{/);
+                if (!ifMatch) throw new Error('Nieprawidłowa składnia if');
+                
+                const condition = ifMatch[1];
+                let ifBlock = '', elseBlock = '';
+                let blockType = 'if';
+                i++;
+                let braceCount = 1;
+                
+                while (i < lines.length && braceCount > 0) {
+                    if (lines[i].includes('{')) braceCount++;
+                    if (lines[i].includes('}')) braceCount--;
+                    if (braceCount > 0) {
+                        if (blockType === 'if') ifBlock += lines[i] + '\n';
+                        else elseBlock += lines[i] + '\n';
+                    }
+                    if (braceCount === 0 && i + 1 < lines.length && lines[i + 1].startsWith('else')) {
+                        braceCount = 1;
+                        blockType = 'else';
+                        i++;
+                    }
+                    i++;
+                }
+                i--;
+
+                if (evaluateCondition(condition)) {
+                    await interpretPerunScript(ifBlock);
+                } else if (elseBlock) {
+                    await interpretPerunScript(elseBlock);
+                }
+            } else if (tokens[0] === 'func') {
+                const funcMatch = line.match(/func\s+(\w+)\s*\([^)]*\)\s*{/);
+                if (!funcMatch) throw new Error('Nieprawidłowa składnia func');
+                
+                const funcName = funcMatch[1];
+                let block = '';
+                i++;
+                let braceCount = 1;
+                while (i < lines.length && braceCount > 0) {
+                    if (lines[i].includes('{')) braceCount++;
+                    if (lines[i].includes('}')) braceCount--;
+                    if (braceCount > 0) block += lines[i] + '\n';
+                    i++;
+                }
+                i--;
+                functions.set(funcName, block);
+            } else if (tokens[0] === 'return') {
+                returnValue = evaluateExpression(line.slice(7).trim());
+                if (returnContext) return returnValue;
+            } else if (functions.has(tokens[0])) {
+                const funcBody = functions.get(tokens[0]);
+                executionStack++;
+                if (executionStack > 100) throw new Error('Przekroczono limit rekursji');
+                const result = await interpretPerunScript(funcBody, true);
+                executionStack--;
+                if (result !== undefined) {
+                    printToConsole(String(result), 'ps');
+                    originalConsole.log(`PerunScript: ${result}`);
+                }
+            } else {
+                const result = evaluateExpression(line);
+                if (result !== undefined) {
+                    printToConsole(String(result), 'ps');
+                    originalConsole.log(`PerunScript: ${result}`);
+                }
             }
-
-            const result = await response.json();
-            const aiResponse = result[0]?.generated_text?.trim() || 'Brak odpowiedzi od AI';
-
-            const aiMessageDiv = document.createElement("div");
-            aiMessageDiv.classList.add("message", "ai-message");
-            aiMessageDiv.textContent = aiResponse;
-            chatBox.appendChild(aiMessageDiv);
-
         } catch (error) {
-            alert(`Wystąpił błąd: ${error.message}`);
-        } finally {
-            loadingDiv.style.display = "none"; 
-            chatBox.scrollTop = chatBox.scrollHeight; 
+            throw error;
+        }
+        i++;
+    }
+    if (returnContext && returnValue !== undefined) return returnValue;
+}
+
+// --- Ewaluacja wyrażeń ---
+function evaluateExpression(expr) {
+    expr = expr.trim();
+    if (!expr) return undefined;
+
+    if (expr === 'true') return true;
+    if (expr === 'false') return false;
+    if (!isNaN(expr)) return Number(expr);
+    if (variables.has(expr)) return variables.get(expr);
+    if (expr.startsWith('"') && expr.endsWith('"')) return expr.slice(1, -1);
+    if (expr.startsWith('[') && expr.endsWith(']')) {
+        const cleanedExpr = expr.slice(1, -1).trim();
+        if (!cleanedExpr) return [];
+        return cleanedExpr.split(',').map(item => evaluateExpression(item.trim()));
+    }
+    if (expr.includes('[') && expr.endsWith(']')) {
+        const [varName, indexStr] = expr.split('[');
+        const index = evaluateExpression(indexStr.slice(0, -1));
+        const array = variables.get(varName);
+        if (!Array.isArray(array)) throw new Error(`${varName} nie jest tablicą`);
+        if (index >= array.length || index < 0) throw new Error('Indeks poza zakresem');
+        return array[index];
+    }
+    if (expr.startsWith('len(') && expr.endsWith(')')) {
+        const arrayName = expr.slice(4, -1).trim();
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        return array.length;
+    }
+    if (expr.startsWith('push(') && expr.endsWith(')')) {
+        const [arrayName, value] = expr.slice(5, -1).split(',').map(s => s.trim());
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        const evaluatedValue = evaluateExpression(value);
+        array.push(evaluatedValue);
+        variables.set(arrayName, array);
+        return undefined;
+    }
+    if (expr.startsWith('pop(') && expr.endsWith(')')) {
+        const arrayName = expr.slice(4, -1).trim();
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        if (array.length === 0) throw new Error('Tablica jest pusta');
+        return array.pop();
+    }
+    if (expr.startsWith('clear(') && expr.endsWith(')')) {
+        const arrayName = expr.slice(6, -1).trim();
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        array.length = 0;
+        variables.set(arrayName, array);
+        return undefined;
+    }
+    if (expr.startsWith('slice(') && expr.endsWith(')')) {
+        const [arrayName, start, end] = expr.slice(6, -1).split(',').map(s => s.trim());
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        const startIdx = evaluateExpression(start);
+        const endIdx = evaluateExpression(end);
+        return array.slice(startIdx, endIdx);
+    }
+    if (expr.startsWith('join(') && expr.endsWith(')')) {
+        const [arrayName, separator] = expr.slice(5, -1).split(',').map(s => s.trim());
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        const sep = evaluateExpression(separator);
+        return array.join(sep);
+    }
+    if (expr.startsWith('input(') && expr.endsWith(')')) {
+        const promptText = expr.slice(6, -1).trim();
+        const userInput = prompt(evaluateExpression(promptText) || 'Wpisz wartość:');
+        return userInput !== null ? userInput : '';
+    }
+    if (expr.startsWith('reverse(') && expr.endsWith(')')) {
+        const arrayName = expr.slice(8, -1).trim();
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        array.reverse();
+        variables.set(arrayName, array);
+        return undefined;
+    }
+    if (expr.startsWith('sum(') && expr.endsWith(')')) {
+        const arrayName = expr.slice(4, -1).trim();
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        return array.reduce((acc, val) => acc + Number(val), 0);
+    }
+    if (expr.startsWith('rand(') && expr.endsWith(')')) {
+        const [min, max] = expr.slice(5, -1).split(',').map(s => s.trim());
+        const minVal = evaluateExpression(min);
+        const maxVal = evaluateExpression(max);
+        return Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+    }
+    if (expr.startsWith('sort(') && expr.endsWith(')')) {
+        const arrayName = expr.slice(5, -1).trim();
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        array.sort((a, b) => a - b || String(a).localeCompare(String(b)));
+        variables.set(arrayName, array);
+        return undefined;
+    }
+    if (expr.startsWith('time(') && expr.endsWith(')')) {
+        return Date.now();
+    }
+    if (expr.startsWith('log(') && expr.endsWith(')')) {
+        const message = expr.slice(4, -1).trim();
+        const evaluatedMessage = evaluateExpression(message);
+        printToConsole(String(evaluatedMessage), 'log');
+        originalConsole.log(`PerunScript Log: ${evaluatedMessage}`);
+        return undefined;
+    }
+    if (expr.startsWith('min(') && expr.endsWith(')')) {
+        const arrayName = expr.slice(4, -1).trim();
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        return Math.min(...array);
+    }
+    if (expr.startsWith('max(') && expr.endsWith(')')) {
+        const arrayName = expr.slice(4, -1).trim();
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        return Math.max(...array);
+    }
+    if (expr.startsWith('avg(') && expr.endsWith(')')) {
+        const arrayName = expr.slice(4, -1).trim();
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        return array.reduce((acc, val) => acc + Number(val), 0) / array.length;
+    }
+    if (expr.startsWith('contains(') && expr.endsWith(')')) {
+        const [arrayName, value] = expr.slice(9, -1).split(',').map(s => s.trim());
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        const val = evaluateExpression(value);
+        return array.includes(val);
+    }
+    if (expr.startsWith('indexOf(') && expr.endsWith(')')) {
+        const [arrayName, value] = expr.slice(8, -1).split(',').map(s => s.trim());
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        const val = evaluateExpression(value);
+        return array.indexOf(val);
+    }
+    if (expr.startsWith('remove(') && expr.endsWith(')')) {
+        const [arrayName, index] = expr.slice(7, -1).split(',').map(s => s.trim());
+        const array = variables.get(arrayName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        const idx = evaluateExpression(index);
+        if (idx >= array.length || idx < 0) throw new Error('Indeks poza zakresem');
+        array.splice(idx, 1);
+        variables.set(arrayName, array);
+        return undefined;
+    }
+    if (expr.startsWith('upper(') && expr.endsWith(')')) {
+        const str = expr.slice(6, -1).trim();
+        const evaluatedStr = evaluateExpression(str);
+        if (typeof evaluatedStr !== 'string') throw new Error('Argument musi być stringiem');
+        return evaluatedStr.toUpperCase();
+    }
+    if (expr.startsWith('lower(') && expr.endsWith(')')) {
+        const str = expr.slice(6, -1).trim();
+        const evaluatedStr = evaluateExpression(str);
+        if (typeof evaluatedStr !== 'string') throw new Error('Argument musi być stringiem');
+        return evaluatedStr.toLowerCase();
+    }
+    if (expr.startsWith('trim(') && expr.endsWith(')')) {
+        const str = expr.slice(5, -1).trim();
+        const evaluatedStr = evaluateExpression(str);
+        if (typeof evaluatedStr !== 'string') throw new Error('Argument musi być stringiem');
+        return evaluatedStr.trim();
+    }
+    if (expr.startsWith('sleep(') && expr.endsWith(')')) {
+        const ms = evaluateExpression(expr.slice(6, -1).trim());
+        const start = Date.now();
+        while (Date.now() - start < ms) {}
+        return undefined;
+    }
+    if (expr.startsWith('replace(') && expr.endsWith(')')) {
+        const [str, oldVal, newVal] = expr.slice(8, -1).split(',').map(s => s.trim());
+        const evaluatedStr = evaluateExpression(str);
+        const oldEvaluated = evaluateExpression(oldVal);
+        const newEvaluated = evaluateExpression(newVal);
+        if (typeof evaluatedStr !== 'string') throw new Error('Pierwszy argument musi być stringiem');
+        return evaluatedStr.replaceAll(oldEvaluated, newEvaluated);
+    }
+    if (expr.startsWith('split(') && expr.endsWith(')')) {
+        const [str, sep] = expr.slice(6, -1).split(',').map(s => s.trim());
+        const evaluatedStr = evaluateExpression(str);
+        const separator = evaluateExpression(sep);
+        if (typeof evaluatedStr !== 'string') throw new Error('Pierwszy argument musi być stringiem');
+        return evaluatedStr.split(separator);
+    }
+    if (expr.startsWith('round(') && expr.endsWith(')')) {
+        const [num, decimals] = expr.slice(6, -1).split(',').map(s => s.trim());
+        const number = evaluateExpression(num);
+        const dec = evaluateExpression(decimals);
+        if (typeof number !== 'number') throw new Error('Pierwszy argument musi być liczbą');
+        return Number(number.toFixed(dec));
+    }
+    if (expr.startsWith('pow(') && expr.endsWith(')')) {
+        const [base, exp] = expr.slice(4, -1).split(',').map(s => s.trim());
+        const baseVal = evaluateExpression(base);
+        const expVal = evaluateExpression(exp);
+        if (typeof baseVal !== 'number' || typeof expVal !== 'number') throw new Error('Argumenty muszą być liczbami');
+        return Math.pow(baseVal, expVal);
+    }
+    if (expr.startsWith('sqrt(') && expr.endsWith(')')) {
+        const num = evaluateExpression(expr.slice(5, -1).trim());
+        if (typeof num !== 'number') throw new Error('Argument musi być liczbą');
+        if (num < 0) throw new Error('Nie można obliczyć pierwiastka z liczby ujemnej');
+        return Math.sqrt(num);
+    }
+    if (expr.startsWith('concat(') && expr.endsWith(')')) {
+        const [array1Name, array2Name] = expr.slice(7, -1).split(',').map(s => s.trim());
+        const array1 = variables.get(array1Name);
+        const array2 = variables.get(array2Name);
+        if (!Array.isArray(array1) || !Array.isArray(array2)) throw new Error('Oba argumenty muszą być tablicami');
+        return [...array1, ...array2];
+    }
+    if (expr.startsWith('map(') && expr.endsWith(')')) {
+        const [arrayName, funcName] = expr.slice(4, -1).split(',').map(s => s.trim());
+        const array = variables.get(arrayName);
+        const funcBody = functions.get(funcName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        if (!funcBody) throw new Error(`Funkcja ${funcName} nie istnieje`);
+        return array.map(item => {
+            variables.set('temp', item);
+            const result = interpretPerunScript(funcBody, true);
+            variables.delete('temp');
+            return result !== undefined ? result : item;
+        });
+    }
+    if (expr.startsWith('filter(') && expr.endsWith(')')) {
+        const [arrayName, funcName] = expr.slice(7, -1).split(',').map(s => s.trim());
+        const array = variables.get(arrayName);
+        const funcBody = functions.get(funcName);
+        if (!Array.isArray(array)) throw new Error(`${arrayName} nie jest tablicą`);
+        if (!funcBody) throw new Error(`Funkcja ${funcName} nie istnieje`);
+        return array.filter(item => {
+            variables.set('temp', item);
+            const result = interpretPerunScript(funcBody, true);
+            variables.delete('temp');
+            return Boolean(result);
+        });
+    }
+    if (expr.startsWith('abs(') && expr.endsWith(')')) {
+        const num = evaluateExpression(expr.slice(4, -1).trim());
+        if (typeof num !== 'number') throw new Error('Argument musi być liczbą');
+        return Math.abs(num);
+    }
+    if (expr.startsWith('sin(') && expr.endsWith(')')) {
+        const num = evaluateExpression(expr.slice(4, -1).trim());
+        if (typeof num !== 'number') throw new Error('Argument musi być liczbą');
+        return Math.sin(num);
+    }
+    if (expr.startsWith('cos(') && expr.endsWith(')')) {
+        const num = evaluateExpression(expr.slice(4, -1).trim());
+        if (typeof num !== 'number') throw new Error('Argument musi być liczbą');
+        return Math.cos(num);
+    }
+    if (expr.startsWith('tan(') && expr.endsWith(')')) {
+        const num = evaluateExpression(expr.slice(4, -1).trim());
+        if (typeof num !== 'number') throw new Error('Argument musi być liczbą');
+        return Math.tan(num);
+    }
+    if (expr.startsWith('log10(') && expr.endsWith(')')) {
+        const num = evaluateExpression(expr.slice(6, -1).trim());
+        if (typeof num !== 'number') throw new Error('Argument musi być liczbą');
+        if (num <= 0) throw new Error('Logarytm z liczby <= 0 jest niezdefiniowany');
+        return Math.log10(num);
+    }
+    if (expr.startsWith('exp(') && expr.endsWith(')')) {
+        const num = evaluateExpression(expr.slice(4, -1).trim());
+        if (typeof num !== 'number') throw new Error('Argument musi być liczbą');
+        return Math.exp(num);
+    }
+    if (expr.startsWith('ceil(') && expr.endsWith(')')) {
+        const num = evaluateExpression(expr.slice(5, -1).trim());
+        if (typeof num !== 'number') throw new Error('Argument musi być liczbą');
+        return Math.ceil(num);
+    }
+    if (expr.startsWith('floor(') && expr.endsWith(')')) {
+        const num = evaluateExpression(expr.slice(6, -1).trim());
+        if (typeof num !== 'number') throw new Error('Argument musi być liczbą');
+        return Math.floor(num);
+    }
+    if (expr.startsWith('alert(') && expr.endsWith(')')) {
+        const message = evaluateExpression(expr.slice(6, -1).trim());
+        alert(String(message));
+        return undefined;
+    }
+    if (expr.startsWith('prompt(') && expr.endsWith(')')) {
+        const message = evaluateExpression(expr.slice(7, -1).trim());
+        const userInput = prompt(String(message));
+        return userInput !== null ? userInput : '';
+    }
+    if (expr === 'clearvars()') {
+        variables.clear();
+        printToConsole('Wszystkie zmienne zostały wyczyszczone', 'ps');
+        return undefined;
+    }
+    if (expr.startsWith('type(') && expr.endsWith(')')) {
+        const varName = expr.slice(5, -1).trim();
+        const value = variables.get(varName);
+        if (value === undefined) return 'undefined';
+        if (Array.isArray(value)) return 'array';
+        return typeof value;
+    }
+    if (expr === 'exit()') {
+        printToConsole('Zakończono działanie skryptu', 'ps');
+        throw new Error('Wyjście z programu');
+    }
+    if (expr.startsWith('wait(') && expr.endsWith(')')) {
+        const ms = evaluateExpression(expr.slice(5, -1).trim());
+        return new Promise(resolve => setTimeout(() => resolve(undefined), ms));
+    }
+    if (expr.startsWith('confirm(') && expr.endsWith(')')) {
+        const message = evaluateExpression(expr.slice(8, -1).trim());
+        return confirm(String(message));
+    }
+    if (expr === 'beep()') {
+        const audio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+        audio.play();
+        return undefined;
+    }
+    if (expr.endsWith('++')) {
+        const varName = expr.slice(0, -2);
+        if (!variables.has(varName)) throw new Error(`Zmienna ${varName} nie istnieje`);
+        const newValue = variables.get(varName) + 1;
+        variables.set(varName, newValue);
+        return newValue;
+    }
+
+    const operators = ['+', '-', '*', '/', '%'];
+    for (const op of operators) {
+        if (expr.includes(op)) {
+            const [left, right] = expr.split(op).map(s => s.trim());
+            const leftVal = evaluateExpression(left);
+            const rightVal = evaluateExpression(right);
+            if (typeof leftVal === 'string' && op === '+') return leftVal + String(rightVal);
+            if (typeof leftVal !== 'number' || typeof rightVal !== 'number') {
+                throw new Error('Nieprawidłowe wartości w operacji');
+            }
+            switch (op) {
+                case '+': return leftVal + rightVal;
+                case '-': return leftVal - rightVal;
+                case '*': return leftVal * rightVal;
+                case '/': 
+                    if (rightVal === 0) throw new Error('Dzielenie przez zero');
+                    return leftVal / rightVal;
+                case '%': return leftVal % rightVal;
+            }
         }
     }
+    throw new Error(`Nieznane wyrażenie: ${expr}`);
+}
+
+// --- Kastowanie wartości ---
+function castValue(value, type) {
+    switch (type) {
+        case 'int': return Math.floor(Number(value));
+        case 'float': return Number(value);
+        case 'string': return String(value);
+        case 'bool': return Boolean(value);
+        case 'array': 
+            if (Array.isArray(value)) return value;
+            throw new Error('Nie można skonwertować na tablicę');
+        default: throw new Error(`Nieznany typ: ${type}`);
+    }
+}
+
+// --- Ewaluacja warunków ---
+function evaluateCondition(condition) {
+    if (condition.includes('&&') || condition.includes('||')) {
+        const parts = condition.split(/&&|\|\|/);
+        const operator = condition.includes('&&') ? '&&' : '||';
+        const left = evaluateCondition(parts[0].trim());
+        const right = evaluateCondition(parts[1].trim());
+        return operator === '&&' ? left && right : left || right;
+    }
+
+    const operators = ['<', '>', '==', '<=', '>=', '!='];
+    for (const op of operators) {
+        if (condition.includes(op)) {
+            const [left, right] = condition.split(op).map(s => s.trim());
+            const leftVal = evaluateExpression(left);
+            const rightVal = evaluateExpression(right);
+            switch (op) {
+                case '<': return leftVal < rightVal;
+                case '>': return leftVal > rightVal;
+                case '==': return leftVal === rightVal;
+                case '<=': return leftVal <= rightVal;
+                case '>=': return leftVal >= rightVal;
+                case '!=': return leftVal !== rightVal;
+            }
+        }
+    }
+    return evaluateExpression(condition);
+}
+
+// --- Pomoc ---
+function printHelp() {
+    printToConsole('PerunScript v1.0 - Dostępne konstrukcje:', 'ps');
+    printToConsole('  print <expr> - wyświetla wartość', 'ps');
+    printToConsole('  set <type> <var>=<val> - deklaruje zmienną (int, float, string, bool, array)', 'ps');
+    printToConsole('  <var>=<val>, +=, -= - przypisanie', 'ps');
+    printToConsole('  for(int i=0; i<5; i++) {} - pętla for', 'ps');
+    printToConsole('  while(x>0) {} - pętla while', 'ps');
+    printToConsole('  if(x<5) {} else {} - warunek', 'ps');
+    printToConsole('  func <name>() {} - definicja funkcji', 'ps');
+    printToConsole('  return <expr> - zwraca wartość', 'ps');
+    printToConsole('  len(<array>) - długość tablicy', 'ps');
+    printToConsole('  push(<array>, <val>) - dodaje do tablicy', 'ps');
+    printToConsole('  pop(<array>) - usuwa i zwraca ostatni element', 'ps');
+    printToConsole('  clear(<array>) - czyści tablicę', 'ps');
+    printToConsole('  slice(<array>, <start>, <end>) - wycina podzbiór tablicy', 'ps');
+    printToConsole('  join(<array>, <sep>) - łączy tablicę w string', 'ps');
+    printToConsole('  input(<prompt>) - pobiera dane od użytkownika', 'ps');
+    printToConsole('  reverse(<array>) - odwraca tablicę', 'ps');
+    printToConsole('  sum(<array>) - sumuje elementy tablicy', 'ps');
+    printToConsole('  rand(<min>, <max>) - losowa liczba całkowita', 'ps');
+    printToConsole('  sort(<array>) - sortuje tablicę', 'ps');
+    printToConsole('  time() - bieżący czas w ms', 'ps');
+    printToConsole('  log(<msg>) - loguje komunikat', 'ps');
+    printToConsole('  min(<array>) - minimalna wartość w tablicy', 'ps');
+    printToConsole('  max(<array>) - maksymalna wartość w tablicy', 'ps');
+    printToConsole('  avg(<array>) - średnia arytmetyczna tablicy', 'ps');
+    printToConsole('  contains(<array>, <val>) - sprawdza, czy tablica zawiera wartość', 'ps');
+    printToConsole('  indexOf(<array>, <val>) - indeks pierwszego wystąpienia', 'ps');
+    printToConsole('  remove(<array>, <index>) - usuwa element o indeksie', 'ps');
+    printToConsole('  upper(<string>) - wielkie litery', 'ps');
+    printToConsole('  lower(<string>) - małe litery', 'ps');
+    printToConsole('  trim(<string>) - usuwa białe znaki', 'ps');
+    printToConsole('  sleep(<ms>) - wstrzymuje wykonanie na ms', 'ps');
+    printToConsole('  replace(<string>, <old>, <new>) - zamienia tekst', 'ps');
+    printToConsole('  split(<string>, <sep>) - dzieli string na tablicę', 'ps');
+    printToConsole('  round(<number>, <decimals>) - zaokrągla liczbę', 'ps');
+    printToConsole('  pow(<base>, <exp>) - potęga', 'ps');
+    printToConsole('  sqrt(<number>) - pierwiastek kwadratowy', 'ps');
+    printToConsole('  concat(<array1>, <array2>) - łączy dwie tablice', 'ps');
+    printToConsole('  map(<array>, <func>) - transformuje tablicę za pomocą funkcji', 'ps');
+    printToConsole('  filter(<array>, <func>) - filtruje tablicę za pomocą funkcji', 'ps');
+    printToConsole('  abs(<number>) - wartość bezwzględna', 'ps');
+    printToConsole('  sin(<number>) - sinus (w radianach)', 'ps');
+    printToConsole('  cos(<number>) - cosinus (w radianach)', 'ps');
+    printToConsole('  tan(<number>) - tangens (w radianach)', 'ps');
+    printToConsole('  log10(<number>) - logarytm dziesiętny', 'ps');
+    printToConsole('  exp(<number>) - e^x', 'ps');
+    printToConsole('  ceil(<number>) - zaokrąglenie w górę', 'ps');
+    printToConsole('  floor(<number>) - zaokrąglenie w dół', 'ps');
+    printToConsole('  alert(<message>) - wyświetla alert', 'ps');
+    printToConsole('  prompt(<message>) - pobiera dane od użytkownika', 'ps');
+    printToConsole('  clearvars() - czyści wszystkie zmienne', 'ps');
+    printToConsole('  type(<var>) - zwraca typ zmiennej', 'ps');
+    printToConsole('  exit() - kończy skrypt', 'ps');
+    printToConsole('  wait(<ms>) - czeka asynchronicznie na ms', 'ps');
+    printToConsole('  confirm(<message>) - wyświetla potwierdzenie (true/false)', 'ps');
+    printToConsole('  beep() - odtwarza dźwięk beep', 'ps');
+    printToConsole('  Operatory: +, -, *, /, %, <, >, ==, <=, >=, !=, &&, ||', 'ps');
+    printToConsole('  Tablice: set array a = [1, 2, 3], a[0]', 'ps');
+    printToConsole('  Użyj console.log("ps: <komenda>") w konsoli przeglądarki', 'ps');
+}
+
+// --- Obsługa klawiszy i inputu ---
+input.addEventListener('focus', function() {
+    if (!rawInput) {
+        rawInput = 'ps: ';
+        input.innerHTML = highlightSyntax(rawInput);
+        placeCaretAtEnd(input);
+        saveInputState();
+    }
+});
+
+input.addEventListener('input', function() {
+    rawInput = input.textContent;
+    input.innerHTML = highlightSyntax(rawInput);
+    saveInputState();
+    placeCaretAtEnd(input);
+});
+
+input.addEventListener('keydown', async function(e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+        e.preventDefault();
+        const sel = window.getSelection();
+        const range = sel.getRangeAt(0);
+        range.insertNode(document.createTextNode('\n'));
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        rawInput = input.textContent;
+        saveInputState();
+    } else if ((e.shiftKey && e.key === 'Enter') || (e.ctrlKey && e.key === 'Enter')) {
+        e.preventDefault();
+        const inputText = rawInput.trim();
+        if (!inputText) return;
+
+        printToConsole('> ' + inputText.replace(/\n/g, '\n  '), 'prompt');
+        history.push(inputText);
+        historyIndex = history.length;
+        updateStatusBar();
+
+        try {
+            const psCode = inputText.startsWith('ps:') ? inputText.slice(3).trim() : inputText;
+            const result = await interpretPerunScript(psCode);
+            if (result instanceof Promise) await result;
+        } catch (error) {
+            printToConsole('Błąd: ' + error.message, 'error');
+            originalConsole.error(error.message);
+        }
+        rawInput = 'ps: ';
+        input.innerHTML = highlightSyntax(rawInput);
+        saveInputState();
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (historyIndex > 0) {
+            historyIndex--;
+            rawInput = history[historyIndex] || '';
+            input.innerHTML = highlightSyntax(rawInput);
+            saveInputState();
+        }
+    } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (historyIndex < history.length - 1) {
+            historyIndex++;
+            rawInput = history[historyIndex];
+            input.innerHTML = highlightSyntax(rawInput);
+            saveInputState();
+        } else {
+            historyIndex = history.length;
+            rawInput = 'ps: ';
+            input.innerHTML = highlightSyntax(rawInput);
+            saveInputState();
+        }
+    } else if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        undo();
+    } else if (e.ctrlKey && e.key === 'y') {
+        e.preventDefault();
+        redo();
+    }
+});
+
+// --- Powitanie ---
+function printWelcomeMessage() {
+    printToConsole('Witaj w konsoli HTML z PerunScript!', 'keyword');
+    printToConsole('Kliknij w pole input, aby zacząć (automatycznie doda "ps:")', 'log');
+    printToConsole('Shift+Enter lub Ctrl+Enter wysyła, Enter nowa linia, Strzałka w górę historia', 'log');
+    printToConsole('Ctrl+Z/Y cofnij/ponów, wpisz "help" dla pomocy', 'ps');
+    printToConsole('Użyj console.log("ps: <komenda>") w konsoli przeglądarki', 'ps');
+}
+
+printWelcomeMessage();
+console.log('Konsola zainicjalizowana');
+saveInputState();
     </script>
 </body>
 </html>

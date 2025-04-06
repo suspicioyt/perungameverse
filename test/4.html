@@ -1,123 +1,443 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logowanie i Rejestrowanie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
+        .notification-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 440px;
+            max-width: 94vw;
+            z-index: 10000;
+            pointer-events: none;
+            padding: 0 12px;
         }
-        .container {
-            max-width: 400px;
-            margin: auto;
+
+        .notification {
+            pointer-events: auto;
+            margin-bottom: 20px;
+            padding: 22px;
+            border-radius: 18px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.25), 0 0 0 1.5px rgba(255,255,255,0.12);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        button {
-            padding: 10px;
-            margin-top: 10px;
+
+        .notification:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 55px rgba(0,0,0,0.35), 0 0 0 1.5px rgba(255,255,255,0.18);
         }
-        .form-container {
-            display: none;
-            margin-top: 20px;
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
         }
-        .form-container input {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
+
+        .notification-title {
+            font-weight: 700;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-icon {
+            margin-right: 14px;
+            font-size: 26px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        .notification-close {
+            cursor: pointer;
+            border: none;
+            background: rgba(0,0,0,0.2);
+            font-size: 24px;
+            opacity: 0.7;
+            padding: 6px 12px;
+            border-radius: 12px;
+            transition: all 0.25s;
+            color: inherit;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .notification-content {
+            font-size: 15px;
+            line-height: 1.7;
+            opacity: 0.9;
+        }
+
+        .notification-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 14px;
+        }
+
+        .notification-action {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.25);
+            color: inherit;
+            font-weight: 600;
+            transition: all 0.25s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .notification-action:hover {
+            background: rgba(255,255,255,0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+        }
+
+        .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.85), rgba(255,255,255,0.45));
+            animation: progress linear;
+            border-radius: 0 0 18px 18px;
+        }
+
+        /* Typy powiadomień */
+        .error { background: linear-gradient(135deg, rgba(231,76,60,0.95), rgba(192,57,43,0.95)); }
+        .success { background: linear-gradient(135deg, rgba(46,204,113,0.95), rgba(39,174,96,0.95)); }
+        .warning { background: linear-gradient(135deg, rgba(241,196,15,0.95), rgba(211,170,0,0.95)); }
+        .info { background: linear-gradient(135deg, rgba(52,152,219,0.95), rgba(41,128,185,0.95)); }
+        .reload { background: linear-gradient(135deg, rgba(155,89,182,0.95), rgba(142,68,173,0.95)); }
+        .update { background: linear-gradient(135deg, rgba(26,188,156,0.95), rgba(22,160,133,0.95)); }
+        .quick { background: linear-gradient(135deg, rgba(149,165,166,0.95), rgba(127,140,141,0.95)); }
+        .debug { background: linear-gradient(135deg, rgba(52,73,94,0.95), rgba(44,62,80,0.95)); }
+        .alert { background: linear-gradient(135deg, rgba(230,126,34,0.95), rgba(211,84,0,0.95)); }
+
+        /* Animacje */
+        @keyframes slideIn {
+            from { transform: translateX(120%) scale(0.88); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0) scale(1); opacity: 1; }
+            to { transform: translateX(120%) scale(0.88); opacity: 0; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .notification {
+                padding: 18px;
+                margin-bottom: 16px;
+            }
+            .notification-title { font-size: 16px; }
+            .notification-content { font-size: 14px; }
+            .notification-action { padding: 6px 16px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Wybierz opcję</h1>
-        <button id="registerBtn">Zarejestruj się</button>
-        <button id="loginBtn">Zaloguj się</button>
-
-        <div id="formContainer" class="form-container">
-            <!-- Formularz rejestracji -->
-            <div id="registerForm">
-                <h2>Rejestracja</h2>
-                <input type="text" id="regUsername" placeholder="Nazwa użytkownika" required>
-                <input type="password" id="regPassword" placeholder="Hasło" required>
-                <button id="submitRegister">Zarejestruj</button>
-            </div>
-            <!-- Formularz logowania -->
-            <div id="loginForm">
-                <h2>Logowanie</h2>
-                <input type="text" id="loginUsername" placeholder="Nazwa użytkownika" required>
-                <input type="password" id="loginPassword" placeholder="Hasło" required>
-                <button id="submitLogin">Zaloguj</button>
-            </div>
-        </div>
-    </div>
+    <div id="notification-container" class="notification-container"></div>
 
     <script>
-        const registerBtn = document.getElementById('registerBtn');
-        const loginBtn = document.getElementById('loginBtn');
-        const formContainer = document.getElementById('formContainer');
-        const registerForm = document.getElementById('registerForm');
-        const loginForm = document.getElementById('loginForm');
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycby9oNFp_fEywbgnGVaWWU_b6GAyZ9DnQV9qKR1UAJDpV8b4inCQffRa7xCR9n9mristjg/exec';
+        class NotificationSystem {
+            constructor(config = {}) {
+                this.container = document.getElementById('notification-container');
+                this.maxNotifications = config.maxNotifications || 6;
+                this.defaultDuration = config.defaultDuration || 5000;
+                this.queue = [];
+                this.activeNotifications = new Map();
+                this.soundEnabled = config.soundEnabled || false; // Domyślnie dźwięki wyłączone
+                this.icons = {
+                    error: '<i class="fas fa-times-circle"></i>',
+                    success: '<i class="fas fa-check-circle"></i>',
+                    warning: '<i class="fas fa-exclamation-triangle"></i>',
+                    info: '<i class="fas fa-info-circle"></i>',
+                    reload: '<i class="fas fa-sync-alt"></i>',
+                    update: '<i class="fas fa-arrow-circle-up"></i>',
+                    quick: '<i class="fas fa-bolt"></i>',
+                    debug: '<i class="fas fa-bug"></i>',
+                    alert: '<i class="fas fa-bell"></i>'
+                };
+                this.touchStartX = 0;
+                this.touchMoveX = 0;
+            }
 
-        registerBtn.addEventListener('click', () => {
-            formContainer.style.display = 'block';
-            registerForm.style.display = 'block';
-            loginForm.style.display = 'none';
+            notify(options) {
+                const settings = {
+                    text: '',
+                    type: 'info',
+                    duration: this.defaultDuration,
+                    title: '',
+                    persistent: false,
+                    actions: [],
+                    sound: false, // Domyślnie dźwięk wyłączony
+                    priority: 0,
+                    id: Date.now() + Math.random(),
+                    onClose: null,
+                    ...options
+                };
+
+                if (this.activeNotifications.size >= this.maxNotifications) {
+                    this.queue.push(settings);
+                    this.queue.sort((a, b) => b.priority - a.priority);
+                    return settings.id;
+                }
+
+                return this.createNotification(settings);
+            }
+
+            quickNotify(title, type = 'quick', duration = 3000) {
+                return this.notify({
+                    title,
+                    text: '',
+                    type,
+                    duration,
+                    sound: false
+                });
+            }
+
+            createNotification(settings) {
+                const notification = document.createElement('div');
+                notification.classList.add('notification', settings.type);
+                notification.dataset.id = settings.id;
+                notification.dataset.priority = settings.priority;
+                this.activeNotifications.set(settings.id, notification);
+
+                // Header
+                const header = document.createElement('div');
+                header.classList.add('notification-header');
+                header.style.animation = 'fadeIn 0.25s ease-out';
+
+                const titleSpan = document.createElement('span');
+                titleSpan.classList.add('notification-title');
+                const icon = document.createElement('span');
+                icon.classList.add('notification-icon');
+                icon.innerHTML = this.icons[settings.type];
+                titleSpan.appendChild(icon);
+                titleSpan.appendChild(document.createTextNode(settings.title || settings.type.charAt(0).toUpperCase() + settings.type.slice(1)));
+
+                const closeBtn = document.createElement('button');
+                closeBtn.classList.add('notification-close');
+                closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                closeBtn.onclick = () => this.removeNotification(settings.id);
+
+                header.appendChild(titleSpan);
+                if (!settings.persistent) header.appendChild(closeBtn);
+
+                // Content
+                let content = null;
+                if (settings.text) {
+                    content = document.createElement('div');
+                    content.classList.add('notification-content');
+                    content.textContent = settings.text;
+                    content.style.animation = 'fadeIn 0.25s ease-out 0.1s both';
+                }
+
+                // Progress
+                let progress = null;
+                if (!settings.persistent) {
+                    progress = document.createElement('div');
+                    progress.classList.add('notification-progress');
+                    progress.style.animationDuration = `${settings.duration}ms`;
+                    notification.appendChild(progress);
+                }
+
+                // Actions
+                if (settings.actions.length > 0) {
+                    const actionContainer = document.createElement('div');
+                    actionContainer.classList.add('notification-actions');
+                    settings.actions.forEach((action, index) => {
+                        const btn = document.createElement('button');
+                        btn.classList.add('notification-action');
+                        btn.textContent = action.label;
+                        btn.style.animation = `fadeIn 0.25s ease-out ${0.2 + index * 0.1}s both`;
+                        btn.onclick = () => {
+                            action.callback(settings.id);
+                            if (action.close !== false) this.removeNotification(settings.id);
+                        };
+                        actionContainer.appendChild(btn);
+                    });
+                    notification.appendChild(actionContainer);
+                }
+
+                notification.appendChild(header);
+                if (content) notification.appendChild(content);
+                notification.style.animation = 'slideIn 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
+
+                // Insert based on priority
+                const notifications = Array.from(this.container.children);
+                const insertBefore = notifications.find(n => 
+                    parseInt(n.dataset.priority) < settings.priority);
+                this.container.insertBefore(notification, insertBefore || null);
+
+                // Sound (tylko jeśli włączony)
+                if (settings.sound) this.playSound(settings.type);
+
+                // Auto-remove and interactions
+                if (!settings.persistent) {
+                    notification.timeout = setTimeout(() => 
+                        this.removeNotification(settings.id), settings.duration);
+
+                    notification.onmouseenter = () => {
+                        clearTimeout(notification.timeout);
+                        if (progress) progress.style.animationPlayState = 'paused';
+                    };
+
+                    notification.onmouseleave = () => {
+                        if (progress) progress.style.animationPlayState = 'running';
+                        notification.timeout = setTimeout(() => 
+                            this.removeNotification(settings.id), settings.duration);
+                    };
+                }
+
+                // Touch support
+                notification.addEventListener('touchstart', (e) => {
+                    this.touchStartX = e.touches[0].clientX;
+                });
+
+                notification.addEventListener('touchmove', (e) => {
+                    this.touchMoveX = e.touches[0].clientX;
+                    const diff = this.touchMoveX - this.touchStartX;
+                    if (diff > 0) {
+                        notification.style.transform = `translateX(${diff}px)`;
+                    }
+                });
+
+                notification.addEventListener('touchend', () => {
+                    const diff = this.touchMoveX - this.touchStartX;
+                    if (diff > 120) {
+                        this.removeNotification(settings.id);
+                    } else {
+                        notification.style.transition = 'transform 0.25s ease-out';
+                        notification.style.transform = 'translateX(0)';
+                        setTimeout(() => notification.style.transition = '', 250);
+                    }
+                });
+
+                return settings.id;
+            }
+
+            removeNotification(id) {
+                const notification = this.activeNotifications.get(id);
+                if (!notification) return;
+
+                notification.style.animation = 'slideOut 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                clearTimeout(notification.timeout);
+                
+                notification.addEventListener('animationend', () => {
+                    notification.remove();
+                    this.activeNotifications.delete(id);
+                    const settings = this.queue.find(q => q.id === id);
+                    if (settings?.onClose) settings.onClose(id);
+                    if (this.queue.length > 0) {
+                        this.createNotification(this.queue.shift());
+                    }
+                }, { once: true });
+            }
+
+            clearAll() {
+                this.activeNotifications.forEach((_, id) => this.removeNotification(id));
+                this.queue = [];
+            }
+
+            playSound(type) {
+                const sounds = {
+                    error: 'https://www.soundjay.com/buttons/beep-01a.mp3',
+                    success: 'https://www.soundjay.com/buttons/beep-07.mp3',
+                    warning: 'https://www.soundjay.com/buttons/beep-02.mp3',
+                    info: 'https://www.soundjay.com/buttons/beep-06.mp3',
+                    reload: 'https://www.soundjay.com/buttons/beep-08b.mp3',
+                    update: 'https://www.soundjay.com/buttons/beep-09.mp3',
+                    quick: 'https://www.soundjay.com/buttons/beep-10.mp3',
+                    debug: 'https://www.soundjay.com/buttons/beep-03.mp3',
+                    alert: 'https://www.soundjay.com/buttons/beep-04.mp3'
+                };
+                const audio = new Audio(sounds[type]);
+                audio.volume = 0.5;
+                audio.play().catch(() => {});
+            }
+        }
+
+        // Inicjalizacja
+        const notifier = new NotificationSystem({
+            maxNotifications: 6,
+            defaultDuration: 5000,
+            soundEnabled: false // Domyślnie dźwięki wyłączone
         });
 
-        loginBtn.addEventListener('click', () => {
-            formContainer.style.display = 'block';
-            loginForm.style.display = 'block';
-            registerForm.style.display = 'none';
+        // Funkcja wrapper dla pełnych powiadomień
+        function notification(text, type = 'info', options = {}) {
+            return notifier.notify({ text, type, ...options });
+        }
+
+        // Funkcja wrapper dla szybkich powiadomień
+        function quickNotification(title, type = 'quick', duration = 3000) {
+            return notifier.quickNotify(title, type, duration);
+        }
+
+        // Przykłady użycia
+        notification("Błąd krytyczny", "error", { 
+            priority: 2,
+            sound: true, // Dźwięk włączony
+            actions: [{ 
+                label: "Retry", 
+                callback: () => console.log("Retrying...") 
+            }],
+            onClose: (id) => console.log(`Notification ${id} closed`)
         });
 
-        // ✅ Obsługa rejestracji użytkownika
-        document.getElementById('submitRegister').addEventListener('click', async () => {
-    const username = document.getElementById('regUsername').value;
-    const password = document.getElementById('regPassword').value;
+        notification("Sukces!", "success", {
+            duration: 3000,
+            title: "Operacja zakończona",
+            sound: true // Dźwięk włączony
+        });
 
-    const response = await fetch(scriptUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'register', username, password })
-    });
+        notification("Uwaga", "warning", {
+            persistent: true,
+            actions: [
+                { label: "OK", callback: (id) => console.log("OK clicked", id) },
+                { label: "Cancel", callback: () => console.log("Cancelled"), close: false }
+            ]
+        });
 
-    const result = await response.json();
-    alert(result.message);
+        // Nowe typy powiadomień
+        notification("Odśwież stronę", "reload", {
+            actions: [{ label: "Reload", callback: () => location.reload() }]
+        });
 
-    if (result.success) {
-        localStorage.setItem('username', username);
-    }
-});
+        notification("Dostępna aktualizacja", "update", {
+            duration: 4000,
+            title: "Nowa wersja",
+            sound: true // Dźwięk włączony
+        });
 
-        // ✅ Obsługa logowania użytkownika
-        document.getElementById('submitLogin').addEventListener('click', async () => {
-    const username = document.getElementById('loginUsername').value;
-    const password = document.getElementById('loginPassword').value;
+        notification("Debug info", "debug", {
+            text: "Some technical details here",
+            priority: 1
+        });
 
-    const response = await fetch(scriptUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login', username, password })
-    });
+        notification("Pilne!", "alert", {
+            sound: true, // Dźwięk włączony
+            persistent: true,
+            actions: [{ label: "Dismiss", callback: (id) => notifier.removeNotification(id) }]
+        });
 
-    const result = await response.json();
-    alert(result.message);
-
-    if (result.success) {
-        localStorage.setItem('username', username);
-    }
-});
-
-        // ✅ Sprawdzanie, czy użytkownik jest zalogowany
-        document.addEventListener("DOMContentLoaded", () => {
-    const username = localStorage.getItem("username");
-    if (username) {
-        alert("Jesteś już zalogowany jako: " + username);
-    }
-});
+        // Szybkie powiadomienia
+        quickNotification("Szybka informacja");
+        quickNotification("Błąd!", "error", 2000);
+        quickNotification("Odświeżono", "reload", 2500);
     </script>
 </body>
 </html>

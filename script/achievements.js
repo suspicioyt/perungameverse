@@ -28,17 +28,66 @@ const achievementsData = [
         "classes": ["beta"],
         "status": ["flappyHighScore", 60]
     },
-    //{
-    //    "id": "05",
-    //    "name": "Prezenty 2024",
-    //    "opis": "Zbierz wszystkie prezenty w evencie bożonarodzeniowym 2024",
-    //    "classes": ["beta"],
-    //    "status": ["clickedButtons", 15]
-    //},
+    {
+        "id": "05",
+        "name": "2048",
+        "opis": "Zbierz 2048 punktów w 2048",
+        "classes": ["beta"],
+        "status": ["2048highScore", 2048]
+    }
 ];
 
 function getAchievements() {
     return achievementsData;
+}
+
+// Funkcja sprawdzająca ukończone osiągnięcia i zapisująca tylko ich ID
+function checkCompletedAchievements() {
+    const localStorageData = {};
+    const completedAchievementsIds = [];
+
+    // Zbieranie danych z localStorage
+    achievementsData.forEach(achievement => {
+        const storedProgress = localStorage.getItem(achievement.status[0]);
+        if (storedProgress) {
+            try {
+                localStorageData[achievement.status[0]] = JSON.parse(storedProgress);
+            } catch (e) {
+                console.warn("Błąd podczas parsowania danych z localStorage:", e);
+            }
+        }
+    });
+
+    // Sprawdzanie ukończonych osiągnięć i zbieranie ich ID
+    achievementsData.forEach(achievement => {
+        let currentProgress = 0;
+        if (localStorageData[achievement.status[0]]) {
+            const storedData = localStorageData[achievement.status[0]];
+            currentProgress = Array.isArray(storedData) ? storedData.length : storedData;
+        }
+
+        let maxProgress = achievement.status[1];
+        if (typeof maxProgress === "string") {
+            const storedMaxProgress = localStorage.getItem(maxProgress);
+            maxProgress = storedMaxProgress ? parseInt(storedMaxProgress, 10) : 0;
+        }
+
+        maxProgress = isNaN(maxProgress) ? 0 : maxProgress;
+
+        if (currentProgress >= maxProgress) {
+            completedAchievementsIds.push(achievement.id);
+        }
+    });
+
+    // Zapisanie tylko tablicy ID do localStorage
+    localStorage.setItem('completedAchievementsIds', JSON.stringify(completedAchievementsIds));
+    
+    console.log(`Ukończono ${completedAchievementsIds.length} z ${achievementsData.length} osiągnięć`);
+    
+    return {
+        count: completedAchievementsIds.length,
+        ids: completedAchievementsIds
+    };
 }
 
 async function loadAchievements() {
@@ -75,7 +124,6 @@ async function loadAchievements() {
 
     button.addEventListener("click", function() {
         icon.classList.add("rotate");
-
         setTimeout(() => {
             icon.classList.remove("rotate");
             reloadAchievements();
@@ -93,23 +141,16 @@ async function loadAchievements() {
         let currentProgress = 0;
         if (localStorageData[achievement.status[0]]) {
             const storedData = localStorageData[achievement.status[0]];
-            if (Array.isArray(storedData)) {
-                currentProgress = storedData.length;
-            } else {
-                currentProgress = storedData;
-            }
+            currentProgress = Array.isArray(storedData) ? storedData.length : storedData;
         }
 
         let maxProgress = achievement.status[1];
-
         if (typeof maxProgress === "string") {
             const storedMaxProgress = localStorage.getItem(maxProgress);
             maxProgress = storedMaxProgress ? parseInt(storedMaxProgress, 10) : 0;
         }
 
         maxProgress = isNaN(maxProgress) ? 0 : maxProgress;
-
-        console.log(`Osiągnięcie: ${achievement.name} Max Progress: ${maxProgress} Current Progress: ${currentProgress}`);
 
         gameBox.style.backgroundColor = currentProgress >= maxProgress ? "#4CAF50" : "#FF4C4C";
 
@@ -150,8 +191,15 @@ async function reloadAchievements() {
     const container = document.querySelector("#achievementModalContent");
     container.innerHTML = '<button class="refreshButton"><i class="fas fa-redo" onclick="reloadAchievements()"></i></button>';
     loadAchievements();
+    checkCompletedAchievements(); // Aktualizacja po odświeżeniu
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
     await loadAchievements();
+    checkCompletedAchievements(); // Wywołanie przy załadowaniu strony
 });
+
+window.onload = function() {
+    let achievementNumber = achievementsData.length;
+    localStorage.setItem('achievementsNumber', achievementNumber);
+};

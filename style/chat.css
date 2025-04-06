@@ -182,9 +182,9 @@
 }
 
 .emoji-picker {
-    position:fixed;
+    position:absolute;
     bottom: 10px;
-    right: 15px; /* Align with input */
+    right: auto; /* Align with input */
     background: var(--secondary-background-color);
     border: 1px solid var(--border-color);
     padding: 10px;

@@ -1,11 +1,27 @@
 const settingSwitches = [
-    { switchId: "01", value: false },
-    { switchId: "02", value: false },
-    { switchId: "03", value: true },
-    { switchId: "04", value: true }
+    { switchId: "01", value: false },//tryb dewelopera
+    { switchId: "02", value: false },//zapis modali
+    { switchId: "03", value: true },//ładowanie obrazów na Chacie
+    { switchId: "04", value: true },//ukrywanie zbanowanych słów na Chacie
+    { switchId: "05", value: false },//???
+    { switchId: "06", value: false },
+    { switchId: "07", value: false },
+    { switchId: "08", value: false },
+    { switchId: "09", value: false },
+    { switchId: "10", value: false },
+    { switchId: "11", value: false },
+    { switchId: "12", value: false },
+    { switchId: "13", value: false },
+    { switchId: "14", value: false },
+    { switchId: "15", value: false },
+    { switchId: "16", value: false },
+    { switchId: "17", value: false },
+    { switchId: "18", value: false },
+    { switchId: "19", value: false },
+    { switchId: "20", value: false },
 ];
-var countDownDate = new Date("Apr 06, 2025 20:00:00").getTime();
-const API_URL = "https://script.google.com/macros/s/AKfycbzFLO_vcR-MBEDW5Z8uT6p6YoaIYB-wAWx_pLy7J7gZKDQoXqAoswJhlhGfspDQGL-g/exec";
+var countDownDate = new Date("Apr 13, 2025 20:00:00").getTime();
+const API_URL = "https://script.google.com/macros/s/AKfycbwel-hMu178BUi2a-1E4Phg9-Vm8rjGicaHxGbEc0dkiE2y6keeT2KDugUbwk2J9P1dVw/exec";
 
 
 let isScrolling = false;
@@ -43,12 +59,14 @@ window.addEventListener('scroll', function () {
             smoothScrollTo(getElementPosition());
             var header = document.querySelector('header');
             header.classList.add('scrolled');
+            document.getElementById('sidenav').classList.add('scrolled');
         }
 
         if (!isScrolling && currentScrollY < lastScrollY && currentScrollY > 0) {
             smoothScrollTo(0);
             var header = document.querySelector('header');
             header.classList.remove('scrolled');
+            document.getElementById('sidenav').classList.remove('scrolled');
         }
         lastScrollY = currentScrollY;
     }
@@ -59,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (elementHeight <= currentScrollY) {
     var header = document.querySelector('header');
     header.classList.add('scrolled');
+    document.getElementById('sidenav').classList.add('scrolled');
   }
 })
 function updateGameContainers(filteredGames) {
@@ -345,16 +364,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-function topFunction() {
-  document.body.scrollTop = 0;
-  document.documentElement.scrollTop = 0;
-}
-function downFunction() {
-  document.body.scrollTop = 1000000000;
-  document.documentElement.scrollTop = 1000000000;
-}
-
-
 var x = setInterval(function() {
   var now = new Date().getTime();
   var distance = countDownDate - now;
@@ -372,11 +381,6 @@ var x = setInterval(function() {
     document.getElementById("demo").innerHTML = "Kliknij CTRL i przycisk odświeżenia strony, aby wymusić odświeżenie";
   }
 }, 1000);
-
-window.onload = function() {
-  loadPlayerData();
-};
-
 
 let slideIndex = 0;
 showSlides(slideIndex);
@@ -450,22 +454,14 @@ if (hasLoaded) {
 
 const playerNameKey = "perunUsername";
 const playerPLNKey = "perunPLN";
-
-function updateDynamicText(key, elementId, defaultMessage) {
-    const storedValue = localStorage.getItem(key);
-    const dynamicTextElement = document.getElementById(elementId);
-
-    if (dynamicTextElement) {
-        dynamicTextElement.textContent = storedValue || defaultMessage;
-    }
-}
+const playerRankKey = "perunRank";
 
 function updatePlayerName() {
     const storedValue = localStorage.getItem(playerNameKey);
     const dynamicTextElement = document.getElementById("playerName");
     if(dynamicTextElement) {
         if (localStorage.getItem("perunUsername") === "SUSpicio" && localStorage.getItem("perunUUID") === "863718d4-8c34-4e02-9a5a-86563967124c") {
-            dynamicTextElement.innerHTML = 'SUSpicio <i class="fas fa-check-circle verified-icon">' || "?";
+            dynamicTextElement.innerHTML = 'SUSpicio <i class="fas fa-check-circle verified-icon"></i>';
         } else {
             dynamicTextElement.textContent = storedValue || "?";
         }
@@ -484,29 +480,33 @@ function updatePlayerPLN() {
       }
   }
 }
-function updatePlayerPoints() {
-  const storedValue = localStorage.getItem(playerPLNKey);
-  const dynamicTextElement = document.getElementById("playerPLN");
+function updatePlayerRank() {
+  const storedValue = localStorage.getItem(playerRankKey);
+  const dynamicTextElement = document.getElementById("playerRank");
 
-  if (dynamicTextElement) {
-      if (storedValue && !isNaN(storedValue)) {
-          dynamicTextElement.textContent = parseFloat(storedValue).toFixed(2) + " zł";
-      } else {
-          dynamicTextElement.textContent = "-";
-      }
-  }
+     if (storedValue && !isNaN(storedValue)) {
+        dynamicTextElement.innerHTML = parseInt(storedValue) + ' <i class="fas fa-star"></i>';
+    } else {
+        dynamicTextElement.innerHTML = '0 <i class="fas fa-star"></i>';
+    }
 }
 
 window.addEventListener("storage", (event) => {
     if (event.key === playerNameKey) {
         updatePlayerName();
-    } else if (event.key === playerPLNKey) {
+    }
+    if (event.key === playerRankKey) { // poprawiony klucz
+        updatePlayerRank();
+    }
+    if (event.key === playerPLNKey) {
         updatePlayerPLN();
     }
+
 });
 
 updatePlayerName();
 updatePlayerPLN();
+updatePlayerRank();
 
 function changeTheme(theme) {
   localStorage.setItem('theme', theme);
@@ -768,6 +768,12 @@ function resetSwitches() {
 }
 // Inicjalizacja po załadowaniu strony
 document.addEventListener("DOMContentLoaded", function () {
+    const storedSwitches = JSON.parse(localStorage.getItem("settingSwitches")) || [];
+
+    if (storedSwitches.length < settingSwitches.length) {
+        localStorage.setItem("settingSwitches", JSON.stringify(settingSwitches));
+        location.reload();
+    }
     initializeSwitches();
     restoreModalState(); // Przywróć zapisane modale przy załadowaniu strony
     initializeFontSizeSlider();
@@ -867,3 +873,126 @@ function toggleDropdown(dropdownId) {
       });
     }
   };
+
+  function scrollToSection(sectionId, gameContainerId) {
+    // Przewijanie na samą górę strony
+    if (sectionId === 0) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        modalClose('navigationModal');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+    }
+
+    // Przewijanie na sam dół strony
+    if (sectionId === 1) {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        modalClose('navigationModal');
+        return;
+    }
+
+    // Wybór elementu do przewinięcia
+    let targetElement;
+    if (sectionId === 'game-container' && gameContainerId) {
+        targetElement = document.getElementById(`game-container-${gameContainerId}`);
+    } else {
+        targetElement = document.getElementById(sectionId);
+    }
+
+    // Przewijanie do elementu z przesunięciem 150px w górę
+    if (targetElement) {
+        const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+        const offsetPosition = elementPosition - 125; // Przesunięcie 150px w górę
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+        modalClose('navigationModal');
+    }
+}
+
+// Opcjonalnie: dodaj obsługę klas dla wielu kontenerów gier
+document.querySelectorAll('.game-container').forEach((container, index) => {
+    container.id = `game-container-${index}`;
+});
+function updateRanking() {
+    fetch(`${API_URL}?action=getRankingData`, { method: 'GET' })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Błąd sieci: ' + response.status);
+      }
+      return response.json();
+    })
+    .then(ranking => {
+        // Sortowanie po punktach (malejąco)
+        ranking.sort((a, b) => {
+            const pointsDiff = parseInt(b.rank) - parseInt(a.rank);
+            return pointsDiff !== 0 ? pointsDiff : a.username.localeCompare(b.username);
+        });
+  
+        const tbody = document.getElementById('rankingBody');
+        tbody.innerHTML = '';
+        ranking.forEach((user, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.username}</td>
+            <td>${user.rank}</td>
+            <td>${user.points}</td>
+            <td>${parseFloat(user.pln).toFixed(2)}</td>
+            <td>${user.doneAchievements || '0'}/${achievementsData.length}</td>
+          `;
+          tbody.appendChild(row);
+        });
+        document.getElementById("rankingMessage").innerHTML='Ranking zaktualizowany: ' + new Date().toLocaleString();
+      })
+      .catch(error => {
+        console.error('Błąd podczas aktualizacji rankingu:', error);
+      });
+}
+
+// Funkcja wysyłająca dane z localStorage
+function sendLocalData() {
+    const perunUUID = localStorage.getItem('perunUUID') || '';
+    const perunUsername = localStorage.getItem('perunUsername') || 'Anonim';
+    const perunPoints = localStorage.getItem('perunPoints') || '0';
+    const perunRank = localStorage.getItem('perunRank') || '0';
+    const perunPLN = localStorage.getItem('perunPLN') || '0';
+    const doneAchievements = JSON.parse(localStorage.getItem('completedAchievementsIds') || '[]').length || 0;
+  
+    if (!perunUUID) {
+      console.warn('Brak perunUUID w localStorage');
+      return;
+    }
+  
+    const payload = {
+      action: "updateRankingFromLocal",
+      perunUUID: perunUUID,
+      perunUsername: perunUsername,
+      perunPoints: perunPoints,
+      perunRank: perunRank,
+      perunPLN: perunPLN,
+      doneAchievements: doneAchievements,
+      timestamp: new Date().toISOString()
+    };
+  
+    fetch(API_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+      .catch(error => {
+        console.error('Błąd podczas wysyłania danych:', error);
+      });
+}
+
+// Inicjalizacja przy załadowaniu strony
+document.addEventListener('DOMContentLoaded', function () {
+    updateRanking();
+    setInterval(updateRanking, 15000);
+    sendLocalData();
+    setInterval(sendLocalData, 5000);
+});

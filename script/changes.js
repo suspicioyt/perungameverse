@@ -1,5 +1,36 @@
 const tabsData = [
     {
+        name: "🛣️ Road Update",
+        version: "1.1.6.0",
+        date: "06.04.2025r.",
+        quote: "Wrum wrum",
+        backgroundImage: "https://thumbs.dreamstime.com/b/empty-road-mountain-background-sunny-day-alaska-summer-landscape-vivid-transportation-93436525.jpg",
+        paragraphs: [
+            {
+                title: "Nowości",
+                content: [
+                    "🤖 Modal Nawigacji i Modal Informacji",
+                    "???"
+                ]
+            },
+            {
+                title: "Gry",
+                content: [
+                    "🛠️ Dodano Scratch",
+                    "Aktualizacja BitCoin Miner i Automaty"
+                ]
+            },
+            {
+                title: "Zmiany",
+                content: [
+                    "🏗️ Zmiany w strukturze i wyglądzie HUBA",
+                    "Poprawki w hierarchicznym układaniu gier",
+                    "Aktualizacja nagłówka"
+                ]
+            }
+        ]
+    },
+    {
         name: "♣️ Casino Update",
         version: "1.1.5.4",
         date: "30.03.2025r.",
@@ -16,7 +47,7 @@ const tabsData = [
             {
                 title: "Zmiany",
                 content: [
-                    "🔧 Poprawki błędów",
+                    "🔧 Poprawki błędów"
                 ]
             }
         ]
@@ -475,10 +506,23 @@ const tabsData = [
         version: "leaks",
         quote: "Jeśli możesz sobie coś wymarzyć, możesz to zrobić.",
         paragraphs: [
+            {
+                title: "Konsola",
+                content: [
+                    '1. <a href="test/1.html" class="game-short-link" target="_blank">👀</a>',
+                    '2. <a href="test/2.html" class="game-short-link" target="_blank">👀</a>'
+                ]
+            },
+            {
+                title: "Powiadomienia",
+                content: [
+                    '<a href="test/4.html" class="game-short-link" target="_blank">👀</a>'
+                ]
+            }
         ]
     },
     {
-        name: "❓Pomoc",
+        name: "❓ Pomoc",
         version: "help",
         quote: "Pomoc i Często zadawane pytania",
         paragraphs: [
