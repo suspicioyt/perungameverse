@@ -105,7 +105,7 @@
         <h1>Bitcoin Miner</h1>
         <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg" alt="Bitcoin" class="bitcoin-icon" id="bitcoin">
         <div class="score" id="score">0.00000000 BTC</div>
-
+        <button buttonId="16" class="add-button">🐇</button>
         <div class="button-container">
             <button id="exchangeBtcToPlnButton">Wymień BTC na PLN</button>
             <input type="number" id="btcAmountInput" placeholder="Ile BTC wymienić?" step="0.00000001" min="0">
@@ -122,7 +122,7 @@
         <div class="score" id="perunBTC">Kurs BTC do PLN: Ładowanie...</div>
     </div>
     <div class="notification" id="notification">Zwolnij! Za szybkie klikanie!</div>
-
+    <script src="../script/event2.js"></script>
     <script>
         let score = parseFloat(localStorage.getItem('perunBTC')) || 0;
         let pln = parseFloat(localStorage.getItem('perunPLN')) || 0;

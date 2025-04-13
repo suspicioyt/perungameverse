@@ -2,7 +2,7 @@ const games = [
     {
         id: "01",
         name: "Sandbox",
-        link: "sandbox/index.html",
+        link: "game/sandbox.html",
         status: "Beta",
         tooltip: "Stwórz własny świat",
         classes: ["beta"],
@@ -11,20 +11,20 @@ const games = [
     {
         id: "02",
         name: "Pet Simulator",
-        link: "petsim/index.html",
-        status: "Testy",
-        tooltip: "Wykluwaj zwierzęta i niszcz sejfy",
-        classes: ["testy"],
+        link: "game/petsim.html",
+        status: "Beta",
+        tooltip: "Wykluwaj zwierzęta i niszcz struktury",
+        classes: ["beta"],
         ulubione: false
     },
     {
         id: "03",
         name: "RPG",
-        link: "rpghtml/index.html",
+        link: "game/rpg.html",
         status: "Testy",
         tooltip: 'Gra RPG w której wcielasz się w bohatera',
         classes: ["testy"],
-        ulubione: false
+        ulubione: true
     },
     {
         id: "04",
@@ -56,7 +56,7 @@ const games = [
     {
         id: "07",
         name: "Snake",
-        link: "snake/index.html",
+        link: "game/snake.html",
         status: "Konserwacje",
         tooltip: "Klasyczny Snake",
         classes: ["konserwacje"],
@@ -74,7 +74,7 @@ const games = [
     {
         id: "09",
         name: "Rizz Party Tycoon",
-        link: "rizzpartytycoon/index.html",
+        link: "game/rizzpartytycoon.html",
         status: "Beta",
         tooltip: "Stwórz imperium imprezowe",
         classes: ["beta"],
@@ -174,7 +174,7 @@ const games = [
     {
         id: "20",
         name: "Wisielec",
-        link: "wisielec/index.html",
+        link: "game/wisielec.html",
         status: "Konserwacje",
         tooltip: "Odgaduj słowa",
         classes: ["konserwacje"],
@@ -183,7 +183,7 @@ const games = [
     {
         id: "21",
         name: "Pizza Tycoon",
-        link: "pizza/index.html",
+        link: "game/pizza.html",
         status: "Beta",
         tooltip: "Stwórz fabrykę pizzy",
         classes: ["beta"],
@@ -191,15 +191,6 @@ const games = [
     },
     {
         id: "22",
-        name: "Cringe Party Tycoon",
-        link: "rizzpartytycoon/index2.html",
-        status: "Event",
-        tooltip: "Sciringuj innych",
-        classes: ["beta","event"],
-        ulubione: false
-    },
-    {
-        id: "23",
         name: "Automat",
         link: "game/machine.html",
         status: "Beta",
@@ -208,7 +199,7 @@ const games = [
         ulubione: false
     },
     {
-        id: "24",
+        id: "23",
         name: "Black Jack",
         link: "game/blackjack.html",
         status: "Konserwacje",
@@ -218,16 +209,34 @@ const games = [
         ulubione: false
     },
     {
-        id: "25",
+        id: "24",
         name: "Scratch",
         link: "game/scratch.html",
-        status: "Nowość",
+        status: "Beta",
         tooltip: "Stwórz algorytm dla duszka",
-        classes: ["beta","nowosc"],
+        classes: ["beta"],
+        ulubione: false
+    },
+    {
+        id: "25",
+        name: "2048",
+        link: "game/2048.html",
+        status: "Konserwacje",
+        tooltip: "Łącz kafelki",
+        classes: ["nowosc","konserwacje"],
+        ulubione: false
+    },
+    {
+        id: "26",
+        name: 'Jajka Wielkanocne',
+        link: "game/jajka.html",
+        status: "Event",
+        tooltip: "Łącz kafelki",
+        classes: ["nowosc","event"],
         ulubione: false
     },
     // {
-    //     id: "26",
+    //     id: "27",
     //     name: "Wordle",
     //     link: "game/wordle.html",
     //     status: "Konserwacje",
@@ -236,16 +245,7 @@ const games = [
     //     ulubione: false
     // },
     // {
-    //     id: "27",
-    //     name: "2048",
-    //     link: "game/2048.html",
-    //     status: "Konserwacje",
-    //     tooltip: "Łącz kafelki",
-    //     classes: ["nowosc","konserwacje"],
-    //     ulubione: false
-    // },
-        // {
-    //     id: "27",
+    //     id: "28",
     //     name: "Block Blast",
     //     link: "game/blockblast.html",
     //     status: "Beta",
@@ -253,6 +253,33 @@ const games = [
     //     classes: ["nowosc","beta"],
     //     ulubione: false
     // },
+    // {
+    //     id: "29",
+    //     name: "Wieża Hanoi",
+    //     link: "game/hanoitower.html",
+    //     status: "Konserwacje",
+    //     tooltip: "Przełuż dyski wieży",
+    //     classes: ["nowosc","konserwacje"],
+    //     ulubione: false
+    // },
+    // {
+    //     id: "30",
+    //     name: "Saper",
+    //     link: "game/saper.html",
+    //     status: "Konserwacje",
+    //     tooltip: "Znajdź wszystkie miny",
+    //     classes: ["nowosc","konserwacje"],
+    //     ulubione: false
+    // },
+        // {
+    //     id: "31",
+    //     name: "Basketball Game",
+    //     link: "game/basketballgame.html",
+    //     status: "Beta",
+    //     tooltip: "Rzucaj osobiste do kosza",
+    //     classes: ["nowosc","beta"],
+    //     ulubione: false
+    // }
 ];
 
 const switches = JSON.parse(localStorage.getItem("settingSwitches")) || defaultSwitches;
@@ -288,12 +315,15 @@ function toggleFavorite(gameId) {
 function loadGames() {
     const containers = document.querySelectorAll(".game-container");
     const lastPlayedGameId = localStorage.getItem('lastPlayedGame');
+    const lastPlayedSwitch = switches.find(s => s.switchId === "06");
     
     // Sortowanie: najpierw ostatnia grana, potem ulubione
     const sortedGames = games.sort((a, b) => {
         // Najwyższy priorytet: ostatnia grana gra
-        if (a.id === lastPlayedGameId) return -1;
-        if (b.id === lastPlayedGameId) return 1;
+        if (lastPlayedSwitch && lastPlayedSwitch.value) {
+            if (a.id === lastPlayedGameId) return -1;
+            if (b.id === lastPlayedGameId) return 1;
+        }
         // Drugi priorytet: ulubione
         if (a.ulubione && !b.ulubione) return -1;
         if (!a.ulubione && b.ulubione) return 1;
@@ -314,7 +344,7 @@ function loadGames() {
             gameBox.classList.add("game-box");
             gameBox.setAttribute('gameId', game.id);
 
-            if (game.id === lastPlayedGameId) {
+            if (game.id === lastPlayedGameId && (lastPlayedSwitch && lastPlayedSwitch.value)) {
                 gameBox.classList.add("lastPlayed");
                 const status = document.createElement("span");
                 status.innerHTML = "Ostatnio grane";
@@ -353,7 +383,7 @@ function loadGames() {
                 statusEnd.title = "Kliknij, aby skopiować link";
                 statusEnd.classList.add("game-status-internet");
                 statusEnd.addEventListener('click', function () {
-                    navigator.clipboard.writeText(game.internet);
+                    copyToClipboard(game.internet);
                 });
                 gameBox.appendChild(statusEnd);
             }
@@ -366,7 +396,7 @@ function loadGames() {
             }
 
             const title = document.createElement("h2");
-            title.textContent = game.name;
+            title.innerHTML = game.name;
             gameBox.appendChild(title);
 
             const link = document.createElement("a");

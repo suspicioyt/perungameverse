@@ -130,12 +130,14 @@
             background: #FF9800;
         }
  </style>
+ <link rel="stylesheet" href="../style/public.css">
 </head>
 <body>
  <header>
     <h1>Scratch</h1>
  </header>
  <div id="container">
+    <button buttonId="20" class="add-button">🐰</button>
     <div id="blocklyDiv"></div>
     <div id="resizeHandle"></div>
     <div id="stageArea">
@@ -149,7 +151,7 @@
         <input id="bgInput" type="text" placeholder="Wklej URL tła" onkeydown="if(event.key === 'Enter') setCustomBackground(this.value)">
     </div>
 </div>
-
+<script src="../script/event2.js"></script>
  <!-- Blockly -->
  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 <script>

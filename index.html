@@ -17,6 +17,7 @@
     <link rel="icon" type="image/x-icon" href="img/perun2.png">
 </head>
 <body>
+    <div id="notification-container" class="notification-container"></div>
     <header class="sticky">
         <div class="progress-container">
             <div class="progress-bar" id="myBar"></div>
@@ -29,6 +30,7 @@
             <h3>Najlepsze gry na wyciągnięcie ręki</h3>
         </div>
         <div id="user-info-container" onclick="modalOpen('playerInfoModal')" class="user-info" style="cursor: pointer;">
+            <button buttonId="7" class="add-button">🐇</button>
             <div id="playerName">?</div>
             <div id="playerPLN">?</div>
             <div id="playerRank">?</div>
@@ -46,9 +48,10 @@
             <a onclick="modalOpen('chatModal');scrollToBottom()" class="sidenavButton" title="Chat"><i class="fa-solid fa-comments"></i></a>
             <!-- <a onclick="modalOpen('rankingModal')" class="sidenavButton" title="Ranking"><i class="fa-solid fa-ranking-star"></i></a> -->
             <a onclick="modalOpen('aiModal')" class="sidenavButton" title="Perun AI"><i class="fa-solid fa-robot"></i></a>
-            <!-- <a onclick="modalOpen('consoleModal')" class="sidenavButton" title="Konsola"><i class="fas fa-terminal"></i></a> -->
+            <a onclick="modalOpen('consoleModal')" id="consoleButton" class="sidenavButton" title="Konsola"><i class="fas fa-terminal"></i></a>
             <a onclick="modalOpen('opinionModal')" class="sidenavButton" title="Feedback"><i class="fa-solid fa-paper-plane"></i></a>
             <a onclick="modalOpen('navigationModal')" class="sidenavButton" title="Nawigacja"><i class="fa-solid fa-compass"></i></a>
+            <a buttonId="1" class="add-button sidenavButton"><i class="fa-solid fa-egg"></i></a>
           </div>
         <div id="mainwindow">
             <div id="usernameDemoContainer" style="display: none;">
@@ -63,7 +66,7 @@
                         <button onclick="filterSelection('hot'); changeClass(this)">HOT</button>
                         <button onclick="filterSelection('event'); changeClass(this)">EVENT</button>
                         <button onclick="filterSelection('nowosc'); changeClass(this)">Nowości</button>
-                        <button onclick="filterSelection('ukonczona'); changeClass(this)">Ukończone</button>
+                        <button onclick="filterSelection('ukonczona'); changeClass(this)">Ukończone<button buttonId="13" class="add-button">🥚</button></button>
                         <button onclick="filterSelection('konserwacje'); changeClass(this)">Konserwacje</button>
                         <button onclick="filterSelection('beta'); changeClass(this)">Beta</button>
                         <button onclick="filterSelection('testy'); changeClass(this)">Testy</button>
@@ -80,7 +83,7 @@
                     <div class="slide" id="updateSlideshow"></div>
                 </div>
                 <div class="slides">
-                    <h1>Gry HOT!</h1>
+                    <h1>Gry HOT!<button buttonId="12" class="add-button">🐇</button></h1>
                     <div class="slide" id="hotSlideshow"></div>
                 </div>
                 <div class="slides">
@@ -88,10 +91,10 @@
                     <div class="slide" id="eventSlideshow"></div>
                 </div>
                 <div class="slides">
-                    <h1>BLOG Developerów!</h1>
+                    <h1>Blog Developerów!</h1>
                     <div class="slide" id="blogSlideshow">
                         <h3 class="blog">Zobacz jak wygląda HUB bez żadnych podpiętych skryptów - <a href="pusty/skrypt.html" class="game-short-link" target="_blank">👀</a></h3>
-                        <h3 class="blog">Zobacz jak wygląda HUB bez CSS odpowiedzialnego za kolory - <a href="pusty/kolory.html" class="game-short-link" target="_blank">👀</a></h3>
+                        <h3 class="blog"><button buttonId="11" class="add-button">🥚</button>Zobacz jak wygląda HUB bez CSS odpowiedzialnego za kolory - <a href="pusty/kolory.html" class="game-short-link" target="_blank">👀</a></h3>
                         <h3 class="blog">Zobacz jak wygląda HUB bez CSS odpowiedzialnego za budowę - <a href="pusty/budowa.html" class="game-short-link" target="_blank">👀</a></h3>
                     </div>
                 </div>
@@ -107,17 +110,36 @@
             <div class="game-container borderColorChange" max="12">
                 <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
             </div>
+            <div class="event-container">
+                <div class="events" id="easterEvent">
+                    <h1>Event wielkanocny!</h1>
+                    <div class="event-block">
+                        <h3>Ukończ wszystkie zadania by zdobyć odznakę Wielkanoc 2025</h3>
+                        <button buttonId="17" class="add-button">🐰</button>Zbierz wszystkie zające i jajka, które zostały rozrzucone po całej stronie: 
+                        <!-- Pasek dla tablicy w localStorage -->
+                        <div class="event-progress-container" 
+                             data-storage-key="easter2025Buttons" 
+                             data-total-buttons="20">
+                            <div class="event-progress-bar"></div>
+                        </div>
+                        Zdobądź 25 pkt. w Wielkanocne Jajka:
+                        <!-- Pasek dla pojedynczej wartości w localStorage -->
+                        <div class="event-progress-container" 
+                             data-storage-key="eventGameHighScore" 
+                             data-total-buttons="25">
+                            <div class="event-progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="game-container borderColorChange" max="12">
                 <button class="refreshButton"><i class="fas fa-redo" onclick="reloadGames()"></i></button>
             </div>
         </div>
     </main>
     <footer>
-        <p id="footerText">© 2025 Perun Studios & ChatGPT & Grok. Wszelkie prawa zastrzeżone. Wersja 1.0.0</p>
+        <p id="footerText">© 2025 Perun Gameverse & ChatGPT & Grok. Wszelkie prawa zastrzeżone. Wersja 1.0.0</p>
     </footer>
-
-
-
 
 
     <div id="updateModal" class="modal">
@@ -129,36 +151,11 @@
             <div id="tabContentsContainer">
                 <div style="text-align: center;" id="updt" class="tabcontent" style="display: block;">
                     <table>
-                        <thead>
-                            <tr>
-                            <th class="tg-0pky">Poniedziałek</th>
-                            <th class="tg-0pky">Wtorek</th>
-                            <th class="tg-0pky">Środa</th>
-                            <th class="tg-0pky">Czwartek</th>
-                            <th class="tg-0pky">Piątek</th>
-                            <th class="tg-0pky">Sobota</th>
-                            <th class="tg-0pky">Niedziela</th>
-                            </tr></thead>
+                        <thead><tr><th class="tg-0pky">Poniedziałek</th><th class="tg-0pky">Wtorek</th><th class="tg-0pky">Środa</th><th class="tg-0pky">Czwartek</th><th class="tg-0pky">Piątek</th><th class="tg-0pky">Sobota</th><th class="tg-0pky">Niedziela</th></tr></thead>
                         <tbody>
-                        <tr>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax">20:00</td>
-                        </tr>
-                        <tr>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax"></td>
-                            <td class="tg-0lax">Easter Update</td>
-                        </tr>
-                    </tbody>
+                            <tr><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax">20:00</td></tr>
+                            <tr><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax"></td><td class="tg-0lax">Major Update<button buttonId="6" class="add-button">🐇</button></td></tr>
+                        </tbody>
                     </table>
                     <b style="color: black;" id="demo"></b>
                 </div>
@@ -170,24 +167,28 @@
             <div class="firework"></div>
             <div class="firework"></div>
             <div class="firework"></div>
-            <h2>Witaj na PERUN STUDIOS HUB!</h2>
-            <p>Cieszymy się, że do nas dołączyłeś! Teraz możesz wybrać dowolną grę, jaką tylko chcesz. <br><b>Miłej zabawy!</b> <br>Ale najpierw wpisz swoją nazwę użytkownika.</p>
+            <h2>Witaj na PERUN GAMEVERSE!</h2>
+            <p>Cieszymy się, że do nas dołączyłeś! Teraz możesz zagrać w dowolną grę, jaką tylko chcesz. <br><b>Miłej zabawy!</b> <br>Ale najpierw wpisz swoją nazwę użytkownika.</p>
             <form id="usernameForm">
-                <input type="text" style="display: block;" id="usernameInput" placeholder="Twoja nazwa" required>
+                <input type="text" style="display: block;" id="usernameInput" placeholder="Twoja nazwa" required min="3" max="15">
                 <button id="saveUsernameBtn">Zapisz nazwę</button>
                 <p id="errorMessage">Proszę wpisać nazwę użytkownika.</p>
               </form>
         </div>
     </div>
     <div id="achievementModal" class="modal">
-        <h1>Osiągnięcia</h1>
+        <h1>
+            Osiągnięcia
+            <button buttonId="5" class="add-button">🐇</button>
+        </h1>
         <div class="modal-content" id="achievementModalContent" style="overflow-y: auto;">
-            <button class="refreshButton"><i class="fas fa-redo" onclick="reloadAchievements()"></i></button>
+            <!-- Treść będzie generowana dynamicznie w JS -->
         </div>
     </div>
     <div id="playerInfoModal" class="modal">
         <h1>Informacje</h1>
         <div class="modal-content">
+            <button buttonId="4" class="add-button">🥚</button>
         </div>
     </div>
     <div id="navigationModal" class="modal">
@@ -210,6 +211,10 @@
                     <div class="thumbnail-header">Gry 2</div>
                     <p>Lista dostępnych gier</p>
                 </div>
+                <div class="thumbnail-item" onclick="scrollToSection('easterEvent')">
+                    <div class="thumbnail-header">Event wielkanocny</div>
+                    <p>Sprawdź zadania z Eventu wielkanocnego<button buttonId="10" class="add-button">🐇</button></p>
+                </div>
                 <div class="thumbnail-item" onclick="scrollToSection('game-container','2')">
                     <div class="thumbnail-header">Gry 3</div>
                     <p>Lista dostępnych gier</p>
@@ -223,7 +228,7 @@
     </div>
     <div id="rankingModal" class="modal">
         <h1>Ranking</h1>
-        <div class="modal-content">
+        <div class="modal-content" style="overflow-y: auto;">
             <table id="rankingTable">
                 <thead>
                   <tr>
@@ -254,7 +259,7 @@
             </div>
         </div>
     </div>
-    <div id="settingsModal" class="modal">
+    <div id="settingsModal" class="modal" style="overflow-y: auto;">
         <h1>Ustawienia</h1>
         <div class="modal-content">
             <h2>Ustawienia</h2>
@@ -270,7 +275,10 @@
             <label class="switch"><input type="checkbox" switchId="02"><span class="slider round"></span></label><label>Zapis modali</label><br>
             <label class="switch"><input type="checkbox" switchId="03"><span class="slider round"></span></label><label>Ładowanie obrazów na Chacie</label><br>
             <label class="switch"><input type="checkbox" switchId="04"><span class="slider round"></span></label><label>Ukrywanie zbanowanych słów na Chacie</label><br>
+            <label class="switch"><input type="checkbox" switchId="06"><span class="slider round"></span></label><label>Ostatnio grana gra</label><br>
+            <label class="switch"><input type="checkbox" switchId="07"><span class="slider round"></span></label><label>Powiadomienia</label><br>
             <label class="switch"><input type="checkbox" switchId="05"><span class="slider round"></span></label><label>???</label><br>
+            <button buttonId="3" class="add-button">🥚</button>
             <button onclick="resetSwitches();initializeSwitches()">Reset</button>
         </div>
     </div>
@@ -308,7 +316,7 @@
                     <span onclick="addEmoji('👍')">👍</span>
                     <span onclick="addEmoji('😢')">😢</span>
                     <span onclick="addEmoji('🔥')">🔥</span>
-                    <span onclick="addEmoji('🐇')">🐇</span>
+                    <span onclick="addEmoji('🐇')"><button buttonId="2" class="add-button">🐇</button></span>
                 </div>
             </div>
         </div>
@@ -337,30 +345,36 @@
     <div id="ownGameModal" class="modal">
         <h1>Własna gra</h1>
         <div class="modal-content">
-            <div id="slide1" class="slide active">
-                <h2>1. Tytuł strony</h2>
-                <textarea id="titleInput" placeholder="Wpisz tytuł swojej strony..."></textarea>
-            </div>
+            <div class="pageBuilderContainer">
+                <div id="pageBuilderSlide1" class="pageBuilderSlide active">
+                    <h2>1. Tytuł strony</h2>
+                    <textarea id="pageBuilderTitle" class="pageBuilderTextarea" placeholder="Wpisz tytuł swojej strony..."></textarea>
+                </div>
         
-            <div id="slide2" class="slide">
-                <h2>2. Treść (body)</h2>
-                <textarea id="bodyInput" placeholder="Wpisz kod HTML dla body..."></textarea>
-            </div>
+                <div id="pageBuilderSlide2" class="pageBuilderSlide">
+                    <h2>2. Treść (body)</h2>
+                    <textarea id="pageBuilderBody" class="pageBuilderTextarea" placeholder="Wpisz kod HTML dla body..."></textarea>
+                </div>
         
-            <div id="slide3" class="slide">
-                <h2>3. Style (CSS)</h2>
-                <textarea id="styleInput" placeholder="Wpisz kod CSS..."></textarea>
-            </div>
+                <div id="pageBuilderSlide3" class="pageBuilderSlide">
+                    <h2>3. Style (CSS)</h2>
+                    <textarea id="pageBuilderStyle" class="pageBuilderTextarea" placeholder="Wpisz kod CSS..."></textarea>
+                </div>
         
-            <div id="slide4" class="slide">
-                <h2>4. Skrypt (JavaScript)</h2>
-                <textarea id="scriptInput" placeholder="Wpisz kod JavaScript..."></textarea>
-            </div>
+                <div id="pageBuilderSlide4" class="pageBuilderSlide">
+                    <h2>4. Skrypt (JavaScript)</h2>
+                    <textarea id="pageBuilderScript" class="pageBuilderTextarea" placeholder="Wpisz kod JavaScript..."></textarea>
+                </div>
         
-            <div class="navigation">
-                <button onclick="prevSlide()">Poprzedni</button>
-                <button onclick="nextSlide()">Następny</button>
-                <button onclick="saveAndPreview()">Zapisz i Podgląd</button>
+                <div class="pageBuilderNav">
+                    <button id="pageBuilderPrevBtn" class="pageBuilderButton" onclick="pageBuilderPrevSlide()">Poprzedni</button>
+                    <button id="pageBuilderNextBtn" class="pageBuilderButton" onclick="pageBuilderNextSlide()">Następny</button>
+                    <button class="pageBuilderButton" onclick="pageBuilderSaveAndPreview()">Zapisz i Podgląd</button>
+                    <button class="pageBuilderButton" onclick="pageBuilderExport()">Eksportuj</button>
+                    <button class="pageBuilderButton" onclick="pageBuilderClear()">Wyczyść</button>
+                </div>
+        
+                <div class="pageBuilderStatus" id="pageBuilderStatus">Zapisano: Nigdy</div>
             </div>
         </div>
     </div>
@@ -406,8 +420,7 @@
     <div class="loader-container loading-screen" id="loader">
         <div class="text">
             <span class="word1">Perun </span>
-            <span class="word2">Studios </span>
-            <span class="word3">Gameverse</span>
+            <span class="word2">Gameverse</span>
         </div>
         <div class="siteLoadingSpinner"></div>
     </div>
@@ -417,7 +430,8 @@
     <script src="script/changes.js"></script>
     <script src="script/chat.js"></script>
     <script src="script/console.js"></script>
-    <script src="script/event.js"></script>
+    <script src="script/notifications.js"></script>
     <script src="script/script2.js"></script>
+    <script src="script/event.js"></script>
 </body>
 </html>

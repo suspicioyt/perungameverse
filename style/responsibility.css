@@ -1,16 +1,14 @@
 @media (max-width: 1024px) {
     .game-box {
-        width: calc(50% - 40px); /* Dostosowanie szerokości dla średnich ekranów */
+        width: calc(50% - 40px);
     }
-
     .search-bar {
         margin-right: 0;
     }
 }
-
 @media (max-width: 768px) {
     .game-box {
-        width: calc(100% - 40px); /* Pełna szerokość pudełek gier na mniejszych ekranach */
+        width: calc(100% - 40px);
     }
     header #headertytul h1 {
         font-size: 38px;
@@ -28,22 +26,18 @@
         width: 50px;
         height: 50px;
     }
-
     .modal-content {
         width: 90%;
         padding: 15px;
     }
-
     .tab {
         width: 100%;
         height: auto;
         margin-bottom: 10px;
     }
-
     .tabcontent {
         width: 100%;
     }
-
     .tab button {
         font-size: 16px;
         padding: 16px;
@@ -52,13 +46,11 @@
 
 @media (max-width: 480px) {
     .game-box {
-        width: calc(100% - 40px); /* Pełna szerokość pudełek gier */
+        width: calc(100% - 40px);
     }
-
     header h1 {
-        font-size: 36px; /* Dostosowanie wielkości czcionki dla nagłówka */
+        font-size: 36px;
     }
-
     .modal-content {
         width: 90%;
         padding: 15px;
@@ -68,7 +60,6 @@
     #updates table {
         font-size: 12px;
     }
-
     #updates th,
     #updates td {
         padding: 6px 8px;
@@ -77,26 +68,36 @@
 @media screen and (max-height: 450px) {
     #sidenav {padding-top: 15px;}
     #sidenav a {font-size: 18px;}
-  }
-  @media (max-width: 600px) {
+}
+@media (max-width: 600px) {
     .aiContainer {
         padding: 10px;
-        height: 70vh; /* Mniejsza wysokość na mobile */
+        height: 70vh;
     }
-
     .chat-box {
         max-height: calc(100% - 60px);
     }
-
     .message {
         font-size: 14px;
         padding: 10px 12px;
-        max-width: 85%; /* Szersze na mniejszych ekranach */
+        max-width: 85%;
     }
-
     .aiContainer input,
     .aiContainer button {
         font-size: 14px;
         padding: 10px 12px;
+    }
+}
+@media (max-width: 600px) {
+    table, th, td {
+      font-size: 0.85em;
+      padding: 12px;
+    }
+    h1 {
+      font-size: 2em;
+    }
+    button {
+      padding: 12px 25px;
+      font-size: 1em;
     }
 }

@@ -1,5 +1,37 @@
 const tabsData = [
     {
+        name: "🐇 Easter 2025 Update",
+        version: "1.1.6.1",
+        date: "13.04.2025r.",
+        quote: "Bo pamiętam, że jest poranek wielkanocny, A życie, miłość i pokój są nowe",
+        backgroundImage: "https://t3.ftcdn.net/jpg/03/26/31/64/360_F_326316438_gNqHTAtNTZBc2sxk0LYBUbDea26tU6e0.jpg",
+        paragraphs: [
+            {
+                title: "Nowości",
+                content: [
+                    "🧑‍💻 Konsola",
+                    '<button buttonId="8" class="add-button">🐇</button>Event wielkanocny',
+                    "🏅 Odznaki",
+                    "📣 Powiadomienia"
+                ]
+            },
+            {
+                title: "Gry",
+                content: [
+                    "🕹️ Dodano 2048, Jajka Wielkanocne",
+                    "🔧 Zaktualizowano Pet Simulator i Black Jack"
+                ]
+            },
+            {
+                title: "Zmiany",
+                content: [
+                    "🏗️ Zmiany w wyglądzie HUBA",
+                    "🛠️ Zaktualizowano Dziennik Zmian i Osiągnięcia"
+                ]
+            }
+        ]
+    },
+    {
         name: "🛣️ Road Update",
         version: "1.1.6.0",
         date: "06.04.2025r.",
@@ -9,23 +41,23 @@ const tabsData = [
             {
                 title: "Nowości",
                 content: [
-                    "🤖 Modal Nawigacji i Modal Informacji",
+                    "🧭 Modal Nawigacji i Modal Informacji",
                     "???"
                 ]
             },
             {
                 title: "Gry",
                 content: [
-                    "🛠️ Dodano Scratch",
-                    "Aktualizacja BitCoin Miner i Automaty"
+                    "😺 Dodano Scratch",
+                    "🔧 Aktualizacja BitCoin Miner i Automaty"
                 ]
             },
             {
                 title: "Zmiany",
                 content: [
                     "🏗️ Zmiany w strukturze i wyglądzie HUBA",
-                    "Poprawki w hierarchicznym układaniu gier",
-                    "Aktualizacja nagłówka"
+                    "👑 Poprawki w hierarchicznym układaniu gier",
+                    "🛠️ Aktualizacja nagłówka"
                 ]
             }
         ]
@@ -299,7 +331,7 @@ const tabsData = [
         ]
     },
     {
-        name: "🎄 Christmas Update",
+        name: "🎄 Christmas 2024 Update",
         version: "1.1.3.1",
         date: "22.12.2024r.",
         quote: "Last Christmas, I gave you my heart",
@@ -502,7 +534,7 @@ const tabsData = [
         ]
     },
     {
-        name: "👀 Leaki",
+        name: '👀<button buttonId="9" class="add-button">🥚</button> Leaki',
         version: "leaks",
         quote: "Jeśli możesz sobie coś wymarzyć, możesz to zrobić.",
         paragraphs: [
@@ -573,7 +605,7 @@ function loadTabs() {
 
     tabsData.forEach((tab, index) => {
         const tabButton = document.createElement("button");
-        tabButton.textContent = tab.name;
+        tabButton.innerHTML = tab.name;
         tabButton.classList.add("tablinks");
         tabButton.setAttribute("onclick", `openTab(event, 'tab${index}')`);
         tabsContainer.appendChild(tabButton);
@@ -584,6 +616,10 @@ function loadTabs() {
 
         if (tab.backgroundImage) {
             tabContent.style.backgroundImage = `url(${tab.backgroundImage})`;
+            tabContent.style.backgroundSize = "cover";
+            tabContent.style.backgroundPosition = "center";
+            tabContent.style.backgroundRepeat = "no-repeat";
+
         }
 
         tabContent.innerHTML = `
@@ -620,6 +656,15 @@ function loadTabs() {
                 tabContent.appendChild(p);
             }
         });
+        if (tab.backgroundImage) {
+            const p = document.createElement("cite");
+            p.innerHTML = "Tło";
+            p.style.cursor="pointer";
+            p.addEventListener('click', function () {
+                copyToClipboard(tab.backgroundImage);
+            });
+            tabContent.appendChild(p);
+        }
 
         tabContentsContainer.appendChild(tabContent);
     });
@@ -683,7 +728,7 @@ function loadUpdateSlideshow() {
 function loadVersion() {
     const footerElement = document.getElementById('footerText');
     if (footerElement && tabsData[0]?.version) {
-        footerElement.innerHTML = `© 2025 Perun Studios & ChatGPT & Grok. Wszelkie prawa zastrzeżone. Wersja ${tabsData[0].version}<br>Tło: ${tabsData[0].backgroundImage}`;
+        footerElement.innerHTML = `© 2025 Perun Gameverse & ChatGPT & Grok. Wszelkie prawa zastrzeżone. Wersja ${tabsData[0].version}<br>Tło: <span onclick="copyToClipboard(tabsData[0].backgroundImage)" style="cursor:pointer">${tabsData[0].backgroundImage}</span>`;
     } else {
         console.warn("Nie udało się załadować wersji. Sprawdź, czy tabsData.first.version jest poprawnie zdefiniowane.");
     }

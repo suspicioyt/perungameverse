@@ -82,7 +82,6 @@
     90% { opacity: 1; }
     100% { opacity: 0; visibility: hidden; }
 }
-/* Animacja tekstu */
 @keyframes textFadeIn {
     0% { opacity: 0; transform: translateY(-50px); }
     30% { opacity: 1; transform: translateY(0); }
@@ -98,7 +97,7 @@
     100% { transform: rotate(360deg); }
 }
 @keyframes fadeInUp {
-    0% { opacity: 0; transform: translateY(15px); } /* Zmniejszona odległość */
+    0% { opacity: 0; transform: translateY(15px); }
     100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes gradient {
@@ -111,8 +110,8 @@
     100% {
         background-position: 0% 0%;
     }
-  }
-  @keyframes flicker {
+}
+@keyframes flicker {
 	0%,
 	100% {
 		background-color: red;

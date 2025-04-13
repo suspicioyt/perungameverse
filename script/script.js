@@ -4,23 +4,13 @@ const settingSwitches = [
     { switchId: "03", value: true },//ładowanie obrazów na Chacie
     { switchId: "04", value: true },//ukrywanie zbanowanych słów na Chacie
     { switchId: "05", value: false },//???
-    { switchId: "06", value: false },
-    { switchId: "07", value: false },
+    { switchId: "06", value: true },//ostatnio grana gra
+    { switchId: "07", value: true },//powiadomienia
     { switchId: "08", value: false },
     { switchId: "09", value: false },
     { switchId: "10", value: false },
-    { switchId: "11", value: false },
-    { switchId: "12", value: false },
-    { switchId: "13", value: false },
-    { switchId: "14", value: false },
-    { switchId: "15", value: false },
-    { switchId: "16", value: false },
-    { switchId: "17", value: false },
-    { switchId: "18", value: false },
-    { switchId: "19", value: false },
-    { switchId: "20", value: false },
 ];
-var countDownDate = new Date("Apr 13, 2025 20:00:00").getTime();
+var countDownDate = new Date("Apr 27, 2025 20:00:00").getTime();
 const API_URL = "https://script.google.com/macros/s/AKfycbwel-hMu178BUi2a-1E4Phg9-Vm8rjGicaHxGbEc0dkiE2y6keeT2KDugUbwk2J9P1dVw/exec";
 
 
@@ -107,7 +97,7 @@ function updateGameContainers(filteredGames) {
           gameBox.classList.add("game-box");
           gameBox.setAttribute('gameId', game.id);
 
-          if (game.id === lastPlayedGameId) {
+          if (game.id === lastPlayedGameId && (lastPlayedSwitch && lastPlayedSwitch.value)) {
               gameBox.classList.add("lastPlayed");
               const status = document.createElement("span");
               status.innerHTML = "Ostatnio grane";
@@ -347,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById("errorMessage").style.display = 'block';
       return;
     }    
-    if (username) {
+    if (username && username.length>3 && username.length<15) {
       localStorage.setItem("perunUsername", username);
 
       const linkToRemove = document.getElementById('fireworksStyles');
@@ -750,6 +740,10 @@ function toggleSwitch(switchId) {
     let switches = JSON.parse(localStorage.getItem("settingSwitches"));
     const switchIndex = switches.findIndex(s => s.switchId === switchId);
 
+    notification("Zmiana ustawień wymaga odświeżenia strony", "reload", {
+        actions: [{ label: "Odśwież stronę", callback: () => location.reload() }]
+    });
+
     if (switchIndex !== -1) {
         switches[switchIndex].value = !switches[switchIndex].value;
         localStorage.setItem("settingSwitches", JSON.stringify(switches));
@@ -770,7 +764,7 @@ function resetSwitches() {
 document.addEventListener("DOMContentLoaded", function () {
     const storedSwitches = JSON.parse(localStorage.getItem("settingSwitches")) || [];
 
-    if (storedSwitches.length < settingSwitches.length) {
+    if (storedSwitches.length != settingSwitches.length) {
         localStorage.setItem("settingSwitches", JSON.stringify(settingSwitches));
         location.reload();
     }
@@ -924,10 +918,12 @@ function updateRanking() {
       return response.json();
     })
     .then(ranking => {
-        // Sortowanie po punktach (malejąco)
         ranking.sort((a, b) => {
-            const pointsDiff = parseInt(b.rank) - parseInt(a.rank);
-            return pointsDiff !== 0 ? pointsDiff : a.username.localeCompare(b.username);
+            const rankDiff = parseInt(b.rank) - parseInt(a.rank);
+            if (rankDiff !== 0) return rankDiff;
+            const pointsDiff = parseInt(b.points) - parseInt(a.points);
+            if (pointsDiff !== 0) return pointsDiff;
+            return parseFloat(b.pln) - parseFloat(a.pln);
         });
   
         const tbody = document.getElementById('rankingBody');
@@ -996,3 +992,172 @@ document.addEventListener('DOMContentLoaded', function () {
     sendLocalData();
     setInterval(sendLocalData, 5000);
 });
+document.addEventListener('DOMContentLoaded', function () {
+    const developerSwitch = switches.find(s => s.switchId === "01");
+    if (developerSwitch && developerSwitch.value) {
+        document.getElementById("consoleButton").style.display="block";
+    } else {
+        document.getElementById("consoleButton").style.display="none";     
+    }
+});
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+    quickNotification("Skopiowano do schowka!");
+}
+
+const pageBuilder = {
+    currentSlide: 1,
+    totalSlides: 4,
+    storageKey: 'pageBuilder_pages',
+    pages: [],
+    lastSaveTime: null,
+    previewWindow: null,
+
+    init: function() {
+        this.loadPage();
+        this.addInputListeners();
+        this.updateNavigation();
+        this.updateStatus();
+    },
+
+    loadPage: function() {
+        const savedPages = localStorage.getItem(this.storageKey);
+        this.pages = savedPages ? JSON.parse(savedPages) : [this.createEmptyPage()];
+        this.loadCurrentData();
+    },
+
+    createEmptyPage: function() {
+        return { title: '', body: '', style: '', script: '' };
+    },
+
+    loadCurrentData: function() {
+        const page = this.pages[0];
+        document.getElementById('pageBuilderTitle').value = page.title;
+        document.getElementById('pageBuilderBody').value = page.body;
+        document.getElementById('pageBuilderStyle').value = page.style;
+        document.getElementById('pageBuilderScript').value = page.script;
+    },
+
+    savePage: function() {
+        this.pages[0] = {
+            title: document.getElementById('pageBuilderTitle').value,
+            body: document.getElementById('pageBuilderBody').value,
+            style: document.getElementById('pageBuilderStyle').value,
+            script: document.getElementById('pageBuilderScript').value
+        };
+        localStorage.setItem(this.storageKey, JSON.stringify(this.pages));
+        this.lastSaveTime = new Date();
+        this.updateStatus();
+    },
+
+    addInputListeners: function() {
+        ['Title', 'Body', 'Style', 'Script'].forEach(field => {
+            document.getElementById(`pageBuilder${field}`).addEventListener('input', () => {
+                this.savePage();
+            });
+        });
+    },
+
+    updateNavigation: function() {
+        document.getElementById('pageBuilderPrevBtn').disabled = this.currentSlide === 1;
+        document.getElementById('pageBuilderNextBtn').disabled = this.currentSlide === this.totalSlides;
+    },
+
+    updateStatus: function() {
+        const status = document.getElementById('pageBuilderStatus');
+        status.textContent = this.lastSaveTime 
+            ? `Zapisano: ${this.lastSaveTime.toLocaleTimeString()}`
+            : 'Zapisano: Nigdy';
+    }
+};
+
+function pageBuilderShowSlide(slideNum) {
+    for (let i = 1; i <= pageBuilder.totalSlides; i++) {
+        document.getElementById(`pageBuilderSlide${i}`).classList.remove('active');
+    }
+    document.getElementById(`pageBuilderSlide${slideNum}`).classList.add('active');
+    pageBuilder.updateNavigation();
+}
+
+function pageBuilderNextSlide() {
+    if (pageBuilder.currentSlide < pageBuilder.totalSlides) {
+        pageBuilder.currentSlide++;
+        pageBuilderShowSlide(pageBuilder.currentSlide);
+    }
+}
+
+function pageBuilderPrevSlide() {
+    if (pageBuilder.currentSlide > 1) {
+        pageBuilder.currentSlide--;
+        pageBuilderShowSlide(pageBuilder.currentSlide);
+    }
+}
+
+function pageBuilderSaveAndPreview() {
+    pageBuilder.savePage();
+    
+    const page = pageBuilder.pages[0];
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${page.title}</title>
+            <style>${page.style}</style>
+        </head>
+        <body>
+            ${page.body}
+            <script>${page.script}<\/script>
+        </body>
+        </html>
+    `;
+
+    // Zamykamy poprzednie okno, jeśli istnieje
+    if (pageBuilder.previewWindow && !pageBuilder.previewWindow.closed) {
+        pageBuilder.previewWindow.close();
+    }
+
+    // Otwieramy nowe okno
+    pageBuilder.previewWindow = window.open('', '_blank');
+    if (pageBuilder.previewWindow) {
+        pageBuilder.previewWindow.document.open();
+        pageBuilder.previewWindow.document.write(htmlContent);
+        pageBuilder.previewWindow.document.close();
+    } else {
+        alert('Nie udało się otworzyć podglądu. Sprawdź, czy przeglądarka nie blokuje wyskakujących okien.');
+    }
+}
+
+function pageBuilderExport() {
+    pageBuilder.savePage();
+    const page = pageBuilder.pages[0];
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+<title>${page.title}</title>
+<style>${page.style}</style>
+</head>
+<body>
+${page.body}
+<script>${page.script}<\/script>
+</body>
+</html>`;
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${page.title || 'strona'}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function pageBuilderClear() {
+    if (confirm('Czy na pewno chcesz wyczyścić wszystkie dane?')) {
+        pageBuilder.pages[0] = pageBuilder.createEmptyPage();
+        pageBuilder.loadCurrentData();
+        pageBuilder.savePage();
+    }
+}
+
+// Initialize
+pageBuilder.init();

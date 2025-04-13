@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG | Perun Studios</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="../img/perun2.png">
+    <style>
+        /* Globalny styl */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding-top: 20px;
+    text-align: center;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Modal styl */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    color: black;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Witaj w grze RPG</h1>
+        <button class="button" id="startGameBtn">Rozpocznij Grę</button>
+
+        <!-- Modal dla statystyk -->
+        <div id="statsModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="statsClose">&times;</span>
+                <h2>Twoje Statystyki</h2>
+                <p><strong>Imię:</strong> <span id="playerName">Gracz</span></p>
+                <p><strong>Zdrowie:</strong> <span id="playerHealth">100</span></p>
+                <p><strong>Poziom:</strong> <span id="playerLevel">1</span></p>
+                <p><strong>Doświadczenie:</strong> <span id="playerExperience">0</span></p>
+                <p><strong>Złoto:</strong> <span id="playerGold">0</span></p>
+                <p><strong>Atak:</strong> <span id="playerAttack">20</span></p>
+                <button class="button" onclick="triggerRandomEvent()">Losowe Zdarzenie</button>
+                <button class="button" onclick="openShop()">Sklep</button>
+            </div>
+        </div>
+
+        <!-- Modal dla sklepu -->
+        <div id="shopModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="shopClose">&times;</span>
+                <h2>Sklep</h2>
+                <button class="button" onclick="buyItem('Miecz')">Kup Miecz (100 złota)</button>
+                <button class="button" onclick="buyItem('Zbroja')">Kup Zbroję (150 złota)</button>
+                <button class="button" onclick="buyItem('Eliksir')">Kup Eliksir (50 złota)</button>
+            </div>
+        </div>
+
+        <!-- Modal dla walki -->
+        <div id="fightModal" class="modal">
+            <div class="modal-content">
+                <button class="close" id="fightClose" onclick="closeModal(fightModal)">&times;</button>
+                <h2>Walcz z przeciwnikiem!</h2>
+                <p><strong>Przeciwnik:</strong> <span id="enemyName">Goblin</span></p>
+                <p><strong>Zdrowie przeciwnika:</strong> <span id="enemyHealth">50</span></p>
+                <p><strong>Twoje zdrowie:</strong> <span id="playerHealthFight">100</span></p>
+
+                <button class="button" onclick="attackEnemy()">Atakuj Mieczem</button>
+                <button class="button" onclick="defend()">Bronić się Tarczą</button>
+                <button class="button" onclick="heal()">Leczyć się</button>
+                <button class="button" onclick="usePotion()">Użyj Eliksiru</button>
+            </div>
+        </div>
+
+        <!-- Modal dla powiadomień -->
+        <div id="notificationModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="notificationClose">&times;</span>
+                <h2>Powiadomienie</h2>
+                <p id="notificationText"></p>
+                <button class="button" onclick="closeModal('notificationModal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gracz
+let player = {
+    name: "Gracz",
+    health: 100,
+    level: 1,
+    experience: 0,
+    gold: 0,
+    attack: 20,
+    potions: 3,
+};
+
+// Przeciwnik
+let enemy = {
+    name: "Goblin",
+    health: 50,
+    attack: 15
+};
+
+// Start gry
+document.getElementById("startGameBtn").addEventListener("click", startGame);
+
+function startGame() {
+    openModal("statsModal");
+}
+
+// Otwarcie modala
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = "block";
+}
+
+// Zamknięcie modala
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+}
+
+// Losowe zdarzenie
+function triggerRandomEvent() {
+    const event = Math.random();
+    if (event < 0.33) {
+        openNotification('Znalazłeś złoto! +50');
+        player.gold += 50;
+    } else if (event < 0.66) {
+        openNotification("Spotkałeś wroga! Walka!");
+        triggerFight();
+    } else {
+        openNotification("Nic się nie stało, przechodzisz dalej.");
+    }
+}
+
+// Powiadomienie
+function openNotification(message) {
+    document.getElementById("notificationText").innerHTML = message;
+    openModal("notificationModal");
+}
+
+// Sklep
+function openShop() {
+    openModal("shopModal");
+}
+
+function buyItem(item) {
+    if (item === 'Miecz' && player.gold >= 100) {
+        player.attack += 10;
+        player.gold -= 100;
+        openNotification("Kupiono Miecz! +10 do ataku");
+    } else if (item === 'Zbroja' && player.gold >= 150) {
+        player.health += 20;
+        player.gold -= 150;
+        openNotification("Kupiono Zbroję! +20 do zdrowia");
+    } else if (item === 'Eliksir' && player.gold >= 50) {
+        player.potions += 1;
+        player.gold -= 50;
+        openNotification("Kupiono Eliksir!");
+    } else {
+        openNotification("Nie masz wystarczająco złota.");
+    }
+}
+
+// Walki
+function triggerFight() {
+    openModal("fightModal");
+    document.getElementById("enemyName").textContent = enemy.name;
+    document.getElementById("enemyHealth").textContent = enemy.health;
+    document.getElementById("playerHealthFight").textContent = player.health;
+}
+
+function attackEnemy() {
+    const damage = Math.floor(Math.random() * (player.attack / 2)) + 1;
+    enemy.health -= damage;
+    openNotification(`Zadałeś ${damage} obrażeń ${enemy.name}!`);
+    if (enemy.health <= 0) {
+        openNotification(`${enemy.name} został pokonany!`);
+        player.experience += 10;
+        player.gold += 20;
+        closeModal("fightModal");
+    } else {
+        enemyAttack();
+    }
+}
+
+function enemyAttack() {
+    const damage = Math.floor(Math.random() * enemy.attack) + 5;
+    player.health -= damage;
+    openNotification(`${enemy.name} atakuje! Zadał Ci ${damage} obrażeń.`);
+    if (player.health <= 0) {
+        openNotification("Zostałeś pokonany... Game Over!");
+        closeModal("fightModal");
+    }
+}
+
+function defend() {
+    openNotification("Bronisz się tarczą!");
+    enemyAttack();
+}
+
+function heal() {
+    if (player.potions > 0) {
+        const healing = 30;
+        player.health += healing;
+        player.potions--;
+        openNotification(`Używasz eliksiru! Odzyskałeś ${healing} zdrowia.`);
+        enemyAttack();
+    } else {
+        openNotification("Brak eliksirów!");
+    }
+}
+
+// Zakończenie gry
+function endGame() {
+    openNotification("Koniec gry!");
+}
+
+    </script>
+</body>
+</html>

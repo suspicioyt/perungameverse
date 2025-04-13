@@ -15,3 +15,19 @@
     border-radius: 5px;
     padding: 1px;
 }
+.event-progress-container {
+    width: 100%;
+    background-color: var(--primary-background-color);
+    border-radius: 5px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.event-progress-bar {
+    height: 20px;
+    background-color: var(--button-color); /* Zielony kolor, możesz zmienić */
+    text-align: center;
+    line-height: 20px;
+    color: var(--secondary-text-color);
+    transition: width 0.3s ease-in-out;
+}
