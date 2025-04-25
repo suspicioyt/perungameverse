@@ -29,7 +29,7 @@
             <h1>PERUN GAMEVERSE</h1>
             <h3>Najlepsze gry na wyciągnięcie ręki</h3>
         </div>
-        <div id="user-info-container" onclick="modalOpen('playerInfoModal')" class="user-info" style="cursor: pointer;">
+        <div id="user-info-container" onclick="Modal.open('playerInfoModal')" class="user-info" style="cursor: pointer;">
             <button buttonId="7" class="add-button">🐇</button>
             <div id="playerName">?</div>
             <div id="playerPLN">?</div>
@@ -41,16 +41,17 @@
     <div id="parallaxEnd"></div>
     <main>
         <div id="sidenav">
-            <a onclick="modalOpen('updateModal')" class="sidenavButton" title="Dziennik Zmian"><i class="fa-solid fa-clipboard-list"></i></a>
-            <a onclick="modalOpen('achievementModal')" class="sidenavButton" title="Osiągnięcia"><i class="fa-solid fa-trophy"></i></a>
-            <a onclick="modalOpen('settingsModal')" class="sidenavButton" title="Ustawienia"><i class="fa-solid fa-cog"></i></a>
-            <a onclick="modalOpen('personalizationModal')" class="sidenavButton" title="Personalizacje"><i class="fa-solid fa-palette"></i></a>
-            <a onclick="modalOpen('chatModal');scrollToBottom()" class="sidenavButton" title="Chat"><i class="fa-solid fa-comments"></i></a>
-            <!-- <a onclick="modalOpen('rankingModal')" class="sidenavButton" title="Ranking"><i class="fa-solid fa-ranking-star"></i></a> -->
-            <a onclick="modalOpen('aiModal')" class="sidenavButton" title="Perun AI"><i class="fa-solid fa-robot"></i></a>
-            <a onclick="modalOpen('consoleModal')" id="consoleButton" class="sidenavButton" title="Konsola"><i class="fas fa-terminal"></i></a>
-            <a onclick="modalOpen('opinionModal')" class="sidenavButton" title="Feedback"><i class="fa-solid fa-paper-plane"></i></a>
-            <a onclick="modalOpen('navigationModal')" class="sidenavButton" title="Nawigacja"><i class="fa-solid fa-compass"></i></a>
+            <a onclick="Modal.open('updateModal')" class="sidenavButton" title="Dziennik Zmian"><i class="fa-solid fa-clipboard-list"></i></a>
+            <a onclick="Modal.open('achievementModal')" class="sidenavButton" title="Osiągnięcia"><i class="fa-solid fa-trophy"></i></a>
+            <a onclick="Modal.open('settingsModal')" class="sidenavButton" title="Ustawienia"><i class="fa-solid fa-cog"></i></a>
+            <a onclick="Modal.open('personalizationModal')" class="sidenavButton" title="Personalizacje"><i class="fa-solid fa-palette"></i></a>
+            <a onclick="Modal.open('chatModal');scrollToBottom()" class="sidenavButton" title="Chat"><i class="fa-solid fa-comments"></i></a>
+            <a onclick="Modal.open('rankingModal')" class="sidenavButton" title="Ranking"><i class="fa-solid fa-ranking-star"></i></a>
+            <a onclick="Modal.open('aiModal')" class="sidenavButton" title="Perun AI"><i class="fa-solid fa-robot"></i></a>
+            <a onclick="Modal.open('challengesModal')" class="sidenavButton" title="Wyzwania"><i class="fa-solid fa-star"></i></a>
+            <a onclick="Modal.open('consoleModal')" id="consoleButton" class="sidenavButton" title="Konsola"><i class="fas fa-terminal"></i></a>
+            <a onclick="Modal.open('opinionModal')" class="sidenavButton" title="Feedback"><i class="fa-solid fa-paper-plane"></i></a>
+            <a onclick="Modal.open('navigationModal')" class="sidenavButton" title="Nawigacja"><i class="fa-solid fa-compass"></i></a>
             <a buttonId="1" class="add-button sidenavButton"><i class="fa-solid fa-egg"></i></a>
           </div>
         <div id="mainwindow">
@@ -186,9 +187,10 @@
         </div>
     </div>
     <div id="playerInfoModal" class="modal">
-        <h1>Informacje</h1>
+        <h1>Profil Użytkownika</h1>
         <div class="modal-content">
-            <button buttonId="4" class="add-button">🥚</button>
+            <button onclick="displayLocalStorageTable(profileColumns)">Pokaż Dane</button>
+            <div id="localStorageData"></div>
         </div>
     </div>
     <div id="navigationModal" class="modal">
@@ -232,7 +234,7 @@
             <table id="rankingTable">
                 <thead>
                   <tr>
-                    <th>Miejsce</th>
+                    <th>Lp.</th>
                     <th>Użytkownik</th>
                     <th>Ranga</th>
                     <th>Punkty</th>
@@ -263,9 +265,12 @@
         <h1>Ustawienia</h1>
         <div class="modal-content">
             <h2>Ustawienia</h2>
-            <label for="nameInput">Nazwa użytkownika:</label>
+            <label>Nazwa użytkownika:</label>
             <input type="text" name="nameInput" id="usernameSettingsInput">
             <button onclick="handleUsernameChange()" id="usernameChangeButton">Zmień</button>
+            <br><br>
+            <label>Avatar:</label>
+            <input type="file" id="avatarUpload" accept="image/*">
             <br><br>
             <label>Rozmiar czcionki wiadomości: </label>
             <input type="range" id="chatFontSizeSlider" min="10" max="30" value="16"><button onclick='document.getElementById("chatFontSizeSlider").value=17;document.documentElement.style.setProperty("--chatMessageFontSize", `17px`);localStorage.setItem("chatMessageFontSize", 17)'>Reset</button>
@@ -342,6 +347,12 @@
             </div>
         </div>
     </div>
+    <div id="challengesModal" class="modal">
+        <h1>Wyzwania</h1>
+        <div class="modal-content">
+            <div id="dailyChallenges"></div>
+        </div>
+    </div>
     <div id="ownGameModal" class="modal">
         <h1>Własna gra</h1>
         <div class="modal-content">
@@ -364,6 +375,11 @@
                 <div id="pageBuilderSlide4" class="pageBuilderSlide">
                     <h2>4. Skrypt (JavaScript)</h2>
                     <textarea id="pageBuilderScript" class="pageBuilderTextarea" placeholder="Wpisz kod JavaScript..."></textarea>
+                </div>
+        
+                <div id="pageBuilderSlide5" class="pageBuilderSlide">
+                    <h2>5. Cały Kod</h2>
+                    <textarea id="pageBuilderFullCode" class="pageBuilderTextarea" placeholder="Wpisz pełny kod HTML..."></textarea>
                 </div>
         
                 <div class="pageBuilderNav">
