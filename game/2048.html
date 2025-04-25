@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>2048 - Enhanced</title>
+    <title>2048 | Perun Gameverse</title>
+    <link rel="icon" type="image/x-icon" href="../img/perun2.png">
+    <link rel="stylesheet" href="../style/public.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,14 +13,12 @@
             min-height: 100vh;
             margin: 0;
             background: #faf8ef;
-            touch-action: manipulation; /* Dla lepszej obsługi dotyku */
+            touch-action: manipulation;
         }
-
         #game-container {
             text-align: center;
             padding: 20px;
         }
-
         #header {
             display: flex;
             justify-content: space-between;
@@ -26,7 +26,6 @@
             margin-bottom: 20px;
             max-width: 460px;
         }
-
         #score, #high-score {
             font-size: 20px;
             padding: 10px 20px;
@@ -35,7 +34,6 @@
             border-radius: 5px;
             font-weight: bold;
         }
-
         #game-board {
             display: grid;
             grid-template-columns: repeat(4, 100px);
@@ -47,7 +45,6 @@
             width: 460px;
             height: 460px;
         }
-
         .tile {
             width: 100px;
             height: 100px;
@@ -62,7 +59,6 @@
             position: absolute;
             transition: transform 0.1s ease-in-out, background 0.1s, color 0.1s;
         }
-
         .tile-2 { background: #eee4da; }
         .tile-4 { background: #ede0c8; }
         .tile-8 { background: #f2b179; color: #f9f6f2; }
@@ -74,16 +70,13 @@
         .tile-512 { background: #edc850; color: #f9f6f2; }
         .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 35px; }
         .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 35px; }
-
         .tile-appear {
             animation: appear 0.2s ease-in-out;
         }
-
         @keyframes appear {
             0% { transform: scale(0); }
             100% { transform: scale(1); }
         }
-
         #restart-btn {
             margin-top: 20px;
             padding: 10px 20px;
@@ -95,11 +88,9 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-
         #restart-btn:hover {
             background: #776e65;
         }
-
         #game-over {
             display: none;
             position: absolute;
@@ -132,7 +123,6 @@
         </div>
         <button id="restart-btn">Nowa gra</button>
     </div>
-
     <script>
         const GRID_SIZE = 4;
         const TILE_SIZE = 100;
@@ -154,7 +144,6 @@
             document.getElementById('restart-btn').addEventListener('click', restartGame);
             document.getElementById('try-again').addEventListener('click', restartGame);
             
-            // Obsługa dotyku
             let touchStartX = 0, touchStartY = 0;
             gameBoard.addEventListener('touchstart', (e) => {
                 touchStartX = e.touches[0].clientX;
@@ -226,7 +215,7 @@
             }
             if (moved) {
                 addRandomTile();
-                setTimeout(updateBoard, 100); // Opóźnienie dla animacji
+                setTimeout(updateBoard, 100);
                 checkGameOver();
             }
         }

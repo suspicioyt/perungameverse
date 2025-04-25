@@ -2,7 +2,9 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Rzuty Osobiste 1950s</title>
+    <title>Basketball Game | Perun Gameverse</title>
+    <link rel="icon" type="image/x-icon" href="../img/perun2.png">
+    <link rel="stylesheet" href="../style/public.css">
     <style>
         canvas {
             border: 2px solid black;
@@ -29,7 +31,6 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Obiekty gry
         const ball = {
             x: 400,
             y: 500,
@@ -55,13 +56,12 @@
         let score = 0;
         let lives = 3;
         let angle = 0;
-        let power = 0; // Siła rzutu
-        let isCharging = false; // Czy gracz ładuje rzut
-        let chargeTime = 0; // Czas ładowania w klatkach (60 fps)
-        const maxChargeTime = 120; // 2 sekundy przy 60 fps
-        const maxPower = 15; // Maksymalna siła rzutu
+        let power = 0;
+        let isCharging = false;
+        let chargeTime = 0;
+        const maxChargeTime = 120;
+        const maxPower = 15;
 
-        // Rysowanie boiska
         function drawCourt() {
             ctx.beginPath();
             ctx.rect(0, 400, canvas.width, 200);
@@ -77,7 +77,6 @@
             ctx.closePath();
         }
 
-        // Rysowanie piłki
         function drawBall() {
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
@@ -86,7 +85,6 @@
             ctx.closePath();
         }
 
-        // Rysowanie kosza
         function drawHoop() {
             ctx.beginPath();
             ctx.rect(hoop.x, hoop.y, hoop.width, hoop.height);
@@ -95,7 +93,6 @@
             ctx.closePath();
         }
 
-        // Rysowanie HUD
         function drawHUD() {
             ctx.font = '24px Courier New';
             ctx.fillStyle = '#000';
@@ -103,7 +100,6 @@
             ctx.fillText('Życia: ' + lives, 10, 60);
         }
 
-        // Linia celowania z wskaźnikiem siły
         function drawAim() {
             if (!ball.inAir) {
                 ctx.beginPath();
@@ -114,7 +110,6 @@
                 ctx.stroke();
                 ctx.closePath();
 
-                // Wskaźnik siły
                 if (isCharging) {
                     ctx.beginPath();
                     ctx.rect(ball.x - 20, ball.y + 20, 40 * (power / maxPower), 10);
@@ -125,7 +120,6 @@
             }
         }
 
-        // Aktualizacja piłki
         function updateBall() {
             if (ball.inAir) {
                 ball.x += ball.dx;
@@ -146,7 +140,6 @@
             }
         }
 
-        // Aktualizacja kosza
         function updateHoop() {
             hoop.x += hoop.dx;
             hoop.y += hoop.dy;
@@ -154,22 +147,18 @@
             if (hoop.y < hoop.minY || hoop.y > hoop.maxY) hoop.dy = -hoop.dy;
         }
 
-        // Aktualizacja siły rzutu
         function updatePower() {
             if (isCharging) {
                 chargeTime++;
                 if (chargeTime <= maxChargeTime) {
-                    // Siła rośnie liniowo do maksimum w 2 sekundy
                     power = (chargeTime / maxChargeTime) * maxPower;
                 } else {
-                    // Po 2 sekundach siła spada
                     power = maxPower - ((chargeTime - maxChargeTime) / maxChargeTime) * maxPower;
                     if (power < 0) power = 0;
                 }
             }
         }
 
-        // Reset piłki
         function resetBall() {
             ball.x = 400;
             ball.y = 500;
@@ -183,7 +172,6 @@
             }
         }
 
-        // Główna pętla gry
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawCourt();
@@ -197,7 +185,6 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Celowanie myszką
         canvas.addEventListener('mousemove', function(event) {
             if (!ball.inAir) {
                 const rect = canvas.getBoundingClientRect();
@@ -207,7 +194,6 @@
             }
         });
 
-        // Rozpoczęcie ładowania siły
         canvas.addEventListener('mousedown', function() {
             if (!ball.inAir) {
                 isCharging = true;
@@ -216,7 +202,6 @@
             }
         });
 
-        // Rzut po puszczeniu przycisku
         canvas.addEventListener('mouseup', function() {
             if (isCharging && !ball.inAir) {
                 ball.dx = Math.cos(angle) * power;
@@ -227,7 +212,6 @@
             }
         });
 
-        // Start gry
         gameLoop();
     </script>
 </body>

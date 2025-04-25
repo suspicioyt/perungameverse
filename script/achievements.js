@@ -38,7 +38,15 @@ const achievementsData = [
         game: "game/2048.html", 
         classes: ["beta"], 
         condition: { type: "data", key: "2048highScore", threshold: 2048 }
-    }
+    },
+    // { 
+    //     id: "06", 
+    //     name: "Uderzacz", 
+    //     opis: "Uderz w 20 kretów w Whack a Mole", 
+    //     game: "game/whackamole.html", 
+    //     classes: ["beta"], 
+    //     condition: { type: "data", key: "whackAMoleHighScore", threshold: 20 }
+    // }
     // { 
     //     id: "03", 
     //     name: "Mistrz odbijania", 

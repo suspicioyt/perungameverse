@@ -1,5 +1,36 @@
 const tabsData = [
     {
+        name: "👑 Mayor Update",
+        version: "1.2.0.0",
+        date: "27.04.2025r.",
+        quote: "👑👑👑",
+        backgroundImage: "https://media.istockphoto.com/id/1362438671/vector/crown-doodle-pattern.jpg?s=612x612&w=0&k=20&c=zH4ixuMhZXmcgZFzQP9mabuYLI5c3wLkPKvLMakT20U=",
+        paragraphs: [
+            {
+                title: "Nowości",
+                content: [
+                    "🏅 Ranking",
+                    "⭐ Premium"
+                ]
+            },
+            {
+                title: "Gry",
+                content: [
+                    "⚔️ Zaktualizowano RPG",
+                    "🕹️ Dodano Wordle i Wieża Hanoi"
+                ]
+            },
+            {
+                title: "Zmiany",
+                content: [
+                    "🏗️ Zmiany w wyglądzie Strony Głównej",
+                    "🔧 Poprawa logiki i wyglądu Chatu"
+                ]
+            },
+            "Event wielkanocny będzie jeszcze przez 2 tygodnie"
+        ]
+    },
+    {
         name: "🐇 Easter 2025 Update",
         version: "1.1.6.1",
         date: "13.04.2025r.",
@@ -25,7 +56,7 @@ const tabsData = [
             {
                 title: "Zmiany",
                 content: [
-                    "🏗️ Zmiany w wyglądzie HUBA",
+                    "🏗️ Zmiany w wyglądzie Strony Głównej",
                     "🛠️ Zaktualizowano Dziennik Zmian i Osiągnięcia"
                 ]
             }
@@ -55,7 +86,7 @@ const tabsData = [
             {
                 title: "Zmiany",
                 content: [
-                    "🏗️ Zmiany w strukturze i wyglądzie HUBA",
+                    "🏗️ Zmiany w strukturze i wyglądzie Strony Głównej",
                     "👑 Poprawki w hierarchicznym układaniu gier",
                     "🛠️ Aktualizacja nagłówka"
                 ]
@@ -195,9 +226,9 @@ const tabsData = [
             {
                 title: "Nowości",
                 content: [
-                    "🖥️ Dodano funkcję Zmiany nazwy użytkownika",
-                    "🧑‍💻 Dodano Tryb Developera",
-                    "🗨️ Dodano Chat",
+                    "🖥️ Funkcja Zmiany nazwy użytkownika",
+                    "🧑‍💻 Tryb Developera",
+                    "🗨️ Chat",
                     "⬇️ Przycisk w dół"
                 ]
             },
@@ -225,7 +256,7 @@ const tabsData = [
             {
                 title: "Gry",
                 content: [
-                    "🕹️ Dodano funkcję Grano ostatnio",
+                    "🕹️ Funkcja Ostatnio Grane",
                     '♣️ Dodano gry: Solitaire <a href="game/solitaire.html" class="game-short-link" target="_blank">🎮</a> , Bloki 2 <a href="bloki2/index.html" class="game-short-link" target="_blank">🎮</a>'
                 ]
             },
@@ -538,19 +569,7 @@ const tabsData = [
         version: "leaks",
         quote: "Jeśli możesz sobie coś wymarzyć, możesz to zrobić.",
         paragraphs: [
-            {
-                title: "Konsola",
-                content: [
-                    '1. <a href="test/1.html" class="game-short-link" target="_blank">👀</a>',
-                    '2. <a href="test/2.html" class="game-short-link" target="_blank">👀</a>'
-                ]
-            },
-            {
-                title: "Powiadomienia",
-                content: [
-                    '<a href="test/4.html" class="game-short-link" target="_blank">👀</a>'
-                ]
-            }
+
         ]
     },
     {
@@ -719,7 +738,7 @@ function loadUpdateSlideshow() {
     button.style.cursor = "pointer";
     button.innerHTML = "Czytaj więcej - Dziennik zmian";
     button.onclick = function() {
-        modalOpen('updateModal');
+        Modal.open('updateModal');
     };
     slide.appendChild(button);
 

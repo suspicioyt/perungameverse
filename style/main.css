@@ -670,11 +670,9 @@ a {
     animation: fadeIn 1s forwards;
     z-index: 500;
 }
-.loader-container h1 {
-    font-size: 4em;
+.loader-container span {
+    font-size: 1.5em;
     font-weight: bold;
-    animation: textFadeIn 5s forwards;
-    z-index: 500;
 }
 #personalizationModal select {
     padding: 10px;
@@ -1067,6 +1065,10 @@ input:checked + .slider:before {
 #rankingModal tr:nth-child(3) {
     font-weight: bold;
 }
+#rankingMessage {
+    margin: 10px;
+    text-align: center;
+}
 
 .event-container {
     position: relative;
@@ -1093,4 +1095,87 @@ input:checked + .slider:before {
 .events h1 {
     text-align: center;
     font-size: 4em;
+}
+.notification-container {
+    position: fixed;
+    top: 30px;
+    right: 20px;
+    width: 440px;
+    max-width: 94vw;
+    z-index: 10000;
+    pointer-events: none;
+    padding: 0 12px;
+}
+.notification {
+    pointer-events: auto;
+    margin-bottom: 20px;
+    padding: 12px;
+    border-radius: 18px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+    transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.notification:hover {
+    transform: translateY(-4px);
+}
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.notification-title {
+    font-weight: 500;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+}
+.notification-icon {
+    margin-right: 14px;
+    font-size: 22px;
+}
+.notification-close {
+    cursor: pointer;
+    border: none;
+    font-size: 24px;
+    opacity: 0.7;
+    padding: 6px 12px;
+    border-radius: 12px;
+    transition: all 0.25s;
+    color: inherit;
+}
+.notification-close:hover {
+    opacity: 1;
+}
+.notification-content {
+    font-size: 15px;
+    line-height: 1.7;
+    opacity: 0.9;
+}
+.notification-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 14px;
+}
+.notification-action {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: inherit;
+    font-weight: 600;
+    transition: all 0.25s;
+}
+.notification-action:hover {
+    transform: translateY(-2px);
+}
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 6px;
+    animation: progress linear;
+    border-radius: 0 0 18px 18px;
 }

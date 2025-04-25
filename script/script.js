@@ -1,19 +1,1331 @@
-const settingSwitches = [
-    { switchId: "01", value: false },//tryb dewelopera
-    { switchId: "02", value: false },//zapis modali
-    { switchId: "03", value: true },//ładowanie obrazów na Chacie
-    { switchId: "04", value: true },//ukrywanie zbanowanych słów na Chacie
-    { switchId: "05", value: false },//???
-    { switchId: "06", value: true },//ostatnio grana gra
-    { switchId: "07", value: true },//powiadomienia
-    { switchId: "08", value: false },
-    { switchId: "09", value: false },
-    { switchId: "10", value: false },
+// await getData(['sessionStorage'], 'perunVerified');
+// await getData(['localStorage'], 'perunVerified');
+// await getData(['dataBase'], 'perunVerified');
+const STORAGE_KEYS = {
+  USERNAME: 'perunUsername',
+  UUID: 'perunUUID',
+  POINTS: 'perunPoints',
+  RANK: 'perunRank',
+  PLN: 'perunPLN',
+  THEME: 'theme',
+  DEV_SETTINGS: 'DEVsettings',
+  LAST_PLAYED_GAME: 'lastPlayedGame',
+  SETTING_SWITCHES: 'settingSwitches',
+  COMPLETED_ACHIEVEMENTS: 'completedAchievementsIds',
+  LAST_CHANGE_TIME: 'lastChangeTime',
+  HAS_LOADED: 'hasLoaded',
+  OPEN_MODALS: 'openModals',
+  CHAT_FONT_SIZE: 'chatMessageFontSize',
+  PAGE_BUILDER_PAGES: 'pageBuilder_pages'
+};
+
+const UPDATE_DATE = 'Apr 27, 2025 20:00:00';
+  
+const API_FIELD_MAP = {
+  [STORAGE_KEYS.USERNAME]: 'username',
+  [STORAGE_KEYS.UUID]: 'uuid',
+  [STORAGE_KEYS.POINTS]: 'points',
+  [STORAGE_KEYS.RANK]: 'rank',
+  [STORAGE_KEYS.PLN]: 'pln',
+  [STORAGE_KEYS.COMPLETED_ACHIEVEMENTS]: 'doneAchievements'
+};
+
+window.API_URL = 'https://script.google.com/macros/s/AKfycbx_ZvjRFGa0xmOU2T6zspoVAHRXcQMwxpIqHPNznzQ_hsG-wibVUVvSH40ogbLxt27Xgg/exec';
+  
+window.settingSwitches = [
+  { switchId: '01', value: false },
+  { switchId: '02', value: false },
+  { switchId: '03', value: true },
+  { switchId: '04', value: true },
+  { switchId: '05', value: false },
+  { switchId: '06', value: true },
+  { switchId: '07', value: true },
+  { switchId: '08', value: false },
+  { switchId: '09', value: false },
+  { switchId: '10', value: false }
 ];
-var countDownDate = new Date("Apr 27, 2025 20:00:00").getTime();
-const API_URL = "https://script.google.com/macros/s/AKfycbwel-hMu178BUi2a-1E4Phg9-Vm8rjGicaHxGbEc0dkiE2y6keeT2KDugUbwk2J9P1dVw/exec";
+  
+const heartLikeInner1 = '<label for="heart';
+const heartLikeInner2 = '"><i class="fas fa-heart"></i></label><input type="checkbox" id="heart';
+const heartLikeInner3 = '" />';
+  
+const API = {
+  async post(url, data) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        mode: 'no-cors'
+      });
+      return response;
+    } catch (error) {
+      console.error('API POST error:', error);
+      throw error;
+    }
+  },
+  async get(url) {
+    try {
+      const response = await fetch(url, { method: 'GET' });
+      if (!response.ok) throw new Error(`GET failed: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.error('API GET error:', error);
+      throw error;
+    }
+  }
+};
+  
+async function getData(storages, key) {
+  try {
+    for (const storage of storages) {
+      if (storage === 'sessionStorage') {
+        const value = sessionStorage.getItem(key);
+        if (value !== null) {
+          try {
+            return JSON.parse(value);
+          } catch {
+            return value;
+          }
+        }
+      } else if (storage === 'localStorage') {
+        const value = localStorage.getItem(key);
+        if (value !== null) {
+          try {
+            return JSON.parse(value);
+          } catch {
+            return value;
+          }
+        }
+      } else if (storage === 'dataBase') {
+        try {
+          const uuid = localStorage.getItem(STORAGE_KEYS.UUID);
+          if (!uuid) throw new Error('No UUID found for database fetch');
 
+          const response = await API.get(`${window.API_URL}?action=getRankingData`);
+          const rankingData = response;
 
+          const userData = rankingData.find(user => user.uuid === uuid);
+          if (!userData) throw new Error(`User with UUID ${uuid} not found in ranking data`);
+
+          const apiField = API_FIELD_MAP[key] || key;
+          if (userData[apiField] !== undefined) {
+            return userData[apiField];
+          }
+          return null;
+        } catch (error) {
+          console.error(`Error fetching database data for key ${key}:`, error);
+          return null;
+        }
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error(`Error retrieving data for key ${key}:`, error);
+    return null;
+  }
+}
+  
+const Modal = {
+  open(id) {
+    const modal = document.getElementById(id);
+    if (!modal) {
+      console.error(`Modal with id '${id}' not found`);
+      return;
+    }
+    if (!modal.classList.contains('show')) {
+      modal.classList.add('show');
+      saveModalState();
+    }
+  },
+  close(id) {
+    const modal = document.getElementById(id);
+    if (modal && modal.classList.contains('show')) {
+      modal.classList.remove('show');
+      saveModalState();
+    }
+  },
+  toggle(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+      modal.classList.toggle('show');
+      saveModalState();
+    }
+  }
+};
+
+async function saveModalState() {
+  const switches = await getData(['localStorage'], STORAGE_KEYS.SETTING_SWITCHES) || window.settingSwitches;
+  const autoOpenSwitch = switches.find(s => s.switchId === '02');
+
+  if (autoOpenSwitch && autoOpenSwitch.value) {
+    const openModals = Array.from(document.querySelectorAll('.modal.show'))
+      .map(modal => modal.id)
+      .filter(id => id);
+    sessionStorage.setItem(STORAGE_KEYS.OPEN_MODALS, JSON.stringify(openModals));
+  } else {
+    sessionStorage.removeItem(STORAGE_KEYS.OPEN_MODALS);
+  }
+}
+
+async function updateGameContainers(filteredGames) {
+  const containers = document.querySelectorAll('.game-container');
+  const lastPlayedGameId = await getData(['localStorage'], STORAGE_KEYS.LAST_PLAYED_GAME);
+  const switches = await getData(['localStorage'], STORAGE_KEYS.SETTING_SWITCHES) || window.settingSwitches;
+  const lastPlayedSwitch = switches.find(s => s.switchId === '06');
+
+  const sortedGames = filteredGames.sort((a, b) => {
+    if (a.id === lastPlayedGameId) return -1;
+    if (a.ulubione && !b.ulubione) return -1;
+    if (!a.ulubione && b.ulubione) return 1;
+    return 0;
+  });
+
+  let gameIndex = 0;
+  containers.forEach(container => {
+    const maxGames = parseInt(container.getAttribute('max'), 10) || sortedGames.length;
+    const refreshButton = container.querySelector('.refreshButton');
+    container.innerHTML = '';
+    if (refreshButton) container.appendChild(refreshButton);
+
+    for (let i = 0; i < maxGames && gameIndex < sortedGames.length; i++) {
+      const game = sortedGames[gameIndex++];
+      const gameBox = document.createElement('div');
+      gameBox.classList.add('game-box');
+      gameBox.setAttribute('gameId', game.id);
+
+      if (game.id === lastPlayedGameId && lastPlayedSwitch && lastPlayedSwitch.value) {
+        gameBox.classList.add('lastPlayed');
+        const status = document.createElement('span');
+        status.textContent = 'Ostatnio grane';
+        status.classList.add('lastPlayedLabel');
+        gameBox.appendChild(status);
+      }
+
+      game.classes.forEach(className => gameBox.classList.add(className));
+      if (game.ulubione) gameBox.style.backgroundColor = '#FF4C4C';
+
+      if (game.status) {
+        const status = document.createElement('span');
+        status.textContent = game.status;
+        status.classList.add('game-label');
+        gameBox.appendChild(status);
+      }
+      if (game.classes.includes('ukonczona')) {
+        const statusEnd = document.createElement('span');
+        statusEnd.textContent = 'Ukończona';
+        statusEnd.classList.add('game-status');
+        gameBox.appendChild(statusEnd);
+      }
+      if (game.classes.includes('money')) {
+        const statusEnd = document.createElement('span');
+        statusEnd.innerHTML = '<i class="fas fa-dollar-sign"></i>';
+        statusEnd.classList.add('game-status-money');
+        gameBox.appendChild(statusEnd);
+      }
+      if (game.classes.includes('internet')) {
+        const statusEnd = document.createElement('span');
+        statusEnd.innerHTML = '<i class="fas fa-globe"></i>';
+        statusEnd.classList.add('game-status-internet');
+        gameBox.appendChild(statusEnd);
+      }
+
+      const devSettings = getData(['localStorage'], STORAGE_KEYS.DEV_SETTINGS);
+      if (devSettings === 'true') {
+        const devContent = document.createElement('div');
+        devContent.classList.add('DEVgame-content');
+        devContent.textContent = `#${game.id || '[Brak ID]'}`;
+        gameBox.appendChild(devContent);
+      }
+
+      const title = document.createElement('h2');
+      title.textContent = game.name;
+      gameBox.appendChild(title);
+
+      const link = document.createElement('a');
+      link.href = game.link;
+      link.textContent = 'Zagraj';
+      link.classList.add('game-link');
+      link.addEventListener('click', () => {
+        addPlayedGamesToStorage(game.id);
+        localStorage.setItem(STORAGE_KEYS.LAST_PLAYED_GAME, game.id);
+      });
+      link.target = '_blank';
+
+      if (game.tooltip) {
+        const tooltip = document.createElement('span');
+        tooltip.innerHTML = game.tooltip;
+        tooltip.classList.add('tooltiptext');
+        link.appendChild(tooltip);
+      }
+      gameBox.appendChild(link);
+
+      const favoriteButton = document.createElement('div');
+      favoriteButton.classList.add('favorite-button');
+      favoriteButton.innerHTML = `${heartLikeInner1}${game.id}${heartLikeInner2}${game.id}${heartLikeInner3}`;
+
+      const favoriteCheckbox = favoriteButton.querySelector('input');
+      favoriteCheckbox.checked = game.ulubione;
+      favoriteCheckbox.addEventListener('change', () => {
+        game.ulubione = favoriteCheckbox.checked;
+        saveFavorites();
+      });
+
+      gameBox.appendChild(favoriteButton);
+      container.appendChild(gameBox);
+    }
+  });
+
+  attachFavoriteEvents();
+}
+
+// Placeholder Functions
+function addPlayedGamesToStorage(gameId) {
+  console.log(`Game ${gameId} played`);
+}
+
+function saveFavorites() {
+  console.log('Favorites saved');
+}
+
+function attachFavoriteEvents() {
+  console.log('Favorite events attached');
+}
+
+document.getElementById('searchInput')?.addEventListener('keyup', async () => {
+  const filter = document.getElementById('searchInput').value.toUpperCase();
+  const filteredGames = games.filter(game => game.name.toUpperCase().includes(filter));
+  await updateGameContainers(filteredGames);
+});
+  
+window.addEventListener('click', event => {
+  const dropdown = document.getElementById('dropdownFiltres');
+  if (
+    !event.target.matches('.filterdropbtn') &&
+    !event.target.matches('.dropdownFiltres-content') &&
+    !event.target.closest('.dropdownFiltres-content')
+  ) {
+    if (dropdown?.classList.contains('show')) {
+      dropdown.classList.remove('show');
+    }
+  }
+});
+  
+async function filterSelection(category) {
+  const filteredGames = category === 'all' ? games : games.filter(game => game.classes.includes(category));
+  await updateGameContainers(filteredGames);
+}
+
+function changeClass(element) {
+  document.querySelectorAll('button').forEach(button => button.classList.remove('active'));
+  if (!element.classList.contains('active')) element.classList.add('active');
+}
+
+// Progress Bar
+function progressBar() {
+  const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+  const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const scrolled = (winScroll / height) * 100;
+  document.getElementById('myBar').style.width = `${scrolled}%`;
+}
+
+window.addEventListener('scroll', progressBar);
+
+// Restore Modal State
+async function restoreModalState() {
+  const switches = await getData(['localStorage'], STORAGE_KEYS.SETTING_SWITCHES) || window.settingSwitches;
+  const autoOpenSwitch = switches.find(s => s.switchId === '02');
+
+  if (autoOpenSwitch && autoOpenSwitch.value) {
+    const openModals = await getData(['sessionStorage'], STORAGE_KEYS.OPEN_MODALS) || [];
+    openModals.forEach(modalId => {
+      const modalElement = document.getElementById(modalId);
+      if (modalElement && !modalElement.classList.contains('show')) {
+        Modal.open(modalId);
+      }
+    });
+  }
+}
+
+// Modal Event Listeners
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    const modal = document.querySelector('.modal.show');
+    if (modal) {
+      Modal.close(modal.id);
+    }
+  }
+});
+
+document.addEventListener('click', event => {
+  const modal = document.querySelector('.modal.show');
+  if (modal && event.target === modal) {
+    Modal.close(modal.id);
+  }
+});
+
+function generateUUID() {
+  let uuid;
+  if (crypto && crypto.randomUUID) {
+      uuid = crypto.randomUUID();
+  } else {
+      // Fallback UUID generation
+      uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          const r = (Math.random() * 16) | 0;
+          const v = c === 'x' ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+      });
+  }
+
+  // Replace last segment with variant + YYYYMMDD + random hex
+  const date = new Date();
+  const datePart = date.getFullYear().toString() +
+                   ('0' + (date.getMonth() + 1)).slice(-2) +
+                   ('0' + date.getDate()).slice(-2);
+  const variantChar = ['8', '9', 'a', 'b'][Math.floor(Math.random() * 4)]; // Ensure variant 1
+  const randomSuffix = Array(3).fill().map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+  const lastSegment = variantChar + datePart + randomSuffix; // e.g., "820250421abc"
+
+  // Replace the last 12 characters of the UUID
+  return uuid.slice(0, -12) + lastSegment;
+}
+function generateAndCheckUUIDs(count) {
+  if (!Number.isInteger(count) || count < 1) {
+      throw new Error('Count must be a positive integer');
+  }
+
+  // Generate UUIDs
+  const uuids = Array.from({ length: count }, () => generateUUID());
+
+  // Check for duplicates
+  const uuidCounts = {};
+  uuids.forEach(uuid => {
+      uuidCounts[uuid] = (uuidCounts[uuid] || 0) + 1;
+  });
+
+  // Identify duplicates
+  const duplicates = Object.entries(uuidCounts)
+      .filter(([uuid, count]) => count > 1)
+      .map(([uuid, count]) => ({ uuid, count }));
+
+  return {
+      uuids, // Array of generated UUIDs
+      hasDuplicates: duplicates.length > 0, // Boolean indicating if duplicates exist
+      duplicates // Array of objects with duplicate UUIDs and their counts
+  };
+}
+// User Initialization
+async function initializeUser() {
+  const storedUsername = await getData(['localStorage'], STORAGE_KEYS.USERNAME);
+  const storedUUID = await getData(['localStorage'], STORAGE_KEYS.UUID);
+
+  if (storedUsername && storedUUID) {
+    Modal.close('welcomeModal');
+  } else {
+    if (!storedUUID) {
+      localStorage.setItem(STORAGE_KEYS.UUID, generateUUID());
+      location.reload();
+    }
+    Modal.open('welcomeModal');
+    loadFireworksStyles();
+  }
+
+  document.getElementById('saveUsernameBtn')?.addEventListener('click', async () => {
+    const username = document.getElementById('usernameInput')?.value.trim();
+    if (username === 'SUSpicio' || username === 'SUSpicioDEV') {
+      document.getElementById('errorMessage').style.display = 'block';
+      return;
+    }
+    if (username && username.length > 3 && username.length < 15) {
+      localStorage.setItem(STORAGE_KEYS.USERNAME, username);
+      localStorage.setItem(STORAGE_KEYS.DEV_SETTINGS, 'false');
+      document.getElementById('fireworksStyles')?.remove();
+      Modal.close('welcomeModal');
+      document.getElementById('player-name').textContent = username;
+    } else {
+      document.getElementById('errorMessage').style.display = 'block';
+    }
+  });
+}
+
+function loadFireworksStyles() {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'effects/fireworks.css';
+  link.id = 'fireworksStyles';
+  document.head.appendChild(link);
+}
+
+// Countdown Timer
+const countDownDate = new Date(UPDATE_DATE).getTime();
+const timer = setInterval(() => {
+  const now = new Date().getTime();
+  const distance = countDownDate - now;
+
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  document.getElementById('demo').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+  if (distance < 0) {
+    clearInterval(timer);
+    document.getElementById('demo').textContent = 'Kliknij CTRL i przycisk odświeżenia strony, aby wymusić odświeżenie';
+  }
+}, 1000);
+  
+  // Slideshow
+  let slideIndex = 0;
+  function showSlides(n) {
+    const slides = document.querySelectorAll('.slides');
+    const dots = document.querySelectorAll('.dot');
+  
+    if (n >= slides.length) slideIndex = 0;
+    if (n < 0) slideIndex = slides.length - 1;
+  
+    slides.forEach(slide => (slide.style.display = 'none'));
+    dots.forEach(dot => dot.classList.remove('active'));
+  
+    slides[slideIndex].style.display = 'block';
+    dots[slideIndex].classList.add('active');
+  }
+  
+  function changeSlide(n) {
+    showSlides((slideIndex += n));
+  }
+  
+  function currentSlide(n) {
+    showSlides((slideIndex = n - 1));
+  }
+  
+  let autoSlide = setInterval(() => changeSlide(1), 3000);
+  
+  function resetAutoSlide() {
+    clearInterval(autoSlide);
+    autoSlide = setInterval(() => changeSlide(1), 3000);
+  }
+  
+  document.querySelector('.prev')?.addEventListener('click', () => {
+    changeSlide(-1);
+    resetAutoSlide();
+  });
+  
+  document.querySelector('.next')?.addEventListener('click', () => {
+    changeSlide(1);
+    resetAutoSlide();
+  });
+  
+  document.querySelectorAll('.dot').forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+      currentSlide(index + 1);
+      resetAutoSlide();
+    });
+  });
+  
+  document.querySelectorAll('.slides').forEach(slide => {
+    slide.addEventListener('mouseover', () => clearInterval(autoSlide));
+    slide.addEventListener('mouseleave', () => {
+      autoSlide = setInterval(() => changeSlide(1), 2000);
+    });
+  });
+  
+  // Loader
+  async function initializeLoader() {
+    const loader = document.getElementById('loader');
+    const hasLoaded = await getData(['sessionStorage'], STORAGE_KEYS.HAS_LOADED);
+    if (hasLoaded) {
+      loader.classList.add('hidden');
+    } else {
+      setTimeout(() => {
+        loader.classList.add('hidden');
+        sessionStorage.setItem(STORAGE_KEYS.HAS_LOADED, 'true');
+      }, 5000);
+    }
+  }
+  
+  // Player Data Updates
+  async function updatePlayerName() {
+    try {
+        // Retrieve data from storage
+        const username = await getData(['localStorage'], STORAGE_KEYS.USERNAME);
+        const uuid = await getData(['localStorage'], STORAGE_KEYS.UUID);
+        const perunVerified = await getData(['sessionStorage'], 'perunVerified');
+        const perunPremium = await getData(['sessionStorage'], 'perunPremium');
+
+        // Get the DOM element
+        const dynamicTextElement = document.getElementById('playerName');
+        if (!dynamicTextElement) {
+            console.warn('Element with ID "playerName" not found');
+            return;
+        }
+
+        // Initialize the display text with the username or fallback
+        let displayText = username || '?';
+
+        // Check verification status (convert string to boolean if necessary)
+        const isVerified = perunVerified === true || perunVerified === 'true';
+        const isPremium = perunPremium === true || perunPremium === 'true';
+
+        // Build the HTML with badges
+        let badges = '';
+        if (isVerified) {
+            badges += '<i class="fas fa-check-circle verified-icon" title="Verified User"></i>';
+        }
+        if (isPremium) {
+            badges += '<i class="fas fa-crown premium-icon" title="Premium User"></i>';
+        }
+
+        // Update the element
+        dynamicTextElement.innerHTML = `${displayText}${badges}`;
+    } catch (error) {
+        console.error('Error updating player name:', error);
+        const dynamicTextElement = document.getElementById('playerName');
+        if (dynamicTextElement) {
+            dynamicTextElement.textContent = '?';
+        }
+    }
+}
+  
+async function updatePlayerPLN() {
+  const pln = await getData(['localStorage'], STORAGE_KEYS.PLN);
+  const dynamicTextElement = document.getElementById('playerPLN');
+  if (dynamicTextElement) {
+    dynamicTextElement.textContent = pln && !isNaN(pln) ? `${parseFloat(pln).toFixed(2)} zł` : '0.00 zł';
+  }
+}
+
+async function updatePlayerRank() {
+  const rank = await getData(['localStorage'], STORAGE_KEYS.RANK);
+  const dynamicTextElement = document.getElementById('playerRank');
+  if (dynamicTextElement) {
+    dynamicTextElement.innerHTML = rank && !isNaN(rank) ? `${parseInt(rank)} <i class="fas fa-star"></i>` : '0 <i class="fas fa-star"></i>';
+  }
+}
+
+window.addEventListener('storage', async event => {
+  if (event.key === STORAGE_KEYS.USERNAME) await updatePlayerName();
+  if (event.key === STORAGE_KEYS.RANK) await updatePlayerRank();
+  if (event.key === STORAGE_KEYS.PLN) await updatePlayerPLN();
+});
+
+// Theme Management
+function changeTheme(theme) {
+  localStorage.setItem(STORAGE_KEYS.THEME, theme);
+  document.getElementById('themeStylesheet').setAttribute('href', `style/theme/${theme}.css`);
+}
+
+// Sidenav Toggle
+document.getElementById('sidenavOpenButton')?.addEventListener('click', () => {
+  document.getElementById('sidenav').classList.toggle('show');
+});
+
+// AI Chat
+async function getAIResponse() {
+  const userInput = document.getElementById('userAiInput').value.trim();
+  if (!userInput) {
+    alert('Proszę wpisz pytanie!');
+    return;
+  }
+
+  const chatBox = document.getElementById('chatBox');
+  const userMessageDiv = document.createElement('div');
+  userMessageDiv.classList.add('message', 'user-message');
+  userMessageDiv.textContent = userInput;
+  chatBox.appendChild(userMessageDiv);
+
+  document.getElementById('userAiInput').value = '';
+
+  const loadingDiv = document.createElement('div');
+  loadingDiv.classList.add('message', 'loading-message');
+  loadingDiv.innerHTML = '<span class="spinner"></span> Oczekiwanie na odpowiedź...';
+  chatBox.appendChild(loadingDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  const apiKey = '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';
+  const data = {
+    inputs: userInput,
+    parameters: { max_length: 50, temperature: 0.7, top_p: 0.9, return_full_text: false }
+  };
+
+  try {
+    const response = await fetch('https://api-inference.huggingface.co/models/google/gemma-3-27b-it', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    chatBox.removeChild(loadingDiv);
+
+    if (!response.ok) {
+      const errorDetails = await response.json();
+      alert(`Wystąpił błąd: ${errorDetails.error || 'Nieznany błąd'}`);
+      return;
+    }
+
+    const result = await response.json();
+    let aiResponse = result[0]?.generated_text?.trim() || 'Brak odpowiedzi od AI';
+    aiResponse = aiResponse.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/'''/g, '<br>');
+
+    const aiMessageDiv = document.createElement('div');
+    aiMessageDiv.classList.add('message', 'ai-message');
+    aiMessageDiv.innerHTML = aiResponse;
+    chatBox.appendChild(aiMessageDiv);
+  } catch (error) {
+    chatBox.removeChild(loadingDiv);
+    alert(`Wystąpił błąd: ${error.message}`);
+  } finally {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+}
+
+// Username Change
+async function isUsernameDemoTimeExpired() {
+  const lastChange = await getData(['localStorage'], STORAGE_KEYS.LAST_CHANGE_TIME);
+  const now = Date.now();
+  const lockTime = 24 * 60 * 60 * 1000;
+  return !lastChange || now > parseInt(lastChange) + lockTime;
+}
+  
+async function handleUsernameChange() {
+  const input = document.getElementById('usernameSettingsInput');
+  const lastChange = await getData(['localStorage'], STORAGE_KEYS.LAST_CHANGE_TIME);
+  const now = Date.now();
+  const lockTime = 24 * 60 * 60 * 1000;
+
+  if (input.value !== 'SUSpicio') {
+    if (lastChange && now - parseInt(lastChange) <= lockTime) {
+      alert('Nie możesz zmienić nazwy użytkownika przez 24 godziny.');
+      return;
+    }
+
+    if (!confirm('Czy na pewno chcesz zmienić nazwę użytkownika?')) return;
+
+    const randomCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const userCode = prompt(`Aby potwierdzić, wpisz kod: ${randomCode}`);
+
+    if (userCode === randomCode) {
+      localStorage.setItem(STORAGE_KEYS.USERNAME, input.value);
+      localStorage.setItem(STORAGE_KEYS.LAST_CHANGE_TIME, now.toString());
+      alert('Nazwa użytkownika została zmieniona.');
+      document.getElementById('usernameChangeButton').disabled = true;
+      document.getElementById('usernameChangeButton').textContent = 'Zmiana nazwy zablokowana na 24h';
+      startCountdown(lockTime);
+      location.reload();
+    } else {
+      alert('Niepoprawny kod. Zmiana anulowana.');
+    }
+  }
+}
+  
+function startCountdown(remainingTime) {
+  const countdownDisplay = document.getElementById('usernameDemoContainer');
+  countdownDisplay.style.display = 'block';
+
+  function updateCountdown() {
+    const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+    countdownDisplay.textContent = `Czas do odblokowania: ${hours}h ${minutes}m ${seconds}s`;
+
+    if (remainingTime <= 0) {
+      clearInterval(countdownInterval);
+      document.getElementById('usernameChangeButton').disabled = false;
+      document.getElementById('usernameChangeButton').textContent = 'Zmień nazwę';
+      countdownDisplay.textContent = '';
+      countdownDisplay.style.display = 'none';
+    }
+    remainingTime -= 1000;
+  }
+
+  updateCountdown();
+  const countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+async function initializeUsernameChange() {
+  const input = document.getElementById('usernameSettingsInput');
+  input.value = (await getData(['localStorage'], STORAGE_KEYS.USERNAME)) || '';
+  const lastChange = await getData(['localStorage'], STORAGE_KEYS.LAST_CHANGE_TIME);
+  const now = Date.now();
+  const lockTime = 24 * 60 * 60 * 1000;
+
+  if (lastChange && now - parseInt(lastChange) < lockTime) {
+    document.getElementById('usernameChangeButton').disabled = true;
+    document.getElementById('usernameChangeButton').textContent = 'Zmiana nazwy zablokowana na 24h';
+    startCountdown(lockTime - (now - parseInt(lastChange)));
+  }
+
+  if (!(await isUsernameDemoTimeExpired())) {
+    document.getElementById('sendButton').disabled = true;
+    document.getElementById('sendButton').textContent = 'Zablokowane';
+    document.getElementById('chatMessage').disabled = true;
+  }
+}
+  
+async function initializeSwitches() {
+  let switches = await getData(['localStorage'], STORAGE_KEYS.SETTING_SWITCHES);
+  
+  // Ensure switches is an array, fallback to window.settingSwitches if invalid
+  if (!Array.isArray(switches)) {
+      switches = window.settingSwitches || [];
+      localStorage.setItem(STORAGE_KEYS.SETTING_SWITCHES, JSON.stringify(switches));
+  }
+  document.querySelectorAll('input[type="checkbox"][switchId]').forEach(checkbox => {
+      const switchId = checkbox.getAttribute('switchId');
+      const switchData = switches.find(s => s.switchId === switchId);
+      if (switchData) {
+          checkbox.checked = switchData.value;
+          checkbox.addEventListener('change', () => toggleSwitch(switchId));
+      }
+  });
+}
+  
+async function toggleSwitch(switchId) {
+  let switches = await getData(['localStorage'], STORAGE_KEYS.SETTING_SWITCHES);
+  const switchIndex = switches.findIndex(s => s.switchId === switchId);
+
+  notification('Zmiana ustawień wymaga odświeżenia strony', 'reload', {
+    actions: [{ label: 'Odśwież stronę', callback: () => location.reload() }]
+  });
+
+  if (switchIndex !== -1) {
+    switches[switchIndex].value = !switches[switchIndex].value;
+    localStorage.setItem(STORAGE_KEYS.SETTING_SWITCHES, JSON.stringify(switches));
+
+    if (switchId === '01') {
+      localStorage.setItem(STORAGE_KEYS.DEV_SETTINGS, switches[switchIndex].value.toString());
+    }
+    if (switchId === '02' && !switches[switchIndex].value) {
+      sessionStorage.removeItem(STORAGE_KEYS.OPEN_MODALS);
+    }
+  }
+}
+
+function resetSwitches() {
+  localStorage.setItem(STORAGE_KEYS.SETTING_SWITCHES, JSON.stringify(window.settingSwitches));
+  localStorage.setItem(STORAGE_KEYS.DEV_SETTINGS, 'false');
+}
+
+// Font Size Slider
+function initializeFontSizeSlider() {
+  const slider = document.getElementById('chatFontSizeSlider');
+  const savedFontSize = localStorage.getItem(STORAGE_KEYS.CHAT_FONT_SIZE) || '16';
+  slider.value = savedFontSize;
+  document.documentElement.style.setProperty('--chatMessageFontSize', `${savedFontSize}px`);
+
+  slider.addEventListener('input', () => {
+    const newSize = slider.value;
+    document.documentElement.style.setProperty('--chatMessageFontSize', `${newSize}px`);
+    localStorage.setItem(STORAGE_KEYS.CHAT_FONT_SIZE, newSize);
+  });
+}
+
+// Rating Form
+document.getElementById('ratingForm')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const submitButton = document.getElementById('opinionSubmit');
+  submitButton.disabled = true;
+
+  const rating = document.querySelector('input[name="rating"]:checked');
+  const whattodo = document.getElementById('whattodoratingform').value;
+  const username = await getData(['localStorage'], STORAGE_KEYS.USERNAME);
+
+  if (!username || !rating) {
+    document.getElementById('ratingFormErrorMessage').style.display = 'block';
+    submitButton.disabled = false;
+    return;
+  }
+
+  const formData = {
+    action: 'addRating',
+    sessionId: (await getData(['localStorage'], STORAGE_KEYS.UUID)) || '',
+    username,
+    rating: rating.value,
+    whattodo,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    submitButton.textContent = 'Wysyłanie...';
+    await API.post(window.API_URL, formData);
+    document.getElementById('ratingForm').reset();
+    document.getElementById('ratingFormErrorMessage').style.display = 'none';
+    submitButton.textContent = 'Wyślij';
+  } catch (error) {
+    submitButton.textContent = 'Wyślij';
+    console.error('Błąd wysyłania:', error);
+    alert('Wystąpił błąd podczas wysyłania oceny.');
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+document.querySelectorAll('.rating label').forEach(label => {
+  label.addEventListener('mouseover', function () {
+    const value = this.getAttribute('for').replace('star', '');
+    for (let i = 1; i <= 10; i++) {
+      const currentLabel = document.querySelector(`label[for="star${i}"]`);
+      currentLabel.style.color = i <= value ? '#ffca08' : '#ddd';
+    }
+  });
+
+  label.addEventListener('mouseout', () => {
+    const checked = document.querySelector('input[name="rating"]:checked');
+    const checkedValue = checked ? checked.value : 0;
+    for (let i = 1; i <= 10; i++) {
+      const currentLabel = document.querySelector(`label[for="star${i}"]`);
+      currentLabel.style.color = i <= checkedValue ? '#ffca08' : '#ddd';
+    }
+  });
+});
+
+// Dropdown Toggle
+function toggleDropdown(dropdownId) {
+  document.getElementById(dropdownId).classList.toggle('show');
+}
+
+window.addEventListener('click', event => {
+  if (!event.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-content').forEach(menu => menu.classList.remove('show'));
+  }
+});
+
+// Scroll to Section
+function scrollToSection(sectionId, gameContainerId) {
+  if (sectionId === 0) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    Modal.close('navigationModal');
+    return;
+  }
+
+  if (sectionId === 1) {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    Modal.close('navigationModal');
+    return;
+  }
+
+  let targetElement;
+  if (sectionId === 'game-container' && gameContainerId) {
+    targetElement = document.getElementById(`game-container-${gameContainerId}`);
+  } else {
+    targetElement = document.getElementById(sectionId);
+  }
+
+  if (targetElement) {
+    const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: elementPosition - 125, behavior: 'smooth' });
+    Modal.close('navigationModal');
+  }
+}
+  
+document.querySelectorAll('.game-container').forEach((container, index) => {
+  container.id = `game-container-${index}`;
+});
+
+// Ranking
+async function updateRanking() {
+  try {
+    const ranking = await API.get(`${window.API_URL}?action=getRankingData`);
+    ranking.sort((a, b) => {
+      const rankDiff = parseInt(b.rank) - parseInt(a.rank);
+      if (rankDiff !== 0) return rankDiff;
+      const pointsDiff = parseInt(b.points) - parseInt(a.points);
+      if (pointsDiff !== 0) return pointsDiff;
+      return parseFloat(b.pln) - parseFloat(a.pln);
+    });
+
+    const tbody = document.getElementById('rankingBody');
+    tbody.innerHTML = '';
+    ranking.forEach(async (user, index) => {
+      if (user.uuid === (await getData(['localStorage'], STORAGE_KEYS.UUID))) {
+        sessionStorage.setItem('perunPremium', user.premium);
+        sessionStorage.setItem('perunVerified', user.verified);
+      }
+
+      let badges = '';
+      if (user.verified) {
+          badges += '<i class="fas fa-check-circle verified-icon" title="Verified User"></i>';
+      }
+      if (user.premium) {
+          badges += '<i class="fas fa-crown premium-icon" title="Premium User"></i>';
+      }
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${badges} ${user.username}</td>
+        <td>${user.rank}</td>
+        <td>${user.points}</td>
+        <td>${parseFloat(user.pln).toFixed(2)}</td>
+        <td>${user.achievements || '0'}/${achievementsData.length}</td>
+      `;
+      tbody.appendChild(row);
+    });
+    document.getElementById('rankingMessage').textContent = `Ranking zaktualizowany: ${new Date().toLocaleString()}`;
+  } catch (error) {
+    console.error('Błąd podczas aktualizacji rankingu:', error);
+  }
+}
+
+async function sendLocalData() {
+  const payload = {
+    action: 'updateRankingFromLocal',
+    perunUUID: (await getData(['localStorage'], STORAGE_KEYS.UUID)) || '',
+    perunUsername: (await getData(['localStorage'], STORAGE_KEYS.USERNAME)) || 'Anonim',
+    perunPoints: (await getData(['localStorage'], STORAGE_KEYS.POINTS)) || '0',
+    perunRank: (await getData(['localStorage'], STORAGE_KEYS.RANK)) || '0',
+    perunPLN: (await getData(['localStorage'], STORAGE_KEYS.PLN)) || '0',
+    doneAchievements: ((await getData(['localStorage'], STORAGE_KEYS.COMPLETED_ACHIEVEMENTS)) || []).length,
+    timestamp: new Date().toISOString()
+  };
+
+  await API.post(window.API_URL, payload);
+}
+
+const pageBuilder = {
+  currentSlide: 1,
+  totalSlides: 5,
+  storageKey: STORAGE_KEYS.PAGE_BUILDER_PAGES,
+  pages: [],
+  lastSaveTime: null,
+  previewWindow: null,
+
+  async init() {
+    try {
+      await this.loadPage();
+      this.addInputListeners();
+      this.updateNavigation();
+      this.updateStatus();
+    } catch (error) {
+      console.error('Error initializing Page Builder:', error);
+      this.pages = [this.createEmptyPage()];
+      this.loadCurrentData();
+      this.updateStatus();
+      notification('Błąd podczas ładowania danych gry. Utworzono nową pustą stronę.', 'error');
+    }
+  },
+
+  async loadPage() {
+    const savedPages = await getData(['localStorage'], this.storageKey);
+    this.pages = Array.isArray(savedPages) && savedPages.length > 0 ? savedPages : [this.createEmptyPage()];
+    this.loadCurrentData();
+  },
+
+  createEmptyPage() {
+    return { title: '', body: '', style: '', script: '' };
+  },
+
+  loadCurrentData() {
+    const page = this.pages[0] || this.createEmptyPage();
+    const titleField = document.getElementById('pageBuilderTitle');
+    const bodyField = document.getElementById('pageBuilderBody');
+    const styleField = document.getElementById('pageBuilderStyle');
+    const scriptField = document.getElementById('pageBuilderScript');
+    const fullCodeField = document.getElementById('pageBuilderFullCode');
+
+    if (titleField) titleField.value = page.title || '';
+    if (bodyField) bodyField.value = page.body || '';
+    if (styleField) styleField.value = page.style || '';
+    if (scriptField) scriptField.value = page.script || '';
+    if (fullCodeField) fullCodeField.value = this.generateFullCode(page) || '';
+  },
+
+  generateFullCode(page) {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${page.title || 'Własna Gra'}</title>
+  <style>${page.style || ''}</style>
+</head>
+<body>
+  ${page.body || ''}
+  <script>${page.script || ''}</script>
+</body>
+</html>
+    `.trim();
+  },
+
+  parseFullCode(fullCode) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(fullCode, 'text/html');
+      if (!doc || !doc.documentElement) throw new Error('Invalid HTML structure');
+
+      const title = doc.querySelector('title')?.textContent || '';
+      const style = doc.querySelector('style')?.textContent || '';
+      const script = doc.querySelector('script')?.textContent || '';
+      const bodyContent = doc.body.innerHTML
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .trim();
+
+      return { title, body: bodyContent, style, script };
+    } catch (error) {
+      console.error('Error parsing full code:', error);
+      notification('Nieprawidłowy kod HTML. Sprawdź składnię i spróbuj ponownie.', 'error');
+      return null;
+    }
+  },
+
+  savePage() {
+    let page;
+    if (this.currentSlide === 5) {
+      const fullCode = document.getElementById('pageBuilderFullCode')?.value || '';
+      const parsed = this.parseFullCode(fullCode);
+      if (!parsed) return;
+      page = parsed;
+    } else {
+      page = {
+        title: document.getElementById('pageBuilderTitle')?.value || '',
+        body: document.getElementById('pageBuilderBody')?.value || '',
+        style: document.getElementById('pageBuilderStyle')?.value || '',
+        script: document.getElementById('pageBuilderScript')?.value || ''
+      };
+    }
+
+    this.pages[0] = page;
+    localStorage.setItem(this.storageKey, JSON.stringify(this.pages));
+    this.lastSaveTime = new Date();
+    this.updateStatus();
+    this.loadCurrentData(); // Sync all fields
+  },
+
+  addInputListeners() {
+    ['Title', 'Body', 'Style', 'Script', 'FullCode'].forEach(field => {
+      const element = document.getElementById(`pageBuilder${field}`);
+      if (element) {
+        element.addEventListener('input', () => this.savePage());
+      }
+    });
+  },
+
+  updateNavigation() {
+    const prevBtn = document.getElementById('pageBuilderPrevBtn');
+    const nextBtn = document.getElementById('pageBuilderNextBtn');
+    if (prevBtn) prevBtn.disabled = this.currentSlide === 1;
+    if (nextBtn) nextBtn.disabled = this.currentSlide === this.totalSlides;
+  },
+
+  updateStatus() {
+    const status = document.getElementById('pageBuilderStatus');
+    if (status) {
+      status.textContent = this.lastSaveTime ? `Zapisano: ${this.lastSaveTime.toLocaleTimeString()}` : 'Zapisano: Nigdy';
+    }
+  }
+};
+
+function pageBuilderShowSlide(slideNum) {
+  for (let i = 1; i <= pageBuilder.totalSlides; i++) {
+    const slide = document.getElementById(`pageBuilderSlide${i}`);
+    if (slide) slide.classList.remove('active');
+  }
+  const activeSlide = document.getElementById(`pageBuilderSlide${slideNum}`);
+  if (activeSlide) activeSlide.classList.add('active');
+  pageBuilder.currentSlide = slideNum;
+  pageBuilder.updateNavigation();
+}
+
+function pageBuilderNextSlide() {
+  if (pageBuilder.currentSlide < pageBuilder.totalSlides) {
+    pageBuilder.savePage(); // Save before switching
+    pageBuilderShowSlide(pageBuilder.currentSlide + 1);
+  }
+}
+
+function pageBuilderPrevSlide() {
+  if (pageBuilder.currentSlide > 1) {
+    pageBuilder.savePage(); // Save before switching
+    pageBuilderShowSlide(pageBuilder.currentSlide - 1);
+  }
+}
+
+function pageBuilderSaveAndPreview() {
+  pageBuilder.savePage();
+  const page = pageBuilder.pages[0];
+  const htmlContent = pageBuilder.generateFullCode(page);
+
+  if (pageBuilder.previewWindow && !pageBuilder.previewWindow.closed) {
+    pageBuilder.previewWindow.close();
+  }
+
+  pageBuilder.previewWindow = window.open('', '_blank');
+  if (pageBuilder.previewWindow) {
+    pageBuilder.previewWindow.document.open();
+    pageBuilder.previewWindow.document.write(htmlContent);
+    pageBuilder.previewWindow.document.close();
+  } else {
+    notification('Nie udało się otworzyć podglądu. Sprawdź, czy przeglądarka nie blokuje wyskakujących okien.', 'error');
+  }
+}
+
+function pageBuilderExport() {
+  pageBuilder.savePage();
+  const page = pageBuilder.pages[0];
+  const htmlContent = pageBuilder.generateFullCode(page);
+  const blob = new Blob([htmlContent], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${page.title || 'strona'}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function pageBuilderClear() {
+  if (confirm('Czy na pewno chcesz wyczyścić wszystkie dane?')) {
+    pageBuilder.pages[0] = pageBuilder.createEmptyPage();
+    pageBuilder.loadCurrentData();
+    pageBuilder.savePage();
+    notification('Dane zostały wyczyszczone.', 'info');
+  }
+}
+
+// Notifications (Placeholder)
+function notification(message, type, options = {}) {
+  console.log(`Notification: ${message}, Type: ${type}`, options);
+}
+
+function quickNotification(message) {
+  console.log(`Quick Notification: ${message}`);
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text);
+  quickNotification('Skopiowano do schowka!');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', async () => {
+  const parallaxElement = document.querySelector('#parallaxEnd');
+  const currentScrollY = window.scrollY;
+  const elementHeight = parallaxElement?.offsetHeight || 0;
+  if (elementHeight <= currentScrollY) {
+    document.querySelector('header').classList.add('scrolled');
+    document.getElementById('sidenav').classList.add('scrolled');
+  }
+
+  await initializeUser();
+  await initializeLoader();
+  await initializeSwitches();
+  await initializeFontSizeSlider();
+  await initializeUsernameChange();
+  await restoreModalState();
+  await updatePlayerName();
+  await updatePlayerPLN();
+  await updatePlayerRank();
+  await updateRanking();
+  await sendLocalData();
+
+  setInterval(updateRanking, 5000);
+  setInterval(sendLocalData, 5000);
+
+  const savedTheme = (await getData(['localStorage'], STORAGE_KEYS.THEME)) || 'dark';
+  document.getElementById('themeStylesheet').setAttribute('href', `style/theme/${savedTheme}.css`);
+
+  const themeSelect = document.getElementById('themeSelect');
+  if (themeSelect) {
+    themeSelect.value = savedTheme;
+    themeSelect.addEventListener('change', () => changeTheme(themeSelect.value));
+  }
+
+  const developerSwitch = ((await getData(['localStorage'], STORAGE_KEYS.SETTING_SWITCHES)) || window.settingSwitches).find(
+    s => s.switchId === '01'
+  );
+  document.getElementById('consoleButton').style.display = developerSwitch && developerSwitch.value ? 'block' : 'none';
+
+  await pageBuilder.init();
+});
+function displayLocalStorageTable(columns, elementId = 'localStorageData') {
+  try {
+      // Validate inputs
+      if (!Array.isArray(columns) || columns.length === 0 || !columns.every(col => col.key && col.label)) {
+          throw new Error('Columns must be a non-empty array of objects with "key" and "label" properties');
+      }
+
+      // Get the target DOM element
+      const targetElement = document.getElementById(elementId);
+      if (!targetElement) {
+          console.warn(`Element with ID "${elementId}" not found`);
+          return;
+      }
+
+      // Check if no relevant data exists
+      const hasData = columns.some(({ key }) => localStorage.getItem(key) !== null);
+      if (!hasData) {
+          targetElement.innerHTML = '<p>No relevant data found in localStorage.</p>';
+          return;
+      }
+
+      // Collect data from localStorage
+      const data = columns.map(({ key, label }) => {
+          let value = localStorage.getItem(key) || '0';
+          
+          // Attempt to parse value as JSON for better formatting
+          try {
+              const parsedValue = JSON.parse(value);
+              value = JSON.stringify(parsedValue, null, 2); // Pretty-print JSON
+          } catch (e) {
+              // Use raw value if parsing fails
+          }
+
+          return { key, label, value };
+      });
+
+      // Generate HTML table
+      let html = `
+          <table class="local-storage-table">
+              <thead>
+                  <tr>
+                      <th>Label</th>
+                      <th>Value</th>
+                  </tr>
+              </thead>
+              <tbody>
+      `;
+      
+      // Add a row for each key-value pair
+      data.forEach(({ label, value }) => {
+          const escapedLabel = label.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          const escapedValue = value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          html += `
+              <tr>
+                  <td>${escapedLabel}</td>
+                  <td><pre>${escapedValue}</pre></td>
+              </tr>
+          `;
+      });
+
+      html += `
+              </tbody>
+          </table>
+      `;
+
+      // Insert HTML into the target element
+      targetElement.innerHTML = html;
+  } catch (error) {
+      console.error('Error displaying localStorage table:', error);
+      const targetElement = document.getElementById(elementId);
+      if (targetElement) {
+          targetElement.innerHTML = `<p>Error: ${error.message}</p>`;
+      }
+  }
+}
+// Define columns
+const columns = [
+    { key: 'perunUsername', label: 'Username' },
+    { key: 'perunPLN', label: 'Settings' },
+    { key: '2048highScore', label: 'User ID' },
+    { key: 'dinoBestScore', label: 'Favorite Games' },
+    { key: 'flappyHighScore', label: 'Settings' },
+    { key: 'settings', label: 'Settings' },
+    { key: 'settings', label: 'Settings' },
+    { key: 'settings', label: 'Settings' },
+    { key: 'settings', label: 'Settings' }
+];
+// Call the function when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    displayLocalStorageTable(columns);
+});
 let isScrolling = false;
 let lastScrollY = 0;
 const threshold = 1;
@@ -62,1102 +1374,8 @@ window.addEventListener('scroll', function () {
     }
 });
 document.addEventListener('DOMContentLoaded', function () {
-  const currentScrollY = window.scrollY;
-  const elementHeight = element.offsetHeight;
-  if (elementHeight <= currentScrollY) {
-    var header = document.querySelector('header');
-    header.classList.add('scrolled');
-    document.getElementById('sidenav').classList.add('scrolled');
-  }
-})
-function updateGameContainers(filteredGames) {
-  const containers = document.querySelectorAll(".game-container");
-  const lastPlayedGameId = localStorage.getItem('lastPlayedGame');
-
-  const sortedGames = filteredGames.sort((a, b) => {
-      if (a.id === lastPlayedGameId) return -1;
-      if (a.ulubione && !b.ulubione) return -1;
-      if (!a.ulubione && b.ulubione) return 1;
-      return 0;
-  });
-
-  let gameIndex = 0;
-  containers.forEach(container => {
-      const maxGames = parseInt(container.getAttribute("max"), 10) || sortedGames.length;
-
-      const refreshButton = container.querySelector(".refreshButton");
-      container.innerHTML = "";
-      if (refreshButton) container.appendChild(refreshButton);
-
-      for (let i = 0; i < maxGames && gameIndex < sortedGames.length; i++) {
-          const game = sortedGames[gameIndex];
-          gameIndex++;
-
-          const gameBox = document.createElement("div");
-          gameBox.classList.add("game-box");
-          gameBox.setAttribute('gameId', game.id);
-
-          if (game.id === lastPlayedGameId && (lastPlayedSwitch && lastPlayedSwitch.value)) {
-              gameBox.classList.add("lastPlayed");
-              const status = document.createElement("span");
-              status.innerHTML = "Ostatnio grane";
-              status.classList.add("lastPlayedLabel");
-              gameBox.appendChild(status);
-          }
-
-          game.classes.forEach(className => gameBox.classList.add(className));
-
-          if (game.ulubione) {
-              gameBox.style.backgroundColor = "#FF4C4C";
-          }
-
-          if (game.status) {
-              const status = document.createElement("span");
-              status.innerHTML = game.status;
-              status.classList.add("game-label");
-              gameBox.appendChild(status);
-          }
-          if (game.classes.includes("ukonczona")) {
-              const statusEnd = document.createElement("span");
-              statusEnd.textContent = "Ukończona";
-              statusEnd.classList.add("game-status");
-              gameBox.appendChild(statusEnd);
-          }
-          if (game.classes.includes("money")) {
-              const statusEnd = document.createElement("span");
-              statusEnd.innerHTML = '<i class="fas fa-dollar-sign"></i>';
-              statusEnd.classList.add("game-status-money");
-              gameBox.appendChild(statusEnd);
-          }
-          if (game.classes.includes("internet")) {
-              const statusEnd = document.createElement("span");
-              statusEnd.innerHTML = '<i class="fas fa-globe"></i>';
-              statusEnd.classList.add("game-status-internet");
-              gameBox.appendChild(statusEnd);
-          }
-
-          const DEVcontent = document.createElement("div");
-          if (localStorage.getItem('DEVsettings') === "true") {
-              DEVcontent.classList.add("DEVgame-content");
-              DEVcontent.textContent = `#${game.id || "[Brak ID]"}`;
-              gameBox.appendChild(DEVcontent);
-          }
-
-          const title = document.createElement("h2");
-          title.textContent = game.name;
-          gameBox.appendChild(title);
-
-          const link = document.createElement("a");
-          link.href = game.link;
-          link.textContent = "Zagraj";
-          link.classList.add("game-link");
-          link.addEventListener('click', function () {
-              addPlayedGamesToStorage(game.id);
-              localStorage.setItem('lastPlayedGame', game.id);
-          });
-          link.target = "_blank";
-
-          if (game.tooltip) {
-              const tooltip = document.createElement("span");
-              tooltip.innerHTML = game.tooltip;
-              tooltip.classList.add("tooltiptext");
-              link.appendChild(tooltip);
-          }
-
-          gameBox.appendChild(link);
-
-          const favoriteButton = document.createElement("div");
-          favoriteButton.classList.add("favorite-button");
-          favoriteButton.innerHTML = heartLikeInner1 + game.id + heartLikeInner2 + game.id + heartLikeInner3;
-
-          const favoriteCheckbox = favoriteButton.querySelector("input");
-          favoriteCheckbox.checked = game.ulubione;
-          favoriteCheckbox.addEventListener("change", () => {
-              game.ulubione = favoriteCheckbox.checked;
-              saveFavorites();
-          });
-
-          gameBox.appendChild(favoriteButton);
-
-          container.appendChild(gameBox);
-      }
-  });
-
-  attachFavoriteEvents();
-}
-document.getElementById('searchInput').onkeyup = function () {
-  const input = document.getElementById("searchInput");
-  const filter = input.value.toUpperCase();
-
-  const filteredGames = games.filter(game => {
-      const txtValue = game.name.toUpperCase();
-      return txtValue.indexOf(filter) > -1;
-  });
-
-  updateGameContainers(filteredGames);
-};
-
-window.onclick = function(event) {
-  const dropdown = document.getElementById("dropdownFiltres");
-
-  if (!event.target.matches('.filterdropbtn') && !event.target.matches('.dropdownFiltres-content') && !event.target.closest('.dropdownFiltres-content')) {
-      if (dropdown.classList.contains("show")) {
-          dropdown.classList.remove("show");
-      }
-  }
-};
-
-function filterSelection(category) {
-  const filteredGames = games.filter(game => {
-      if (category === "all") return true;
-      return game.classes.includes(category);
-  });
-
-  updateGameContainers(filteredGames);
-}
-
-function changeClass(element) {
-  const buttons = document.getElementsByTagName('button');
-  for (let button of buttons) {
-    button.classList.remove("active");
-  }
-  if (!element.classList.contains('active')) {
-    element.classList.add("active");
-  }
-}
-
-function progressBar() {
-  var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-  var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-  var scrolled = (winScroll / height) * 100;
-  document.getElementById("myBar").style.width = scrolled + "%";
-}
-window.onscroll = function() { progressBar()};
-
-function modalOpen(modalId) {
-    const modalElement = document.getElementById(modalId);
-    if (modalElement && !modalElement.classList.contains("show")) {
-        modalElement.classList.add("show");
-        saveModalState(); // Zapisz stan po otwarciu
-    }
-}
-
-function modalClose(modalId) {
-    const modalElement = document.getElementById(modalId);
-    if (modalElement && modalElement.classList.contains("show")) {
-        modalElement.classList.remove("show");
-        saveModalState(); // Zapisz stan po zamknięciu
-    }
-}
-
-function saveModalState() {
-    const switches = JSON.parse(localStorage.getItem("settingSwitches")) || settingSwitches;
-    const autoOpenSwitch = switches.find(s => s.switchId === "02");
-
-    if (autoOpenSwitch && autoOpenSwitch.value) {
-        const openModals = Array.from(document.querySelectorAll('.modal.show'))
-            .map(modal => modal.id)
-            .filter(id => id); // Filtrujemy, aby upewnić się, że zapisujemy tylko modale z ID
-        sessionStorage.setItem("openModals", JSON.stringify(openModals));
-    } else {
-        sessionStorage.removeItem("openModals"); // Usuń zapis, jeśli switch jest wyłączony
-    }
-}
-
-function restoreModalState() {
-    const switches = JSON.parse(localStorage.getItem("settingSwitches")) || settingSwitches;
-    const autoOpenSwitch = switches.find(s => s.switchId === "02");
-
-    if (autoOpenSwitch && autoOpenSwitch.value) {
-        const openModals = JSON.parse(sessionStorage.getItem("openModals")) || [];
-        openModals.forEach(modalId => {
-            const modalElement = document.getElementById(modalId);
-            if (modalElement && !modalElement.classList.contains("show")) {
-                modalOpen(modalId); // Otwieramy modal tylko jeśli istnieje i nie jest już otwarty
-            }
-        });
-    }
-}
-
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-        const modal = document.querySelector('.modal.show');
-        if (modal) {
-            modal.classList.remove("show");
-            saveModalState();
-        }
-    }
-});
-
-document.addEventListener('click', (event) => {
-    const modal = document.querySelector('.modal.show');
-    if (modal && event.target === modal) {
-        modal.classList.remove("show");
-        saveModalState();
-    }
-});
-
-
-function generateUUID() {
-  if (crypto && crypto.randomUUID) {
-      return crypto.randomUUID();
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-  });
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  const storedUsername = localStorage.getItem("perunUsername");
-  const storedUUID = localStorage.getItem("perunUUID");
-
-  if (storedUsername && storedUUID) {
-    document.getElementById("welcomeModal").style.display = 'none';
-  } else {
-    if(!storedUUID){
-        localStorage.setItem("perunUUID", generateUUID());
-        location.reload();
-    }
-
-    document.getElementById("welcomeModal").style.display = 'block';
-
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'effects/fireworks.css';
-    link.id = 'fireworksStyles';
-    document.head.appendChild(link);
-}
-
-  document.getElementById("saveUsernameBtn").addEventListener("click", function () {
-    localStorage.setItem("DEVsettings","false");
-    const username = document.getElementById("usernameInput").value.trim();
-    if (username === 'SUSpicio' || username === 'SUSpicioDEV') {
-      document.getElementById("errorMessage").style.display = 'block';
-      return;
-    }    
-    if (username && username.length>3 && username.length<15) {
-      localStorage.setItem("perunUsername", username);
-
-      const linkToRemove = document.getElementById('fireworksStyles');
-      if (linkToRemove) {
-        linkToRemove.remove();
-      }
-
-      document.getElementById("welcomeModal").style.display = 'none';
-      document.getElementById("player-name").textContent = username;
-      
-    } else {
-      document.getElementById("errorMessage").style.display = 'block';
-    }
-  });
-});
-
-var x = setInterval(function() {
-  var now = new Date().getTime();
-  var distance = countDownDate - now;
-    
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-  document.getElementById("demo").innerHTML = days + "d " + hours + "h "
-  + minutes + "m " + seconds + "s ";
-    
-  if (distance < 0) {
-    clearInterval(x);
-    document.getElementById("demo").innerHTML = "Kliknij CTRL i przycisk odświeżenia strony, aby wymusić odświeżenie";
-  }
-}, 1000);
-
-let slideIndex = 0;
-showSlides(slideIndex);
-
-function showSlides(n) {
-    const slides = document.querySelectorAll('.slides');
-    const dots = document.querySelectorAll('.dot');
-
-    if (n >= slides.length) slideIndex = 0;
-    if (n < 0) slideIndex = slides.length - 1;
-
-    slides.forEach(slide => slide.style.display = "none");
-    dots.forEach(dot => dot.classList.remove("active"));
-
-    slides[slideIndex].style.display = "block";
-    dots[slideIndex].classList.add("active");
-}
-
-function changeSlide(n) {
-    showSlides(slideIndex += n);
-}
-
-function currentSlide(n) {
-    showSlides(slideIndex = n - 1);
-}
-
-let autoSlide = setInterval(() => changeSlide(1), 3000);
-
-function resetAutoSlide() {
-    clearInterval(autoSlide);
-    autoSlide = setInterval(() => changeSlide(1), 3000);
-}
-
-document.querySelector('.prev').addEventListener('click', () => {
-    changeSlide(-1);
-    resetAutoSlide();
-});
-
-document.querySelector('.next').addEventListener('click', () => {
-    changeSlide(1);
-    resetAutoSlide();
-});
-
-document.querySelectorAll('.dot').forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-        currentSlide(index + 1);
-        resetAutoSlide();
-    });
-});
-
-document.querySelectorAll('.slides').forEach(slide => {
-    slide.addEventListener('mouseover', () => {
-        clearInterval(autoSlide);
-    });
-
-    slide.addEventListener('mouseleave', () => {
-        autoSlide = setInterval(() => changeSlide(1), 2000);
-    });
-});
-
-const loader = document.getElementById('loader');
-const hasLoaded = sessionStorage.getItem('hasLoaded');
-if (hasLoaded) {
-    loader.classList.add('hidden'); // Natychmiast ukryj, jeśli już wyświetlono
-} else {
-    setTimeout(() => {
-        loader.classList.add('hidden'); // Płynne zanikanie po 5s
-        sessionStorage.setItem('hasLoaded', 'true');
-    }, 5000); // 5 sekund
-}
-
-const playerNameKey = "perunUsername";
-const playerPLNKey = "perunPLN";
-const playerRankKey = "perunRank";
-
-function updatePlayerName() {
-    const storedValue = localStorage.getItem(playerNameKey);
-    const dynamicTextElement = document.getElementById("playerName");
-    if(dynamicTextElement) {
-        if (localStorage.getItem("perunUsername") === "SUSpicio" && localStorage.getItem("perunUUID") === "863718d4-8c34-4e02-9a5a-86563967124c") {
-            dynamicTextElement.innerHTML = 'SUSpicio <i class="fas fa-check-circle verified-icon"></i>';
-        } else {
-            dynamicTextElement.textContent = storedValue || "?";
-        }
-    }
-}
-
-function updatePlayerPLN() {
-  const storedValue = localStorage.getItem(playerPLNKey);
-  const dynamicTextElement = document.getElementById("playerPLN");
-
-  if (dynamicTextElement) {
-      if (storedValue && !isNaN(storedValue)) {
-          dynamicTextElement.textContent = parseFloat(storedValue).toFixed(2) + " zł";
-      } else {
-          dynamicTextElement.textContent = "0.00 zł";
-      }
-  }
-}
-function updatePlayerRank() {
-  const storedValue = localStorage.getItem(playerRankKey);
-  const dynamicTextElement = document.getElementById("playerRank");
-
-     if (storedValue && !isNaN(storedValue)) {
-        dynamicTextElement.innerHTML = parseInt(storedValue) + ' <i class="fas fa-star"></i>';
-    } else {
-        dynamicTextElement.innerHTML = '0 <i class="fas fa-star"></i>';
-    }
-}
-
-window.addEventListener("storage", (event) => {
-    if (event.key === playerNameKey) {
-        updatePlayerName();
-    }
-    if (event.key === playerRankKey) { // poprawiony klucz
-        updatePlayerRank();
-    }
-    if (event.key === playerPLNKey) {
-        updatePlayerPLN();
-    }
-
-});
-
-updatePlayerName();
-updatePlayerPLN();
-updatePlayerRank();
-
-function changeTheme(theme) {
-  localStorage.setItem('theme', theme);
-  document.getElementById('themeStylesheet').setAttribute('href', `style/theme/${theme}.css`);
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  const savedTheme = localStorage.getItem('theme') || 'dark';
-  document.getElementById('themeStylesheet').setAttribute('href', `style/theme/${savedTheme}.css`);
-  
-  const themeSelect = document.getElementById('themeSelect');
-  if (themeSelect) {
-      themeSelect.value = savedTheme;
-      themeSelect.addEventListener('change', function () {
-          changeTheme(this.value);
-      });
+  const parallax = document.getElementById("parallax");
+  if (parallax) {
+      parallax.style.height = `${window.innerWidth * 0.34 + 25}px`;
   }
 });
-
-document.getElementById('sidenavOpenButton').onclick = function() {
-  const sidenav = document.getElementById('sidenav');
-  
-  if (sidenav.classList.contains('show')) {
-      sidenav.classList.remove('show');
-  } else {
-      sidenav.classList.add('show');
-  }
-};
-
-async function getAIResponse() {
-    const userAiInput = document.getElementById("userAiInput").value.trim();
-    if (!userAiInput) {
-        alert("Proszę wpisz pytanie!");
-        return;
-    }
-
-    const chatBox = document.getElementById("chatBox");
-    const userMessageDiv = document.createElement("div");
-    userMessageDiv.classList.add("message", "user-message");
-    userMessageDiv.textContent = userAiInput;
-    chatBox.appendChild(userMessageDiv);
-
-    document.getElementById("userAiInput").value = "";
-
-    // Dodanie kółka ładowania
-    const loadingDiv = document.createElement("div");
-    loadingDiv.classList.add("message", "loading-message");
-    loadingDiv.innerHTML = '<span class="spinner"></span> Oczekiwanie na odpowiedź...';
-    chatBox.appendChild(loadingDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    const apiKey = "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";
-    const data = {
-        inputs: userAiInput,
-        parameters: {
-            max_length: 50,
-            temperature: 0.7,
-            top_p: 0.9,
-            return_full_text: false
-        }
-    };
-
-    try {
-        const response = await fetch("https://api-inference.huggingface.co/models/google/gemma-3-27b-it", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
-
-        // Usunięcie kółka ładowania po otrzymaniu odpowiedzi
-        chatBox.removeChild(loadingDiv);
-
-        if (!response.ok) {
-            const errorDetails = await response.json();
-            alert(`Wystąpił błąd: ${errorDetails.error || 'Nieznany błąd'}`);
-            return;
-        }
-
-        const result = await response.json();
-        let aiResponse = result[0]?.generated_text?.trim() || "Brak odpowiedzi od AI";
-
-        // Zamiana **tekst** na <b>tekst</b> i ''' na <br>
-        aiResponse = aiResponse
-            .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>") // Pogrubienie
-            .replace(/'''/g, "<br>"); // Nowa linia
-
-        const aiMessageDiv = document.createElement("div");
-        aiMessageDiv.classList.add("message", "ai-message");
-        aiMessageDiv.innerHTML = aiResponse; // Użycie innerHTML, aby renderować tagi HTML
-        chatBox.appendChild(aiMessageDiv);
-
-    } catch (error) {
-        // Usunięcie kółka ładowania w przypadku błędu
-        chatBox.removeChild(loadingDiv);
-        alert(`Wystąpił błąd: ${error.message}`);
-    } finally {
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-}
-
-//const colors = [
-//    "rgb(255, 0, 0)", 
-//    "rgb(255, 127, 0)", 
-//    "rgb(255, 255, 0)", 
-//    "rgb(0, 255, 0)", 
-//    "rgb(0, 127, 127)",
-//    "rgb(0, 0, 255)", 
-//    "rgb(255, 0, 255)"
-//];
-//let index = 0;
-//function changeColor() {
-//    document.documentElement.style.setProperty("--button-color", colors[index]);
-//    document.documentElement.style.setProperty("--button-active-color", colors[index]);
-//    document.documentElement.style.setProperty("--button-hover-color", colors[index]);
-//    document.documentElement.style.setProperty("--highlight-bg-color", colors[index]);
-//    document.documentElement.style.setProperty("--shadow-color", colors[index]);
-//    document.documentElement.style.setProperty("--border-color", colors[index]);
-//    index = (index + 1) % colors.length;
-//}
-//setInterval(changeColor, 1000); // Zmiana koloru co 500ms
-
-function isUsernameDemoTimeExpired() {
-  const lastChange = localStorage.getItem("lastChangeTime");
-  const now = Date.now();
-  const lockTime = 24 * 60 * 60 * 1000;
-
-  if (!lastChange) return true;
-
-  return now > parseInt(lastChange) + lockTime;
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  if(!isUsernameDemoTimeExpired()) {
-    const sendButton = document.getElementById('sendButton')
-    sendButton.disabled = true;
-    sendButton.textContent = "Zablokowane";
-    const sendInput = document.getElementById('chatMessage')
-    sendInput.disabled = true;
-  }
-})
-
-const input = document.getElementById("usernameSettingsInput");
-const storageKey = "perunUsername";
-const lastChangeKey = "lastChangeTime";
-const lockTime = 24 * 60 * 60 * 1000;
-input.value = localStorage.getItem(storageKey) || "";
-const changeButton = document.getElementById("usernameChangeButton");
-const countdownDisplay = document.getElementById("usernameDemoContainer");
-
-function handleUsernameChange() {
-    const lastChange = localStorage.getItem(lastChangeKey);
-    const now = Date.now();
-    if (input.value!="SUSpicio") {
-      if (lastChange && now - parseInt(lastChange) <= lockTime) {
-          alert("Nie możesz zmienić nazwy użytkownika przez 24 godziny.");
-          return;
-      }
-
-      if (!confirm("Czy na pewno chcesz zmienić nazwę użytkownika?")) {
-          return;
-      }
-
-      const randomCode = Math.floor(1000 + Math.random() * 9000).toString();
-      const userCode = prompt(`Aby potwierdzić, wpisz kod: ${randomCode}`);
-
-      if (userCode === randomCode) {
-          localStorage.setItem(storageKey, input.value);
-          localStorage.setItem(lastChangeKey, now.toString());
-          alert("Nazwa użytkownika została zmieniona.");
-          changeButton.disabled = true;
-          changeButton.textContent = "Zmiana nazwy zablokowana na 24h";
-          startCountdown(lockTime);
-          location.reload();
-      } else {
-          alert("Niepoprawny kod. Zmiana anulowana.");
-      }
-  }
-}
-
-function startCountdown(remainingTime) {
-  countdownDisplay.style.display="block";
-    function updateCountdown() {
-        const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-        const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-        countdownDisplay.textContent = `Czas do odblokowania: ${hours}h ${minutes}m ${seconds}s`;
-        
-        if (remainingTime <= 0) {
-            clearInterval(countdownInterval);
-            changeButton.disabled = false;
-            changeButton.textContent = "Zmień nazwę";
-            countdownDisplay.textContent="";
-            countdownDisplay.style.display="none";
-        }
-        remainingTime -= 1000;
-    }
-    
-    updateCountdown();
-    const countdownInterval = setInterval(updateCountdown, 1000);
-}
-
-(function initialize() {
-    input.value = localStorage.getItem(storageKey) || "";
-    const lastChange = localStorage.getItem(lastChangeKey);
-    const now = Date.now();
-    
-    if (lastChange) {
-        const elapsedTime = now - parseInt(lastChange);
-        if (elapsedTime < lockTime) {
-            changeButton.disabled = true;
-            changeButton.textContent = "Zmiana nazwy zablokowana na 24h";
-            startCountdown(lockTime - elapsedTime);
-        }
-    }
-})();
-
-
-
-function initializeSwitches() {
-    let switches = JSON.parse(localStorage.getItem("settingSwitches")) || settingSwitches;
-    if (!localStorage.getItem("settingSwitches")) {
-        localStorage.setItem("settingSwitches", JSON.stringify(switches));
-    }
-
-    const checkboxes = document.querySelectorAll('input[type="checkbox"][switchId]');
-    checkboxes.forEach(checkbox => {
-        const switchId = checkbox.getAttribute("switchId");
-        const switchData = switches.find(s => s.switchId === switchId);
-        if (switchData) {
-            checkbox.checked = switchData.value;
-            checkbox.addEventListener("change", () => toggleSwitch(switchId));
-        }
-    });
-}
-
-// Przełączanie switcha
-function toggleSwitch(switchId) {
-    let switches = JSON.parse(localStorage.getItem("settingSwitches"));
-    const switchIndex = switches.findIndex(s => s.switchId === switchId);
-
-    notification("Zmiana ustawień wymaga odświeżenia strony", "reload", {
-        actions: [{ label: "Odśwież stronę", callback: () => location.reload() }]
-    });
-
-    if (switchIndex !== -1) {
-        switches[switchIndex].value = !switches[switchIndex].value;
-        localStorage.setItem("settingSwitches", JSON.stringify(switches));
-
-        if (switchId === "01") {
-            localStorage.setItem("DEVsettings", switches[switchIndex].value.toString());
-        }
-        if (switchId === "02" && !switches[switchIndex].value) {
-            sessionStorage.removeItem("openModals"); // Wyczyść zapis modalów w sessionStorage
-        }
-    }
-}
-function resetSwitches() {
-    localStorage.setItem("settingSwitches", JSON.stringify(settingSwitches));
-    localStorage.setItem("DEVsettings", "false")
-}
-// Inicjalizacja po załadowaniu strony
-document.addEventListener("DOMContentLoaded", function () {
-    const storedSwitches = JSON.parse(localStorage.getItem("settingSwitches")) || [];
-
-    if (storedSwitches.length != settingSwitches.length) {
-        localStorage.setItem("settingSwitches", JSON.stringify(settingSwitches));
-        location.reload();
-    }
-    initializeSwitches();
-    restoreModalState(); // Przywróć zapisane modale przy załadowaniu strony
-    initializeFontSizeSlider();
-});
-function initializeFontSizeSlider() {
-    const slider = document.getElementById("chatFontSizeSlider");
-
-    // Odczytaj zapisaną wartość z localStorage lub ustaw domyślną (16px)
-    const savedFontSize = localStorage.getItem("chatMessageFontSize") || "16";
-    slider.value = savedFontSize;
-    document.documentElement.style.setProperty("--chatMessageFontSize", `${savedFontSize}px`);
-
-    // Listener na zmianę wartości suwaka
-    slider.addEventListener("input", () => {
-        const newSize = slider.value;
-        document.documentElement.style.setProperty("--chatMessageFontSize", `${newSize}px`);
-        localStorage.setItem("chatMessageFontSize", newSize);
-    });
-}
-
-
-document.getElementById('ratingForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    document.getElementById('opinionSubmit').disabled=true;
-    const rating = document.querySelector('input[name="rating"]:checked');
-    const whattodo = document.getElementById("whattodoratingform");
-
-    if (!username || !rating) {
-        document.getElementById('ratingFormErrorMessage').style.display = 'block';
-        return;
-    }
-
-    const formData = {
-        action: "addRating", // Nowa akcja dla oceny
-        sessionId: localStorage.getItem("perunUUID") || "",
-        username: localStorage.getItem("perunUsername") || "",
-        rating: rating.value,
-        whattodo: whattodo.value,
-        timestamp: new Date().toISOString()
-    };
-
-    try {
-        document.getElementById('opinionSubmit').textContent = 'Wysyłanie...';
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-            mode: "no-cors" // Utrzymane dla zgodności z Twoim API
-        });
-        document.getElementById('ratingForm').reset();
-        document.getElementById('ratingFormErrorMessage').style.display = "none";
-    } catch (error) {
-        document.getElementById('opinionSubmit').textContent = 'Wyślij';
-        console.error("Błąd wysyłania:", error);
-        alert("Wystąpił błąd podczas wysyłania oceny.");
-        document.getElementById('opinionSubmit').disabled = false; // Add this
-    }
-});
-
-const ratingLabels = document.querySelectorAll('.rating label');
-ratingLabels.forEach(label => {
-    label.addEventListener('mouseover', function() {
-        const value = this.getAttribute('for').replace('star', '');
-        for (let i = 1; i <= 10; i++) {
-            const currentLabel = document.querySelector(`label[for="star${i}"]`);
-            if (i <= value) {
-                currentLabel.style.color = '#ffca08';
-            } else {
-                currentLabel.style.color = '#ddd';
-            }
-        }
-    });
-
-    label.addEventListener('mouseout', function() {
-        const checked = document.querySelector('input[name="rating"]:checked');
-        const checkedValue = checked ? checked.value : 0;
-        for (let i = 1; i <= 10; i++) {
-            const currentLabel = document.querySelector(`label[for="star${i}"]`);
-            if (i <= checkedValue) {
-                currentLabel.style.color = '#ffca08';
-            } else {
-                currentLabel.style.color = '#ddd';
-            }
-        }
-    });
-});
-
-function toggleDropdown(dropdownId) {
-    document.getElementById(dropdownId).classList.toggle("show");
-  }
-  
-  // Zamknij dropdown, jeśli klikniesz poza nim
-  window.onclick = function(event) {
-    if (!event.target.closest('.dropdown')) {
-      document.querySelectorAll('.dropdown-content').forEach(menu => {
-        menu.classList.remove("show");
-      });
-    }
-  };
-
-  function scrollToSection(sectionId, gameContainerId) {
-    // Przewijanie na samą górę strony
-    if (sectionId === 0) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        modalClose('navigationModal');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-    }
-
-    // Przewijanie na sam dół strony
-    if (sectionId === 1) {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        modalClose('navigationModal');
-        return;
-    }
-
-    // Wybór elementu do przewinięcia
-    let targetElement;
-    if (sectionId === 'game-container' && gameContainerId) {
-        targetElement = document.getElementById(`game-container-${gameContainerId}`);
-    } else {
-        targetElement = document.getElementById(sectionId);
-    }
-
-    // Przewijanie do elementu z przesunięciem 150px w górę
-    if (targetElement) {
-        const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
-        const offsetPosition = elementPosition - 125; // Przesunięcie 150px w górę
-
-        window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-        });
-        modalClose('navigationModal');
-    }
-}
-
-// Opcjonalnie: dodaj obsługę klas dla wielu kontenerów gier
-document.querySelectorAll('.game-container').forEach((container, index) => {
-    container.id = `game-container-${index}`;
-});
-function updateRanking() {
-    fetch(`${API_URL}?action=getRankingData`, { method: 'GET' })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Błąd sieci: ' + response.status);
-      }
-      return response.json();
-    })
-    .then(ranking => {
-        ranking.sort((a, b) => {
-            const rankDiff = parseInt(b.rank) - parseInt(a.rank);
-            if (rankDiff !== 0) return rankDiff;
-            const pointsDiff = parseInt(b.points) - parseInt(a.points);
-            if (pointsDiff !== 0) return pointsDiff;
-            return parseFloat(b.pln) - parseFloat(a.pln);
-        });
-  
-        const tbody = document.getElementById('rankingBody');
-        tbody.innerHTML = '';
-        ranking.forEach((user, index) => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${user.username}</td>
-            <td>${user.rank}</td>
-            <td>${user.points}</td>
-            <td>${parseFloat(user.pln).toFixed(2)}</td>
-            <td>${user.doneAchievements || '0'}/${achievementsData.length}</td>
-          `;
-          tbody.appendChild(row);
-        });
-        document.getElementById("rankingMessage").innerHTML='Ranking zaktualizowany: ' + new Date().toLocaleString();
-      })
-      .catch(error => {
-        console.error('Błąd podczas aktualizacji rankingu:', error);
-      });
-}
-
-// Funkcja wysyłająca dane z localStorage
-function sendLocalData() {
-    const perunUUID = localStorage.getItem('perunUUID') || '';
-    const perunUsername = localStorage.getItem('perunUsername') || 'Anonim';
-    const perunPoints = localStorage.getItem('perunPoints') || '0';
-    const perunRank = localStorage.getItem('perunRank') || '0';
-    const perunPLN = localStorage.getItem('perunPLN') || '0';
-    const doneAchievements = JSON.parse(localStorage.getItem('completedAchievementsIds') || '[]').length || 0;
-  
-    if (!perunUUID) {
-      console.warn('Brak perunUUID w localStorage');
-      return;
-    }
-  
-    const payload = {
-      action: "updateRankingFromLocal",
-      perunUUID: perunUUID,
-      perunUsername: perunUsername,
-      perunPoints: perunPoints,
-      perunRank: perunRank,
-      perunPLN: perunPLN,
-      doneAchievements: doneAchievements,
-      timestamp: new Date().toISOString()
-    };
-  
-    fetch(API_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
-      .catch(error => {
-        console.error('Błąd podczas wysyłania danych:', error);
-      });
-}
-
-// Inicjalizacja przy załadowaniu strony
-document.addEventListener('DOMContentLoaded', function () {
-    updateRanking();
-    setInterval(updateRanking, 15000);
-    sendLocalData();
-    setInterval(sendLocalData, 5000);
-});
-document.addEventListener('DOMContentLoaded', function () {
-    const developerSwitch = switches.find(s => s.switchId === "01");
-    if (developerSwitch && developerSwitch.value) {
-        document.getElementById("consoleButton").style.display="block";
-    } else {
-        document.getElementById("consoleButton").style.display="none";     
-    }
-});
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text);
-    quickNotification("Skopiowano do schowka!");
-}
-
-const pageBuilder = {
-    currentSlide: 1,
-    totalSlides: 4,
-    storageKey: 'pageBuilder_pages',
-    pages: [],
-    lastSaveTime: null,
-    previewWindow: null,
-
-    init: function() {
-        this.loadPage();
-        this.addInputListeners();
-        this.updateNavigation();
-        this.updateStatus();
-    },
-
-    loadPage: function() {
-        const savedPages = localStorage.getItem(this.storageKey);
-        this.pages = savedPages ? JSON.parse(savedPages) : [this.createEmptyPage()];
-        this.loadCurrentData();
-    },
-
-    createEmptyPage: function() {
-        return { title: '', body: '', style: '', script: '' };
-    },
-
-    loadCurrentData: function() {
-        const page = this.pages[0];
-        document.getElementById('pageBuilderTitle').value = page.title;
-        document.getElementById('pageBuilderBody').value = page.body;
-        document.getElementById('pageBuilderStyle').value = page.style;
-        document.getElementById('pageBuilderScript').value = page.script;
-    },
-
-    savePage: function() {
-        this.pages[0] = {
-            title: document.getElementById('pageBuilderTitle').value,
-            body: document.getElementById('pageBuilderBody').value,
-            style: document.getElementById('pageBuilderStyle').value,
-            script: document.getElementById('pageBuilderScript').value
-        };
-        localStorage.setItem(this.storageKey, JSON.stringify(this.pages));
-        this.lastSaveTime = new Date();
-        this.updateStatus();
-    },
-
-    addInputListeners: function() {
-        ['Title', 'Body', 'Style', 'Script'].forEach(field => {
-            document.getElementById(`pageBuilder${field}`).addEventListener('input', () => {
-                this.savePage();
-            });
-        });
-    },
-
-    updateNavigation: function() {
-        document.getElementById('pageBuilderPrevBtn').disabled = this.currentSlide === 1;
-        document.getElementById('pageBuilderNextBtn').disabled = this.currentSlide === this.totalSlides;
-    },
-
-    updateStatus: function() {
-        const status = document.getElementById('pageBuilderStatus');
-        status.textContent = this.lastSaveTime 
-            ? `Zapisano: ${this.lastSaveTime.toLocaleTimeString()}`
-            : 'Zapisano: Nigdy';
-    }
-};
-
-function pageBuilderShowSlide(slideNum) {
-    for (let i = 1; i <= pageBuilder.totalSlides; i++) {
-        document.getElementById(`pageBuilderSlide${i}`).classList.remove('active');
-    }
-    document.getElementById(`pageBuilderSlide${slideNum}`).classList.add('active');
-    pageBuilder.updateNavigation();
-}
-
-function pageBuilderNextSlide() {
-    if (pageBuilder.currentSlide < pageBuilder.totalSlides) {
-        pageBuilder.currentSlide++;
-        pageBuilderShowSlide(pageBuilder.currentSlide);
-    }
-}
-
-function pageBuilderPrevSlide() {
-    if (pageBuilder.currentSlide > 1) {
-        pageBuilder.currentSlide--;
-        pageBuilderShowSlide(pageBuilder.currentSlide);
-    }
-}
-
-function pageBuilderSaveAndPreview() {
-    pageBuilder.savePage();
-    
-    const page = pageBuilder.pages[0];
-    const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>${page.title}</title>
-            <style>${page.style}</style>
-        </head>
-        <body>
-            ${page.body}
-            <script>${page.script}<\/script>
-        </body>
-        </html>
-    `;
-
-    // Zamykamy poprzednie okno, jeśli istnieje
-    if (pageBuilder.previewWindow && !pageBuilder.previewWindow.closed) {
-        pageBuilder.previewWindow.close();
-    }
-
-    // Otwieramy nowe okno
-    pageBuilder.previewWindow = window.open('', '_blank');
-    if (pageBuilder.previewWindow) {
-        pageBuilder.previewWindow.document.open();
-        pageBuilder.previewWindow.document.write(htmlContent);
-        pageBuilder.previewWindow.document.close();
-    } else {
-        alert('Nie udało się otworzyć podglądu. Sprawdź, czy przeglądarka nie blokuje wyskakujących okien.');
-    }
-}
-
-function pageBuilderExport() {
-    pageBuilder.savePage();
-    const page = pageBuilder.pages[0];
-    const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-<title>${page.title}</title>
-<style>${page.style}</style>
-</head>
-<body>
-${page.body}
-<script>${page.script}<\/script>
-</body>
-</html>`;
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${page.title || 'strona'}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-function pageBuilderClear() {
-    if (confirm('Czy na pewno chcesz wyczyścić wszystkie dane?')) {
-        pageBuilder.pages[0] = pageBuilder.createEmptyPage();
-        pageBuilder.loadCurrentData();
-        pageBuilder.savePage();
-    }
-}
-
-// Initialize
-pageBuilder.init();

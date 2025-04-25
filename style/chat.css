@@ -39,7 +39,7 @@
 }
 .chatMessage.self {
     background: var(--button-color);
-    color: var(--text-color);
+    color: var(--secondary-text-color);
     margin-left: auto;
 }
 .chatMessage.self:hover {

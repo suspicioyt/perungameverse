@@ -7,149 +7,126 @@
     <link rel="icon" type="image/x-icon" href="../img/perun2.png">
     <link rel="stylesheet" href="../style/public.css">
     <style>
-body {
-    margin: 0;
-    overflow: hidden;
-    background-color: #ecf0f1;
-    font-family: Arial, sans-serif;
-}
-
-#gameArea {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    background-color: #3498db;
-    overflow: hidden;
-}
-
-/* Styl dla obszaru, w którym gracz może się poruszać */
-#moveableArea {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 70px; /* Wysokość gracza + przestrzeń na ruch */
-    top: 0; /* Górna granica */
-    background-color: rgba(255, 255, 255, 0.2); /* Półprzezroczyste tło */
-    border: 2px dashed #2ecc71; /* Przerywana linia */
-    border-radius: 10px; /* Zaokrąglone rogi */
-    pointer-events: none; /* Aby obszar nie przeszkadzał w klikaniu */
-}
-
-#player {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    width: 50px;
-    height: 50px;
-    background-color: #2ecc71;
-    border-radius: 10px;
-    transform: translateX(-50%);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    transition: background-color 0.2s ease;
-}
-
-#player:hover {
-    background-color: #27ae60; /* Zmiana koloru po najechaniu */
-}
-
-.obstacle {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    background-color: #e74c3c;
-    border-radius: 10px;
-    transition: top 0.1s ease-in-out; /* Płynna animacja */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-.collectible {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    border-radius: 15px;
-    transition: top 0.1s ease-in-out; /* Płynna animacja */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-.points {
-    background-color: #f1c40f; /* Kolor zbierających punktów */
-}
-
-.life {
-    background-color: #e67e22; /* Kolor życia */
-}
-
-.ammo {
-    background-color: #3498db; /* Kolor amunicji */
-}
-
-.timeFreeze {
-    background-color: #9b59b6; /* Kolor zatrzymania czasu */
-}
-
-.bullet {
-    position: absolute;
-    width: 5px;
-    height: 15px;
-    background-color: #f1c40f;
-    border-radius: 5px;
-    animation: shoot 0.5s forwards;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-@keyframes shoot {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-100vh); }
-}
-
-#score, #lives, #ammo {
-    position: absolute;
-    top: 10px;
-    color: white;
-    font-size: 24px;
-    z-index: 10;
-}
-
-#lives {
-    right: 10px;
-}
-
-#ammo {
-    right: 10px;
-    top: 40px;
-}
-
-.notification {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    display: none;
-    z-index: 20;
-    font-size: 18px; /* Większy rozmiar czcionki */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-}
-
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #ecf0f1;
+            font-family: Arial, sans-serif;
+        }
+        #gameArea {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-color: #3498db;
+            overflow: hidden;
+        }
+        #moveableArea {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 70px;
+            top: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px dashed #2ecc71;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+        #player {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            width: 50px;
+            height: 50px;
+            background-color: #2ecc71;
+            border-radius: 10px;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.2s ease;
+        }
+        #player:hover {
+            background-color: #27ae60;
+        }
+        .obstacle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #e74c3c;
+            border-radius: 10px;
+            transition: top 0.1s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .collectible {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            transition: top 0.1s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .points {
+            background-color: #f1c40f;
+        }
+        .life {
+            background-color: #e67e22;
+        }
+        .ammo {
+            background-color: #3498db;
+        }
+        .timeFreeze {
+            background-color: #9b59b6;
+        }
+        .bullet {
+            position: absolute;
+            width: 5px;
+            height: 15px;
+            background-color: #f1c40f;
+            border-radius: 5px;
+            animation: shoot 0.5s forwards;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        @keyframes shoot {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100vh); }
+        }
+        #score, #lives, #ammo {
+            position: absolute;
+            top: 10px;
+            color: white;
+            font-size: 24px;
+            z-index: 10;
+        }
+        #lives {
+            right: 10px;
+        }
+        #ammo {
+            right: 10px;
+            top: 40px;
+        }
+        .notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            z-index: 20;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body>
-
     <div id="gameArea">
-        <div id="moveableArea"></div> <!-- Dodany obszar ruchu -->
+        <div id="moveableArea"></div>
         <div id="player"></div>
         <div id="score">Punkty: 0</div>
         <div id="lives">Życia: 3</div>
         <div id="ammo">Amunicja: 10</div>
         <div class="notification" id="notification"></div>
     </div>
-    
-
-<audio id="shootSound" src="shoot.mp3" preload="auto"></audio>
-<audio id="hitSound" src="hit.mp3" preload="auto"></audio>
 
 <script>
     const player = document.getElementById('player');
@@ -263,7 +240,6 @@ body {
                 gameArea.removeChild(bullet);
                 gameArea.removeChild(obstacle); // Usunięcie przeszkody
                 obstacles.splice(index, 1); // Usunięcie przeszkody z tablicy
-                document.getElementById('hitSound').play(); // Odtwarzanie dźwięku trafienia
                 score += 10; // Dodanie punktów za zestrzeloną przeszkodę
                 scoreElement.innerText = 'Punkty: ' + score;
             }

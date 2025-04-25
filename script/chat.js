@@ -210,7 +210,9 @@ async function sendChatMessage() {
         message: sanitizeInput(chatMessage),
         timestamp,
         replyTo: replyingToMessageId,
-        reactions: {}
+        reactions: {},
+        premium: sessionStorage.getItem("perunPremium") || false,
+        verified: sessionStorage.getItem("perunVerified") || false
     };
 
     try {
@@ -320,7 +322,7 @@ async function loadChatMessages() {
 
         data.messages.forEach(msg => {
             if (!msg.id) msg.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-            displayChatMessage(msg, msg.username === localStorage.getItem("perunUsername"));
+            displayChatMessage(msg, msg.sessionId === localStorage.getItem("perunUUID"));
         });
 
         updateActiveUsersCount(data.activeUsers || 0, data.activeUsernames);
@@ -443,7 +445,7 @@ function displayChatMessage(msg, isSelf) {
     }
 
     const usernameContainer = document.createElement("div");
-    if (msg.username === "SUSpicio" && msg.sessionId === "863718d4-8c34-4e02-9a5a-86563967124c") {
+    if (msg.verified) {
         const verificationIcon = document.createElement("i");
         verificationIcon.classList.add("fas", "fa-check-circle", "verified-icon");
         usernameContainer.appendChild(usernameLabel);
