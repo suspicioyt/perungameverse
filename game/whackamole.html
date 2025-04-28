@@ -10,7 +10,7 @@
         body {
             font-family: Arial, Helvetica, sans-serif;
             text-align: center;
-            background: url("../../img/whackamole/mario-bg.jpg");
+            background: url("../img/whackamole/mario-bg.jpg");
             background-size: cover;
         }
         #board {
@@ -20,14 +20,14 @@
             margin: 0 auto;
             display: flex;
             flex-wrap: wrap;
-            background: url("../../img/whackamole/soil.png");
+            background: url("../img/whackamole/soil.png");
             border: 3px solid white;
             border-radius: 25px;
         }
         #board div {
             width: 180px;
             height: 180px;
-            background: url("../../img/whackamole/pipe.png");
+            background: url("../img/whackamole/pipe.png");
             background-size: cover;
         }
         #board div img {
@@ -77,7 +77,7 @@
                 currMoleTile.innerHTML="";
             }
             let mole = document.createElement("img");
-            mole.src="../../img/whackamole/monty-mole.png";
+            mole.src="../img/whackamole/monty-mole.png";
             let num = getRandomTile();
             if(currPlantTile&&currPlantTile.id == num) {
                 return;
@@ -93,7 +93,7 @@
                 currPlantTile.innerHTML="";
             }
             let plant = document.createElement("img");
-            plant.src="../../img/whackamole/piranha-plant.png";
+            plant.src="../img/whackamole/piranha-plant.png";
             let num = getRandomTile();
             if(currMoleTile&&currMoleTile.id == num) {
                 return;
